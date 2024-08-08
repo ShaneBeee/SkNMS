@@ -59,7 +59,7 @@ processResources {
 }
 
 shadowJar {
-    archiveFileName = project.name + "-" + project.version + ".jar"
+    archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
 //    relocate("org.bstats", "com.shanebeestudios.skbee.metrics")
 }
 
