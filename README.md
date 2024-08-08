@@ -1,4 +1,5 @@
-**SkNMS** is a [**Skript**](https://github.com/SkriptLang/Skript) addon that links to internal Minecraft features.
+**SkNMS** is a [**Skript**](https://github.com/SkriptLang/Skript) addon that links to internal Minecraft features.     
+This addon implements [**NMS-API**](https://github.com/ShaneBeee/NMS-API).
 
 ## Requirements:
 - [**Skript**](https://github.com/SkriptLang/Skript)
