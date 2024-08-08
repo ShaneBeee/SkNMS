@@ -1,0 +1,72 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id "io.github.goooler.shadow" version "8.1.7"
+    id("io.papermc.paperweight.userdev") version "1.7.2" // the latest version can be found on the Gradle Plugin Portal
+}
+
+version = '1.0.0'
+def minecraft = '1.21'
+
+compileJava {
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+
+    // Paper
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
+
+    // Skript
+    maven { url 'https://repo.skriptlang.org/releases' }
+
+    // JitPack
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    // Paper
+    paperweight.paperDevBundle("${minecraft}-R0.1-SNAPSHOT")
+
+    // Skript
+    compileOnly(group: 'com.github.SkriptLang', name: 'Skript', version: '2.8.7') {
+        transitive = false
+    }
+
+    implementation("com.github.ShaneBeee:NMS-API:1.7.1:dev")
+}
+
+build {
+    dependsOn(shadowJar)
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            options.compilerArgs.add("-Xlint:unchecked")
+            options.compilerArgs.add("-Xlint:deprecation")
+        }
+    }
+}
+
+processResources {
+    filesNotMatching("**/*.png") {
+        filter ReplaceTokens, tokens: ["version": project.version]
+        filter ReplaceTokens, tokens: ["minecraft": minecraft]
+    }
+}
+
+shadowJar {
+    archiveFileName = project.name + "-" + project.version + ".jar"
+//    relocate("org.bstats", "com.shanebeestudios.skbee.metrics")
+}
+
+// Run task to build jar to another spot
+tasks.register('server', Copy) {
+    from shadowJar
+    // Change this to wherever you want your jar to build
+    into '/Users/ShaneBee/Desktop/Server/Skript/1-21/plugins'
+}
+

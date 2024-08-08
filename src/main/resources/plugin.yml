@@ -1,0 +1,7 @@
+name: SkNMS
+main: com.shanebeestudios.nms.SkNMS
+version: '@version@'
+api-version: '@minecraft@'
+softdepend:
+  - Skript
+  - SkBee
