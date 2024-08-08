@@ -33,7 +33,7 @@ public class SkNMS extends JavaPlugin {
                 Utils.error("Skript is no longer accepting registration, addon not loading!");
             }
         } else {
-            Utils.error("'Skript' and/or 'SkBee' missing, Skript addon not loading!");
+            Utils.error("'Skript' and/or 'SkBee' missing, SkNMS not loading!");
         }
     }
 
