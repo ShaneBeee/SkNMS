@@ -13,7 +13,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
@@ -21,22 +23,27 @@ import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 // This was mostly taken from https://www.spigotmc.org/threads/1-21-3-register-custom-enchantments-with-nms.651347/
 @SuppressWarnings({"DataFlowIssue", "unchecked"})
 public class RegistryUtils {
 
+    private static final MinecraftServer SERVER = MinecraftServer.getServer();
     private static final MappedRegistry<Enchantment> ENCHANT_REGISTRY = getRegistry(Registries.ENCHANTMENT);
+    private static final MappedRegistry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
 
     public static MappedRegistry<Enchantment> getEnchantRegistry() {
         return ENCHANT_REGISTRY;
     }
 
     public static MappedRegistry<Item> getItemRegistry() {
-        return getRegistry(Registries.ITEM);
+        return ITEM_REGISTRY;
     }
 
     @NotNull
@@ -94,6 +101,74 @@ public class RegistryUtils {
         }
     }
 
+    private static void addInTag(@NotNull TagKey<Enchantment> tagKey, @NotNull Holder.Reference<Enchantment> reference) {
+        modifyTag(ENCHANT_REGISTRY, tagKey, reference, List::add);
+    }
+
+    private static void removeFromTag(@NotNull TagKey<Enchantment> tagKey, @NotNull Holder.Reference<Enchantment> reference) {
+        modifyTag(ENCHANT_REGISTRY, tagKey, reference, List::remove);
+    }
+
+    private static <T> void modifyTag(@NotNull MappedRegistry<T> registry, @NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference, @NotNull BiConsumer<List<Holder<T>>, Holder.Reference<T>> consumer) {
+        HolderSet.Named<T> holders = registry.get(tagKey).orElse(null);
+        if (holders == null) return;
+
+        List<Holder<T>> contents = new ArrayList<>(holders.stream().toList());
+        consumer.accept(contents, reference);
+
+        registry.bindTag(tagKey, contents);
+    }
+
+    private static void setupDistribution(@NotNull Holder.Reference<Enchantment> reference, EnchantmentDefinition distribution) {
+        boolean experimentalTrades = SERVER.getWorldData().enabledFeatures().contains(FeatureFlags.TRADE_REBALANCE);
+
+        EnchantmentDefinition.TagData tagData = distribution.tagData;
+        if (tagData.isTradeable) {
+            addInTag(EnchantmentTags.TREASURE, reference);
+            addInTag(EnchantmentTags.DOUBLE_TRADE_PRICE, reference);
+        } else {
+            addInTag(EnchantmentTags.NON_TREASURE, reference);
+        }
+
+        if (tagData.isOnRandomLoot) {
+            addInTag(EnchantmentTags.ON_RANDOM_LOOT, reference);
+        }
+
+        if (!tagData.isTreasure) {
+            if (tagData.isOnMobSpawnEquipment) {
+                addInTag(EnchantmentTags.ON_MOB_SPAWN_EQUIPMENT, reference);
+            }
+
+            if (tagData.isOnTradedEquipment) {
+                addInTag(EnchantmentTags.ON_TRADED_EQUIPMENT, reference);
+            }
+        }
+
+        if (experimentalTrades) {
+            if (tagData.isTradeable) {
+                addInTag(EnchantmentTags.TRADES_DESERT_COMMON, reference);
+                addInTag(EnchantmentTags.TRADES_JUNGLE_COMMON, reference);
+                // Add more trade tags if needed.
+            }
+        } else {
+            if (tagData.isTradeable) {
+                addInTag(EnchantmentTags.TRADEABLE, reference);
+            } else removeFromTag(EnchantmentTags.TRADEABLE, reference);
+        }
+
+        if (tagData.isCursed) {
+            addInTag(EnchantmentTags.CURSE, reference);
+        } else {
+            if (!tagData.isTreasure) {
+                if (tagData.isDiscoverable) {
+                    addInTag(EnchantmentTags.IN_ENCHANTING_TABLE, reference);
+                } else {
+                    removeFromTag(EnchantmentTags.IN_ENCHANTING_TABLE, reference);
+                }
+            }
+        }
+    }
+
     public static <T> MappedRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
         return (MappedRegistry<T>) MinecraftServer.getServer().registryAccess().lookup(key).orElseThrow();
     }
@@ -107,6 +182,7 @@ public class RegistryUtils {
         Holder.Reference<Enchantment> intrusiveHolder = ENCHANT_REGISTRY.createIntrusiveHolder(enchantment);
         Registry.register(ENCHANT_REGISTRY, resourceKey, enchantment);
 
+        setupDistribution(intrusiveHolder, definition);
         RegistryUtils.freeze(ENCHANT_REGISTRY);
         refreshSkriptRegistry();
 
@@ -125,4 +201,5 @@ public class RegistryUtils {
 
         }
     }
+
 }

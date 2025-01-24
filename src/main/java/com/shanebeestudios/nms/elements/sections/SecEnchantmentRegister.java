@@ -41,13 +41,24 @@ import java.util.List;
     "- The parsed as expression will work, ex: `\"custom:my_enchant\" parsed as enchantment`.",
     "- I did not add an `effects` entry as it's super duper convoluted, and you can handle what your enchantment does via code.",
     "",
-    "**ENTRIES**:",
+    "**DEFINITION ENTRIES**:",
+    "These entries are directly related to the Enchantment Definition in Minecraft (as seen in the above mentioned wiki).",
     "I'm only going to touch on a few here, as there are so many to type out, see the above mentioned wiki for full details.",
     "- `id` = Takes in a string to identify your new enchantment, think vanilla \"minecraft:sharpness\".",
     "- `description` = Takes in a text component (from SkBee), this is how your enchantment will show up in lore.",
     "- `exclusive_set` = The enchantments your enchantment will not work with. Either a single string (enchantment tag) or a list of enchantments.",
     "- `supported_items/primary_items` = See wiki for explanations. Either a single string (item tag) or a list of items.",
     "- `slots` = I don't think this is needed as it would be handled by the effects in Minecraft, which we aren't using here.",
+    "",
+    "**TAG ENTRIES**:",
+    "These entries are related to the Minecraft Enchantment tags that this enchantment will be added to (all default to false).",
+    "- `is_cursed` = Will add to the `#minecraft:cursed` tag making your item a cursed item (lost on death).",
+    "- `is_treasure` = Will add to the `#minecraft:treasure` tag.",
+    "- `is_tradeable` = Will add to the `#minecraft:treasure` and `#minecraft:double_trade_price` tags.",
+    "- `is_discoverable` = Will add to the `#minecraft:in_enchanting_table` tag if not cursed or a treasure.",
+    "- `is_on_random_loot` = Will add to the `#minecraft:on_random_loot` tag and can be found on naturally generated equipment from loot tables.",
+    "- `is_on_mob_spawn_equipment` = If not a treasure, will add to the `#minecraft:on_mob_spawn_equipment` tag and can be found on spawned mobs' equipment.",
+    "- `is_on_traded_equipment` = If not a treasure, will add to the `#minecraft:on_traded_equipment` tag and can be found on equipment sold by villagers.",
     "",
     "**WARNINGS**:",
     "Enchantments are not supposed to be created at runtime. This method is super hacky and I highly HIGHLY recommend just using a datapack.",
@@ -96,6 +107,13 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
             .addOptionalEntry("max_cost_per_level_above_first", Integer.class)
             .addOptionalEntry("anvil_cost", Integer.class)
             .addOptionalEntry("slots", EquipmentSlotGroup.class)
+            .addOptionalEntry("is_cursed", Boolean.class)
+            .addOptionalEntry("is_treasure", Boolean.class)
+            .addOptionalEntry("is_tradeable", Boolean.class)
+            .addOptionalEntry("is_discoverable", Boolean.class)
+            .addOptionalEntry("is_on_random_loot", Boolean.class)
+            .addOptionalEntry("is_on_mob_spawn_equipment", Boolean.class)
+            .addOptionalEntry("is_on_traded_equipment", Boolean.class)
             .build();
         Skript.registerExpression(SecEnchantmentRegister.class, Enchantment.class, ExpressionType.COMBINED,
             "register [new] [custom] enchantment");
@@ -114,6 +132,13 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
     private Expression<Integer> maxCostPerLevelAboveFirst;
     private Expression<Integer> anvilCost;
     private Expression<EquipmentSlotGroup> slots;
+    private Expression<Boolean> isCursed;
+    private Expression<Boolean> isTreasure;
+    private Expression<Boolean> isTradeable;
+    private Expression<Boolean> isDiscoverable;
+    private Expression<Boolean> isOnRandomLoot;
+    private Expression<Boolean> isOnMobSpawnEquipment;
+    private Expression<Boolean> isOnTradedEquipment;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -122,6 +147,7 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
         EntryContainer container = VALIDATOR.validate(sectionNode);
         if (container == null) return false;
 
+        // Definition
         this.id = (Expression<String>) container.getOptional("id", false);
         this.description = (Expression<ComponentWrapper>) container.getOptional("description", false);
         this.exclusiveSet = (Expression<?>) container.getOptional("exclusive_set", false);
@@ -135,6 +161,15 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
         this.maxCostPerLevelAboveFirst = (Expression<Integer>) container.getOptional("max_cost_per_level_above_first", false);
         this.anvilCost = (Expression<Integer>) container.getOptional("anvil_cost", false);
         this.slots = (Expression<EquipmentSlotGroup>) container.getOptional("slots", false);
+
+        // Tag stuff
+        this.isCursed = (Expression<Boolean>) container.getOptional("is_cursed", false);
+        this.isTreasure = (Expression<Boolean>) container.getOptional("is_treasure", false);
+        this.isTradeable = (Expression<Boolean>) container.getOptional("is_tradeable", false);
+        this.isDiscoverable = (Expression<Boolean>) container.getOptional("is_discoverable", false);
+        this.isOnRandomLoot = (Expression<Boolean>) container.getOptional("is_on_random_loot", false);
+        this.isOnMobSpawnEquipment = (Expression<Boolean>) container.getOptional("is_on_mob_spawn_equipment", false);
+        this.isOnTradedEquipment = (Expression<Boolean>) container.getOptional("is_on_traded_equipment", false);
         return true;
     }
 
@@ -206,6 +241,34 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
             for (EquipmentSlotGroup slot : this.slots.getArray(event)) {
                 builder.addSlot(slot);
             }
+        }
+
+        if (this.isCursed != null) {
+            this.isCursed.getOptionalSingle(event).ifPresent(builder::isCursed);
+        }
+
+        if (this.isTreasure != null) {
+            this.isTreasure.getOptionalSingle(event).ifPresent(builder::isTreasure);
+        }
+
+        if (this.isTradeable != null) {
+            this.isTradeable.getOptionalSingle(event).ifPresent(builder::isTradeable);
+        }
+
+        if (this.isDiscoverable != null) {
+            this.isDiscoverable.getOptionalSingle(event).ifPresent(builder::isDiscoverable);
+        }
+
+        if (this.isOnRandomLoot != null) {
+            this.isOnRandomLoot.getOptionalSingle(event).ifPresent(builder::isOnRandomLoot);
+        }
+
+        if (this.isOnMobSpawnEquipment != null) {
+            this.isOnMobSpawnEquipment.getOptionalSingle(event).ifPresent(builder::isOnMobSpawnEquipment);
+        }
+
+        if (this.isOnTradedEquipment != null) {
+            this.isOnTradedEquipment.getOptionalSingle(event).ifPresent(builder::isOnTradedEquipment);
         }
 
         return new Enchantment[]{builder.build().register()};

@@ -24,10 +24,12 @@ public class EnchantmentDefinition {
 
     NamespacedKey id;
     Enchantment enchantment;
+    TagData tagData;
 
-    private EnchantmentDefinition(NamespacedKey id, Enchantment enchantment) {
+    private EnchantmentDefinition(NamespacedKey id, Enchantment enchantment, TagData tagData) {
         this.id = id;
         this.enchantment = enchantment;
+        this.tagData = tagData;
     }
 
     public org.bukkit.enchantments.Enchantment register() {
@@ -51,6 +53,13 @@ public class EnchantmentDefinition {
         int maxCostBase = 1;
         int maxCostPerLevelAboveFirst = 1;
         int anvilCost = 1;
+        boolean isCursed = false;
+        boolean isTreasure = false;
+        boolean isTradeable = false;
+        boolean isDiscoverable = false;
+        boolean isOnRandomLoot = false;
+        boolean isOnMobSpawnEquipment = false;
+        boolean isOnTradedEquipment = false;
         List<org.bukkit.inventory.EquipmentSlotGroup> slots = new ArrayList<>();
 
         public Builder id(NamespacedKey id) {
@@ -133,6 +142,41 @@ public class EnchantmentDefinition {
             return this;
         }
 
+        public Builder isCursed(boolean cursed) {
+            this.isCursed = cursed;
+            return this;
+        }
+
+        public Builder isTreasure(boolean treasure) {
+            this.isTreasure = treasure;
+            return this;
+        }
+
+        public Builder isTradeable(boolean tradeable) {
+            this.isTradeable = tradeable;
+            return this;
+        }
+
+        public Builder isDiscoverable(boolean discoverable) {
+            this.isDiscoverable = discoverable;
+            return this;
+        }
+
+        public Builder isOnRandomLoot(boolean onRandomLoot) {
+            this.isOnRandomLoot = onRandomLoot;
+            return this;
+        }
+
+        public Builder isOnMobSpawnEquipment(boolean onMobSpawnEquipment) {
+            this.isOnMobSpawnEquipment = onMobSpawnEquipment;
+            return this;
+        }
+
+        public Builder isOnTradedEquipment(boolean onTradedEquipment) {
+            this.isOnTradedEquipment = onTradedEquipment;
+            return this;
+        }
+
         private HolderSet<Enchantment> createExclusiveSet() {
             HolderSet<Enchantment> exclusiveSet = HolderSet.empty();
             MappedRegistry<Enchantment> enchantRegistry = RegistryUtils.getEnchantRegistry();
@@ -153,7 +197,6 @@ public class EnchantmentDefinition {
             return exclusiveSet;
         }
 
-        @SuppressWarnings("deprecation")
         private HolderSet<Item> createItemSet(String tag, List<Material> sets) {
             HolderSet<Item> itemSet = HolderSet.empty();
             MappedRegistry<Item> itemRegistry = RegistryUtils.getItemRegistry();
@@ -169,7 +212,7 @@ public class EnchantmentDefinition {
                     if (!material.isItem()) continue;
 
                     Item item = CraftMagicNumbers.getItem(material);
-                    itemSetList.add(item.builtInRegistryHolder());
+                    itemSetList.add(itemRegistry.wrapAsHolder(item));
                 }
                 itemSet = HolderSet.direct(itemSetList);
             }
@@ -181,7 +224,13 @@ public class EnchantmentDefinition {
         }
 
         private Optional<HolderSet<Item>> createPrimaryItems() {
-            return Optional.of(createItemSet(this.primaryItemsTag, this.primaryItems));
+            HolderSet<Item> itemSet;
+            if (this.primaryItems.isEmpty() && this.primaryItemsTag == null) {
+                itemSet = createSupportedItems();
+            } else {
+                itemSet = createItemSet(this.primaryItemsTag, this.primaryItems);
+            }
+            return Optional.of(itemSet);
         }
 
         private List<EquipmentSlotGroup> createSlots() {
@@ -210,7 +259,29 @@ public class EnchantmentDefinition {
                 createExclusiveSet(),
                 DataComponentMap.EMPTY);
 
-            return new EnchantmentDefinition(this.id, enchantment);
+            TagData tagData = new TagData(this.isCursed, this.isTreasure, this.isTradeable, this.isDiscoverable, this.isOnRandomLoot, this.isOnMobSpawnEquipment, this.isOnTradedEquipment);
+            return new EnchantmentDefinition(this.id, enchantment, tagData);
+        }
+    }
+
+    public static class TagData {
+        boolean isCursed;
+        boolean isTreasure;
+        boolean isTradeable;
+        boolean isDiscoverable;
+        boolean isOnRandomLoot;
+        boolean isOnMobSpawnEquipment;
+        boolean isOnTradedEquipment;
+
+        public TagData(boolean isCursed, boolean isTreasure, boolean isTradeable, boolean isDiscoverable,
+                       boolean isOnRandomLoot, boolean isOnMobSpawnEquipment, boolean isOnTradedEquipment) {
+            this.isCursed = isCursed;
+            this.isTreasure = isTreasure;
+            this.isTradeable = isTradeable;
+            this.isDiscoverable = isDiscoverable;
+            this.isOnRandomLoot = isOnRandomLoot;
+            this.isOnMobSpawnEquipment = isOnMobSpawnEquipment;
+            this.isOnTradedEquipment = isOnTradedEquipment;
         }
     }
 
