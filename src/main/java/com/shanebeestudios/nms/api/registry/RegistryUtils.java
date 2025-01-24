@@ -1,4 +1,4 @@
-package com.shanebeestudios.nms.util;
+package com.shanebeestudios.nms.api.registry;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -122,7 +122,7 @@ public class RegistryUtils {
     private static void setupDistribution(@NotNull Holder.Reference<Enchantment> reference, EnchantmentDefinition distribution) {
         boolean experimentalTrades = SERVER.getWorldData().enabledFeatures().contains(FeatureFlags.TRADE_REBALANCE);
 
-        EnchantmentDefinition.TagData tagData = distribution.tagData;
+        EnchantmentDefinition.TagData tagData = distribution.getTagData();
         if (tagData.isTradeable) {
             addInTag(EnchantmentTags.TREASURE, reference);
             addInTag(EnchantmentTags.DOUBLE_TRADE_PRICE, reference);
@@ -176,9 +176,9 @@ public class RegistryUtils {
     public static org.bukkit.enchantments.Enchantment registerEnchantment(EnchantmentDefinition definition) {
         RegistryUtils.unfreeze(ENCHANT_REGISTRY);
 
-        ResourceLocation key = CraftNamespacedKey.toMinecraft(definition.id);
+        ResourceLocation key = CraftNamespacedKey.toMinecraft(definition.getId());
         ResourceKey<Enchantment> resourceKey = ResourceKey.create(Registries.ENCHANTMENT, key);
-        Enchantment enchantment = definition.enchantment;
+        Enchantment enchantment = definition.getEnchantment();
         Holder.Reference<Enchantment> intrusiveHolder = ENCHANT_REGISTRY.createIntrusiveHolder(enchantment);
         Registry.register(ENCHANT_REGISTRY, resourceKey, enchantment);
 

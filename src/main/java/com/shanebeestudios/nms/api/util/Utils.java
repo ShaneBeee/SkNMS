@@ -1,4 +1,4 @@
-package com.shanebeestudios.nms.util;
+package com.shanebeestudios.nms.api.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

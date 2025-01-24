@@ -1,4 +1,4 @@
-package com.shanebeestudios.nms.util;
+package com.shanebeestudios.nms.api.registry;
 
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
@@ -22,14 +22,26 @@ import java.util.Optional;
 
 public class EnchantmentDefinition {
 
-    NamespacedKey id;
-    Enchantment enchantment;
-    TagData tagData;
+    private final NamespacedKey id;
+    private final Enchantment enchantment;
+    private final TagData tagData;
 
     private EnchantmentDefinition(NamespacedKey id, Enchantment enchantment, TagData tagData) {
         this.id = id;
         this.enchantment = enchantment;
         this.tagData = tagData;
+    }
+
+    public NamespacedKey getId() {
+        return id;
+    }
+
+    public Enchantment getEnchantment() {
+        return enchantment;
+    }
+
+    public TagData getTagData() {
+        return tagData;
     }
 
     public org.bukkit.enchantments.Enchantment register() {
@@ -265,13 +277,13 @@ public class EnchantmentDefinition {
     }
 
     public static class TagData {
-        boolean isCursed;
-        boolean isTreasure;
-        boolean isTradeable;
-        boolean isDiscoverable;
-        boolean isOnRandomLoot;
-        boolean isOnMobSpawnEquipment;
-        boolean isOnTradedEquipment;
+        public boolean isCursed;
+        public boolean isTreasure;
+        public boolean isTradeable;
+        public boolean isDiscoverable;
+        public boolean isOnRandomLoot;
+        public boolean isOnMobSpawnEquipment;
+        public boolean isOnTradedEquipment;
 
         public TagData(boolean isCursed, boolean isTreasure, boolean isTradeable, boolean isDiscoverable,
                        boolean isOnRandomLoot, boolean isOnMobSpawnEquipment, boolean isOnTradedEquipment) {
