@@ -39,13 +39,15 @@ import java.util.List;
     "- At the time of parsing scripts, your custom enchantment won't be acknowledged (in Skript), " +
         "that will only happen after it actually registers, this is why this returns itself as an enchantment you can save in a variable.",
     "- The parsed as expression will work, ex: `\"custom:my_enchant\" parsed as enchantment`.",
+    "- I did not add an `effects` entry as it's super duper convoluted, and you can handle what your enchantment does via code.",
     "",
     "**ENTRIES**:",
     "I'm only going to touch on a few here, as there are so many to type out, see the above mentioned wiki for full details.",
     "- `id` = Takes in a string to identify your new enchantment, think vanilla \"minecraft:sharpness\".",
     "- `description` = Takes in a text component (from SkBee), this is how your enchantment will show up in lore.",
     "- `exclusive_set` = The enchantments your enchantment will not work with. Either a single string (enchantment tag) or a list of enchantments.",
-    "- `supported_items` = The items this enchantment will work on. Either a single string (item tag) or a list of items.",
+    "- `supported_items/primary_items` = See wiki for explanations. Either a single string (item tag) or a list of items.",
+    "- `slots` = I don't think this is needed as it would be handled by the effects in Minecraft, which we aren't using here.",
     "",
     "**WARNINGS**:",
     "Enchantments are not supposed to be created at runtime. This method is super hacky and I highly HIGHLY recommend just using a datapack.",
@@ -55,7 +57,6 @@ import java.util.List;
     "This is due to these enchantments will register to Minecraft via Skript AFTER your world/spawn chunks load.",
     "Do not, I repeat... DO NOT save custom enchantments to variables (Skript will panic trying to load enchantments that arent registered yet). " +
         "RAM/Memory variables are safe!",
-    "This will most like cause some great harm, so you've been warned!",
     "That said, enjoy your new custom enchantments."})
 @Examples({"# Wither Sword Enchantment",
     "on load:",
