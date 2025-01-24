@@ -7,12 +7,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.util.EnchantmentDefinition;
-import com.shanebeestudios.skbee.api.skript.base.Section;
 import com.shanebeestudios.skbee.api.util.SimpleEntryValidator;
 import com.shanebeestudios.skbee.api.util.Util;
 import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
@@ -35,6 +36,9 @@ import java.util.List;
     "**NOTES**:",
     "- Custom enchantments cannot be removed at runtime (a restart is the only way to get rid of them).",
     "- If you make a change to your custom enchantment, you'll have to restart your server (reloading the script just won't cut it).",
+    "- At the time of parsing scripts, your custom enchantment won't be acknowledged (in Skript), " +
+        "that will only happen after it actually registers, this is why this returns itself as an enchantment you can save in a variable.",
+    "- The parsed as expression will work, ex: `\"custom:my_enchant\" parsed as enchantment`.",
     "",
     "**ENTRIES**:",
     "I'm only going to touch on a few here, as there are so many to type out, see the above mentioned wiki for full details.",
@@ -49,37 +53,40 @@ import java.util.List;
     "- If your spawn keeps loaded in your world, you must make sure no items are in any chests or anything in that area that contain these enchantments.",
     "- Or just make sure to turn off your spawn chunk radius (set the gamerule `spawnChunkRadius` to 0 for all worlds).",
     "This is due to these enchantments will register to Minecraft via Skript AFTER your world/spawn chunks load.",
+    "Do not, I repeat... DO NOT save custom enchantments to variables (Skript will panic trying to load enchantments that arent registered yet). " +
+        "RAM/Memory variables are safe!",
     "This will most like cause some great harm, so you've been warned!",
     "That said, enjoy your new custom enchantments."})
 @Examples({"# Wither Sword Enchantment",
     "on load:",
-    "\tregister enchantment:",
-    "\t\tid: \"my_pack:wither\"",
-    "\t\tdescription: mini message from \"<red>Wither\"",
-    "\t\tsupported_items: \"minecraft:swords\"",
-    "\t\tmax_level: 5",
+    "\tif {-enchantment::wither} is not set:",
+    "\t\tset {-enchantment::wither} to register enchantment:",
+    "\t\t\tid: \"my_pack:wither\"",
+    "\t\t\tdescription: mini message from \"<red>Wither\"",
+    "\t\t\tsupported_items: \"minecraft:swords\"",
+    "\t\t\tmax_level: 5",
     "",
     "on damage of mob by player:",
-    "\tset {_level} to enchantment level of my_pack:wither of attacker's tool",
+    "\tset {_level} to enchantment level of {-enchantment::wither} of attacker's tool",
     "\tif {_level} > 0:",
     "\t\tset {_time} to \"%{_level} * 3% seconds\" parsed as timespan",
     "\t\tapply wither to victim for {_time}"})
 @Since("INSERT VERSION")
 @SuppressWarnings({"UnstableApiUsage", "unchecked"})
-public class SecEnchantmentRegister extends Section {
+public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
 
     private static final ComponentWrapper UNNAMED = ComponentWrapper.fromText("Unnamed");
     private static final EntryValidator VALIDATOR;
 
     static {
         Class<Object>[] exclusiveSetClasses = new Class[]{Enchantment.class, String.class};
-        Class<Object>[] supportedItemsClasses = new Class[]{ItemType.class, String.class};
+        Class<Object>[] itemAndTagClasses = new Class[]{ItemType.class, String.class};
         VALIDATOR = SimpleEntryValidator.builder()
             .addRequiredEntry("id", String.class)
             .addRequiredEntry("description", ComponentWrapper.class)
             .addOptionalEntry("exclusive_set", exclusiveSetClasses)
-            .addRequiredEntry("supported_items", supportedItemsClasses)
-            .addOptionalEntry("primary_items", ItemType.class)
+            .addRequiredEntry("supported_items", itemAndTagClasses)
+            .addOptionalEntry("primary_items", itemAndTagClasses)
             .addOptionalEntry("weight", Integer.class)
             .addOptionalEntry("max_level", Integer.class)
             .addOptionalEntry("min_cost_base", Integer.class)
@@ -89,7 +96,7 @@ public class SecEnchantmentRegister extends Section {
             .addOptionalEntry("anvil_cost", Integer.class)
             .addOptionalEntry("slots", EquipmentSlotGroup.class)
             .build();
-        Skript.registerSection(SecEnchantmentRegister.class,
+        Skript.registerExpression(SecEnchantmentRegister.class, Enchantment.class, ExpressionType.COMBINED,
             "register [new] [custom] enchantment");
     }
 
@@ -97,7 +104,7 @@ public class SecEnchantmentRegister extends Section {
     private Expression<ComponentWrapper> description;
     private Expression<?> exclusiveSet;
     private Expression<?> supportedItems;
-    private Expression<ItemType> primaryItems;
+    private Expression<?> primaryItems;
     private Expression<Integer> weight;
     private Expression<Integer> maxLevel;
     private Expression<Integer> minCostBase;
@@ -118,7 +125,7 @@ public class SecEnchantmentRegister extends Section {
         this.description = (Expression<ComponentWrapper>) container.getOptional("description", false);
         this.exclusiveSet = (Expression<?>) container.getOptional("exclusive_set", false);
         this.supportedItems = (Expression<?>) container.getOptional("supported_items", false);
-        this.primaryItems = (Expression<ItemType>) container.getOptional("primary_items", false);
+        this.primaryItems = (Expression<?>) container.getOptional("primary_items", false);
         this.weight = (Expression<Integer>) container.getOptional("weight", false);
         this.maxLevel = (Expression<Integer>) container.getOptional("max_level", false);
         this.minCostBase = (Expression<Integer>) container.getOptional("min_cost_base", false);
@@ -132,28 +139,19 @@ public class SecEnchantmentRegister extends Section {
 
     @SuppressWarnings("deprecation")
     @Override
-    protected @Nullable TriggerItem walk(Event event) {
-        TriggerItem next = getNext();
-
-        EnchantmentDefinition.Builder builder = new EnchantmentDefinition.Builder();
-
-        if (this.id == null || this.description == null || this.supportedItems == null) return next;
+    protected Enchantment @Nullable [] get(Event event) {
+        if (this.id == null || this.description == null || this.supportedItems == null) return null;
 
         NamespacedKey namespacedKey = Util.getNamespacedKey(this.id.getSingle(event), false);
-        if (namespacedKey == null) {
-            return next;
-        }
-        if (Registry.ENCHANTMENT.get(namespacedKey) != null) {
-            error("Enchant '" + namespacedKey + "' is already registered");
-            return next;
-        }
+        if (namespacedKey == null || Registry.ENCHANTMENT.get(namespacedKey) != null) return null;
 
+        EnchantmentDefinition.Builder builder = new EnchantmentDefinition.Builder();
         builder.id(namespacedKey);
         builder.description(this.description.getOptionalSingle(event).orElse(UNNAMED).getComponent());
         if (this.exclusiveSet != null) {
             for (Object object : this.exclusiveSet.getArray(event)) {
                 if (object instanceof String string) {
-                    builder.exclusiveSet(string);
+                    builder.exclusiveSetTag(string);
                     break;
                 } else if (object instanceof Enchantment enchantment) {
                     builder.addExclusiveSet(enchantment);
@@ -171,8 +169,13 @@ public class SecEnchantmentRegister extends Section {
         }
 
         if (this.primaryItems != null) {
-            for (ItemType itemType : this.primaryItems.getArray(event)) {
-                builder.addPrimaryItem(itemType.getMaterial());
+            for (Object object : this.primaryItems.getArray(event)) {
+                if (object instanceof String string) {
+                    builder.primaryItemTag(string);
+                }
+                if (object instanceof ItemType itemType) {
+                    builder.addPrimaryItem(itemType.getMaterial());
+                }
             }
         }
 
@@ -204,9 +207,17 @@ public class SecEnchantmentRegister extends Section {
             }
         }
 
-        EnchantmentDefinition definition = builder.build();
-        definition.register();
-        return next;
+        return new Enchantment[]{builder.build().register()};
+    }
+
+    @Override
+    public boolean isSingle() {
+        return true;
+    }
+
+    @Override
+    public Class<? extends Enchantment> getReturnType() {
+        return Enchantment.class;
     }
 
     @Override

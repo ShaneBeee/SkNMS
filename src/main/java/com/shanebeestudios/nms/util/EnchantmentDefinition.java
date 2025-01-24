@@ -7,13 +7,13 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
-import org.bukkit.inventory.EquipmentSlotGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +39,11 @@ public class EnchantmentDefinition {
         NamespacedKey id;
         Component description;
         List<org.bukkit.enchantments.Enchantment> exclusiveSet = new ArrayList<>();
-        String exclusiveSetString;
+        String exclusiveSetTag;
         List<Material> supportedItems = new ArrayList<>();
-        String supportedItemsString;
+        String supportedItemsTag;
         List<Material> primaryItems = new ArrayList<>();
+        String primaryItemsTag;
         int weight = 1;
         int maxLevel = 1;
         int minCostBase = 1;
@@ -50,7 +51,7 @@ public class EnchantmentDefinition {
         int maxCostBase = 1;
         int maxCostPerLevelAboveFirst = 1;
         int anvilCost = 1;
-        List<EquipmentSlotGroup> slots = new ArrayList<>();
+        List<org.bukkit.inventory.EquipmentSlotGroup> slots = new ArrayList<>();
 
         public Builder id(NamespacedKey id) {
             this.id = id;
@@ -67,13 +68,13 @@ public class EnchantmentDefinition {
             return this;
         }
 
-        public Builder exclusiveSet(String exclusiveSetString) {
-            this.exclusiveSetString = exclusiveSetString;
+        public Builder exclusiveSetTag(String exclusiveSetTag) {
+            this.exclusiveSetTag = exclusiveSetTag.replace("#", "");
             return this;
         }
 
         public Builder supportedItemTag(String supportedItemTag) {
-            this.supportedItemsString = supportedItemTag;
+            this.supportedItemsTag = supportedItemTag.replace("#", "");
             return this;
         }
 
@@ -84,6 +85,11 @@ public class EnchantmentDefinition {
 
         public Builder addPrimaryItem(Material item) {
             this.primaryItems.add(item);
+            return this;
+        }
+
+        public Builder primaryItemTag(String primaryItemTag) {
+            this.primaryItemsTag = primaryItemTag.replace("#", "");
             return this;
         }
 
@@ -122,7 +128,7 @@ public class EnchantmentDefinition {
             return this;
         }
 
-        public Builder addSlot(EquipmentSlotGroup slot) {
+        public Builder addSlot(org.bukkit.inventory.EquipmentSlotGroup slot) {
             this.slots.add(slot);
             return this;
         }
@@ -130,8 +136,8 @@ public class EnchantmentDefinition {
         private HolderSet<Enchantment> createExclusiveSet() {
             HolderSet<Enchantment> exclusiveSet = HolderSet.empty();
             MappedRegistry<Enchantment> enchantRegistry = RegistryUtils.getEnchantRegistry();
-            if (this.exclusiveSetString != null) {
-                TagKey<Enchantment> tagKey = RegistryUtils.getTagKey(enchantRegistry, this.exclusiveSetString);
+            if (this.exclusiveSetTag != null) {
+                TagKey<Enchantment> tagKey = RegistryUtils.getTagKey(enchantRegistry, this.exclusiveSetTag);
                 Optional<HolderSet.Named<Enchantment>> holders = enchantRegistry.get(tagKey);
                 if (holders.isPresent()) {
                     exclusiveSet = holders.get();
@@ -148,55 +154,54 @@ public class EnchantmentDefinition {
         }
 
         @SuppressWarnings("deprecation")
-        private HolderSet<Item> createSupportedItems() {
-            HolderSet<Item> supportedItemSet = HolderSet.empty();
+        private HolderSet<Item> createItemSet(String tag, List<Material> sets) {
+            HolderSet<Item> itemSet = HolderSet.empty();
             MappedRegistry<Item> itemRegistry = RegistryUtils.getItemRegistry();
-            if (this.supportedItemsString != null) {
-                TagKey<Item> tagKey = RegistryUtils.getTagKey(itemRegistry, this.supportedItemsString);
+            if (tag != null) {
+                TagKey<Item> tagKey = RegistryUtils.getTagKey(itemRegistry, tag);
                 Optional<HolderSet.Named<Item>> holders = itemRegistry.get(tagKey);
                 if (holders.isPresent()) {
-                    supportedItemSet = holders.get();
+                    itemSet = holders.get();
                 }
-            } else if (!this.supportedItems.isEmpty()) {
-                List<Holder<Item>> supportedItems = new ArrayList<>();
-                for (Material material : this.supportedItems) {
+            } else if (!sets.isEmpty()) {
+                List<Holder<Item>> itemSetList = new ArrayList<>();
+                for (Material material : sets) {
                     if (!material.isItem()) continue;
 
                     Item item = CraftMagicNumbers.getItem(material);
-                    supportedItems.add(item.builtInRegistryHolder());
+                    itemSetList.add(item.builtInRegistryHolder());
                 }
-                supportedItemSet = HolderSet.direct(supportedItems);
+                itemSet = HolderSet.direct(itemSetList);
             }
-
-            return supportedItemSet;
+            return itemSet;
         }
 
-        @SuppressWarnings("deprecation")
-        public EnchantmentDefinition build() {
+        private HolderSet<Item> createSupportedItems() {
+            return createItemSet(this.supportedItemsTag, this.supportedItems);
+        }
 
-            List<Holder<Item>> primaryItems = new ArrayList<>();
-            for (Material material : this.primaryItems) {
-                if (!material.isItem()) continue;
+        private Optional<HolderSet<Item>> createPrimaryItems() {
+            return Optional.of(createItemSet(this.primaryItemsTag, this.primaryItems));
+        }
 
-                Item item = CraftMagicNumbers.getItem(material);
-                primaryItems.add(item.builtInRegistryHolder());
-            }
-            HolderSet.Direct<Item> primaryItemSet = HolderSet.direct(primaryItems);
-
-            List<net.minecraft.world.entity.EquipmentSlotGroup> groups = new ArrayList<>();
+        private List<EquipmentSlotGroup> createSlots() {
+            List<EquipmentSlotGroup> groups = new ArrayList<>();
             for (org.bukkit.inventory.EquipmentSlotGroup slot : this.slots) {
-                groups.add(net.minecraft.world.entity.EquipmentSlotGroup.valueOf(slot.toString().toUpperCase(Locale.ROOT)));
+                groups.add(EquipmentSlotGroup.valueOf(slot.toString().toUpperCase(Locale.ROOT)));
             }
+            return groups;
+        }
 
+        public EnchantmentDefinition build() {
             Enchantment.EnchantmentDefinition definition = new Enchantment.EnchantmentDefinition(
                 createSupportedItems(),
-                Optional.of(primaryItemSet),
+                createPrimaryItems(),
                 Math.clamp(this.weight, 1, 1024),
                 Math.clamp(this.maxLevel, 1, 255),
                 new Enchantment.Cost(this.minCostBase, this.minCostPerLevelAboveFirst),
                 new Enchantment.Cost(this.maxCostBase, this.maxCostPerLevelAboveFirst),
                 this.anvilCost,
-                groups);
+                createSlots());
 
             net.minecraft.network.chat.Component vanilla = PaperAdventure.asVanilla(this.description);
             Enchantment enchantment = new Enchantment(
