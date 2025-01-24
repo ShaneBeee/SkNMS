@@ -29,7 +29,7 @@ import java.util.List;
 @Name("Biome Registration")
 @Description({"Register a new biome.",
     "NOTE: These custom biomes will NOT show up in natural world generation.",
-    "See [**McWiki Biome Definition**](https://minecraft.wiki/w/Biome_definition) for more details.",
+    "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
     "**Entries/Sections**:",
     "- `has precipitation` = Determines whether or not the biome has precipitation.",
     "- `temperature` = Controls gameplay features like grass and foliage color, and a height adjusted temperature " +
@@ -65,13 +65,13 @@ public class SecBiomeRegister extends Section {
         }
     }
 
-    private static final EntryValidator.EntryValidatorBuilder VALIDATIOR = EntryValidator.builder();
+    private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();
 
     static {
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("has precipitation", null, false, Boolean.class));
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
-        VALIDATIOR.unexpectedNodeTester(node -> {
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("has precipitation", null, false, Boolean.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
+        VALIDATOR.unexpectedNodeTester(node -> {
             if (node instanceof SectionNode sectionNode) {
                 String key = sectionNode.getKey();
                 return key == null || !key.contains("effects");
@@ -90,7 +90,7 @@ public class SecBiomeRegister extends Section {
     @SuppressWarnings({"NullableProblems", "unchecked"})
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-        this.container = VALIDATIOR.build().validate(sectionNode);
+        this.container = VALIDATOR.build().validate(sectionNode);
         if (this.container == null) return false;
 
         this.id = LiteralUtils.defendExpression(exprs[0]);

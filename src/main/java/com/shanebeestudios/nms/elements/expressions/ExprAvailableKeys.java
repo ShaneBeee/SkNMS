@@ -11,7 +11,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.world.StructureApi;
-import com.shanebeestudios.nms.api.world.WorldApi;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +30,6 @@ public class ExprAvailableKeys extends SimpleExpression<NamespacedKey> {
 
     static {
         Skript.registerExpression(ExprAvailableKeys.class, NamespacedKey.class, ExpressionType.SIMPLE,
-            "[all] available biome keys",
             "[all] available configured feature keys",
             "[all] available placed feature keys",
             "[all] available structure keys",
@@ -40,22 +38,20 @@ public class ExprAvailableKeys extends SimpleExpression<NamespacedKey> {
 
     private int pattern;
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
         this.pattern = matchedPattern;
         return true;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     protected @Nullable NamespacedKey[] get(Event event) {
         List<NamespacedKey> keys = switch (this.pattern) {
-            case 1 -> StructureApi.getConfiguredFeatures();
-            case 2 -> StructureApi.getPlacedFeatures();
-            case 3 -> StructureApi.getStructures();
-            case 4 -> StructureApi.getStructureTemplates();
-            default -> WorldApi.getBiomeKeys();
+            case 0 -> StructureApi.getConfiguredFeatures();
+            case 1 -> StructureApi.getPlacedFeatures();
+            case 2 -> StructureApi.getStructures();
+            case 3 -> StructureApi.getStructureTemplates();
+            default -> throw new IllegalStateException("Unexpected value: " + this.pattern);
         };
         return keys.toArray(new NamespacedKey[0]);
     }
@@ -73,11 +69,11 @@ public class ExprAvailableKeys extends SimpleExpression<NamespacedKey> {
     @Override
     public @NotNull String toString(Event e, boolean d) {
         return "available " + switch (this.pattern) {
-            case 1 -> "configured feature keys";
-            case 2 -> "placed feature keys";
-            case 3 -> "structure keys";
-            case 4 -> "structure template keys";
-            default -> "biome keys";
+            case 0 -> "configured feature keys";
+            case 1 -> "placed feature keys";
+            case 2 -> "structure keys";
+            case 3 -> "structure template keys";
+            default -> throw new IllegalStateException("Unexpected value: " + this.pattern);
         };
     }
 
