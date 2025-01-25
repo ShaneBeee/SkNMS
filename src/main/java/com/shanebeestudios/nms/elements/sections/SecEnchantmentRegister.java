@@ -17,6 +17,7 @@ import com.shanebeestudios.nms.api.registry.EnchantmentDefinition;
 import com.shanebeestudios.skbee.api.util.SimpleEntryValidator;
 import com.shanebeestudios.skbee.api.util.Util;
 import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
@@ -45,7 +46,7 @@ import java.util.List;
     "These entries are directly related to the Enchantment Definition in Minecraft (as seen in the above mentioned wiki).",
     "I'm only going to touch on a few here, as there are so many to type out, see the above mentioned wiki for full details.",
     "- `id` = Takes in a string to identify your new enchantment, think vanilla \"minecraft:sharpness\".",
-    "- `description` = Takes in a text component (from SkBee), this is how your enchantment will show up in lore.",
+    "- `description` = Takes in a text component (from SkBee) or string, this is how your enchantment will show up in lore.",
     "- `exclusive_set` = The enchantments your enchantment will not work with. Either a single string (enchantment tag) or a list of enchantments.",
     "- `supported_items/primary_items` = See wiki for explanations. Either a single string (item tag) or a list of items.",
     "- `slots` = I don't think this is needed as it would be handled by the effects in Minecraft, which we aren't using here.",
@@ -87,15 +88,15 @@ import java.util.List;
 @SuppressWarnings({"UnstableApiUsage", "unchecked"})
 public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
 
-    private static final ComponentWrapper UNNAMED = ComponentWrapper.fromText("Unnamed");
     private static final EntryValidator VALIDATOR;
 
     static {
+        Class<Object>[] somethingClasses = new Class[]{ComponentWrapper.class,String.class};
         Class<Object>[] exclusiveSetClasses = new Class[]{Enchantment.class, String.class};
         Class<Object>[] itemAndTagClasses = new Class[]{ItemType.class, String.class};
         VALIDATOR = SimpleEntryValidator.builder()
             .addRequiredEntry("id", String.class)
-            .addRequiredEntry("description", ComponentWrapper.class)
+            .addRequiredEntry("description", somethingClasses)
             .addOptionalEntry("exclusive_set", exclusiveSetClasses)
             .addRequiredEntry("supported_items", itemAndTagClasses)
             .addOptionalEntry("primary_items", itemAndTagClasses)
@@ -120,7 +121,7 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
     }
 
     private Expression<String> id;
-    private Expression<ComponentWrapper> description;
+    private Expression<?> description;
     private Expression<?> exclusiveSet;
     private Expression<?> supportedItems;
     private Expression<?> primaryItems;
@@ -149,7 +150,7 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
 
         // Definition
         this.id = (Expression<String>) container.getOptional("id", false);
-        this.description = (Expression<ComponentWrapper>) container.getOptional("description", false);
+        this.description = (Expression<?>) container.getOptional("description", false);
         this.exclusiveSet = (Expression<?>) container.getOptional("exclusive_set", false);
         this.supportedItems = (Expression<?>) container.getOptional("supported_items", false);
         this.primaryItems = (Expression<?>) container.getOptional("primary_items", false);
@@ -183,7 +184,16 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
 
         EnchantmentDefinition.Builder builder = new EnchantmentDefinition.Builder();
         builder.id(namespacedKey);
-        builder.description(this.description.getOptionalSingle(event).orElse(UNNAMED).getComponent());
+
+        Component descriptionComponent = Component.text("Unnamed");
+        Object description = this.description.getSingle(event);
+        if (description != null) {
+            if (description instanceof ComponentWrapper cw) descriptionComponent = cw.getComponent();
+            // ComponentWrapper -> Component = Make sure to properly parse colors
+            else if (description instanceof String string) descriptionComponent = ComponentWrapper.fromText(string).getComponent();
+        }
+        builder.description(descriptionComponent);
+
         if (this.exclusiveSet != null) {
             for (Object object : this.exclusiveSet.getArray(event)) {
                 if (object instanceof String string) {
