@@ -14,19 +14,21 @@ import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.elements.sections.SecBiomeRegister.BiomeEffectsEvent;
+import com.shanebeestudios.skbee.api.util.SimpleEntryValidator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @Name("Biome Effects")
 @Description({"Create effects in a biome registration `effects` section.",
     "See [**McWiki Biome Definition**](https://minecraft.wiki/w/Biome_definition) for more details.",
     "**Entries**:",
+    "All color entries accept Skript colors, RGB colors as well as integers (Refer to the above wiki to see information about the integers).",
     "- `fog_color` = The color of fog in this biome (required).",
     "- `sky_color` = The color of the sky in this biome (required).",
     "- `water_color` = The color of the water in this biome (required).",
@@ -50,25 +52,28 @@ import java.util.List;
 @Since("1.0.0")
 public class SecBiomeSpecialEffects extends Section {
 
-    private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();
+    private static final EntryValidator VALIDATOR;
 
     static {
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("fog_color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("sky_color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("water_color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("water_fog_color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("foliage_color", null, true, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("grass_color", null, true, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("grass_color_modifier", null, true, String.class));
+        Class<Object>[] colorClasses = new Class[]{Color.class, Integer.class};
+        SimpleEntryValidator builder = SimpleEntryValidator.builder();
+        builder.addRequiredEntry("fog_color", colorClasses);
+        builder.addRequiredEntry("sky_color", colorClasses);
+        builder.addRequiredEntry("water_color", colorClasses);
+        builder.addRequiredEntry("water_fog_color", colorClasses);
+        builder.addOptionalEntry("foliage_color", colorClasses);
+        builder.addOptionalEntry("grass_color", colorClasses);
+        builder.addOptionalEntry("grass_color_modifier", String.class);
+        VALIDATOR = builder.build();
         Skript.registerSection(SecBiomeSpecialEffects.class, "effects");
     }
 
-    private Expression<Color> fogColor;
-    private Expression<Color> skyColor;
-    private Expression<Color> waterColor;
-    private Expression<Color> waterFogColor;
-    private Expression<Color> foliageColor;
-    private Expression<Color> grassColor;
+    private Expression<?> fogColor;
+    private Expression<?> skyColor;
+    private Expression<?> waterColor;
+    private Expression<?> waterFogColor;
+    private Expression<?> foliageColor;
+    private Expression<?> grassColor;
     private Expression<String> grassColorModifier;
 
     @SuppressWarnings("unchecked")
@@ -78,15 +83,15 @@ public class SecBiomeSpecialEffects extends Section {
             Skript.error("'effects' section can only be used in a `register new biome` section.");
             return false;
         }
-        EntryContainer container = VALIDATOR.build().validate(sectionNode);
+        EntryContainer container = VALIDATOR.validate(sectionNode);
         if (container == null) return false;
 
-        this.fogColor = (Expression<Color>) container.getOptional("fog_color", false);
-        this.skyColor = (Expression<Color>) container.getOptional("sky_color", false);
-        this.waterColor = (Expression<Color>) container.getOptional("water_color", false);
-        this.waterFogColor = (Expression<Color>) container.getOptional("water_fog_color", false);
-        this.foliageColor = (Expression<Color>) container.getOptional("foliage_color", false);
-        this.grassColor = (Expression<Color>) container.getOptional("grass_color", false);
+        this.fogColor = (Expression<?>) container.getOptional("fog_color", false);
+        this.skyColor = (Expression<?>) container.getOptional("sky_color", false);
+        this.waterColor = (Expression<?>) container.getOptional("water_color", false);
+        this.waterFogColor = (Expression<?>) container.getOptional("water_fog_color", false);
+        this.foliageColor = (Expression<?>) container.getOptional("foliage_color", false);
+        this.grassColor = (Expression<?>) container.getOptional("grass_color", false);
         this.grassColorModifier = (Expression<String>) container.getOptional("grass_color_modifier", false);
 
         // These are required
@@ -97,26 +102,17 @@ public class SecBiomeSpecialEffects extends Section {
     protected @Nullable TriggerItem walk(Event event) {
         if (!(event instanceof BiomeEffectsEvent effectsEvent)) return super.walk(event, false);
 
-        Color fogColor = this.fogColor.getSingle(event);
-        Color skyColor = this.skyColor.getSingle(event);
-        Color waterColor = this.waterColor.getSingle(event);
-        Color waterFogColor = this.waterFogColor.getSingle(event);
-        if (fogColor == null || skyColor == null || waterColor == null || waterFogColor == null)
-            return super.walk(event, false);
-
         BiomeDefinition.Builder builder = effectsEvent.getBiomeBuilder();
-        builder.fogColor(fogColor.asBukkitColor());
-        builder.skyColor(skyColor.asBukkitColor());
-        builder.waterColor(waterColor.asBukkitColor());
-        builder.waterFogColor(waterFogColor.asBukkitColor());
+        builder.fogColor(getColor(this.fogColor.getSingle(event)));
+        builder.skyColor(getColor(this.skyColor.getSingle(event)));
+        builder.waterColor(getColor(this.waterColor.getSingle(event)));
+        builder.waterFogColor(getColor(this.waterFogColor.getSingle(event)));
 
         if (this.foliageColor != null) {
-            Color foliageColor = this.foliageColor.getSingle(event);
-            if (foliageColor != null) builder.foliageColorOverride(foliageColor.asBukkitColor());
+            builder.foliageColorOverride(getColor(this.foliageColor.getSingle(event)));
         }
         if (this.grassColor != null) {
-            Color grassColor = this.grassColor.getSingle(event);
-            if (grassColor != null) builder.grassColorOverride(grassColor.asBukkitColor());
+            builder.grassColorOverride(getColor(this.grassColor.getSingle(event)));
         }
 
         if (this.grassColorModifier != null) {
@@ -124,6 +120,12 @@ public class SecBiomeSpecialEffects extends Section {
         }
 
         return super.walk(event, false);
+    }
+
+    private int getColor(Object object) {
+        if (object instanceof Color color) return color.asBukkitColor().asRGB();
+        else if (object instanceof Integer i) return i;
+        return 0;
     }
 
     @Override

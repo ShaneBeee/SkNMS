@@ -7,7 +7,6 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier;
 import net.minecraft.world.level.biome.MobSpawnSettings;
-import org.bukkit.Color;
 import org.bukkit.NamespacedKey;
 
 import java.util.Locale;
@@ -64,33 +63,33 @@ public class BiomeDefinition {
             return this;
         }
 
-        public Builder fogColor(Color fogColor) {
-            this.specialEffectsBuilder().fogColor(fogColor.asRGB());
+        public Builder fogColor(int fogColor) {
+            this.specialEffectsBuilder().fogColor(fogColor);
             return this;
         }
 
-        public Builder waterColor(Color waterColor) {
-            this.specialEffectsBuilder().waterColor(waterColor.asRGB());
+        public Builder waterColor(int waterColor) {
+            this.specialEffectsBuilder().waterColor(waterColor);
             return this;
         }
 
-        public Builder waterFogColor(Color waterFogColor) {
-            this.specialEffectsBuilder().waterFogColor(waterFogColor.asRGB());
+        public Builder waterFogColor(int waterFogColor) {
+            this.specialEffectsBuilder().waterFogColor(waterFogColor);
             return this;
         }
 
-        public Builder skyColor(Color skyColor) {
-            this.specialEffectsBuilder().skyColor(skyColor.asRGB());
+        public Builder skyColor(int skyColor) {
+            this.specialEffectsBuilder().skyColor(skyColor);
             return this;
         }
 
-        public Builder foliageColorOverride(Color foliageColor) {
-            this.specialEffectsBuilder().foliageColorOverride(foliageColor.asRGB());
+        public Builder foliageColorOverride(int foliageColor) {
+            this.specialEffectsBuilder().foliageColorOverride(foliageColor);
             return this;
         }
 
-        public Builder grassColorOverride(Color grassColor) {
-            this.specialEffectsBuilder().grassColorOverride(grassColor.asRGB());
+        public Builder grassColorOverride(int grassColor) {
+            this.specialEffectsBuilder().grassColorOverride(grassColor);
             return this;
         }
 
