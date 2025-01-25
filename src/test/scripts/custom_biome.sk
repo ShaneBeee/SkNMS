@@ -1,0 +1,16 @@
+test "SkNMS - Custom Biome":
+	set {_biome} to register new biome:
+		id: "my_biomes:blue_forest"
+		has_precipitation: true
+		temperature: 2.0
+		downfall: 1.0
+		effects:
+			fog_color: rgb(240,227,159)
+			water_color: rgb(159,240,215)
+			water_fog_color: rgb(159,240,215)
+			sky_color: rgb(159,226,240)
+			foliage_color: yellow
+			grass_color: blue
+	assert {_biome} is set with "Should have registered"
+	set {_test} to "my_biomes:blue_forest" parsed as biome
+	assert {_test} is set with "The biome should parsed"
