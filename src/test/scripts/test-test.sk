@@ -1,0 +1,3 @@
+test "Initial test":
+	# delete this later
+	assert 1 = 1 with "Test test should pass"
