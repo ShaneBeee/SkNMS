@@ -27,36 +27,36 @@ import java.util.List;
 @Description({"Create effects in a biome registration `effects` section.",
     "See [**McWiki Biome Definition**](https://minecraft.wiki/w/Biome_definition) for more details.",
     "**Entries**:",
-    "- `fog color` = The color of fog in this biome (required).",
-    "- `sky color` = The color of the sky in this biome (required).",
-    "- `water color` = The color of the water in this biome (required).",
-    "- `water fog color` = The color of the fog when underwater in this biome (required).",
-    "- `foliage color` = The color to use for tree leaves and vines. If not present, the value depends on downfall and temperature (optional).",
-    "- `grass color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional)."})
+    "- `fog_color` = The color of fog in this biome (required).",
+    "- `sky_color` = The color of the sky in this biome (required).",
+    "- `water_color` = The color of the water in this biome (required).",
+    "- `water_fog_color` = The color of the fog when underwater in this biome (required).",
+    "- `foliage_color` = The color to use for tree leaves and vines. If not present, the value depends on downfall and temperature (optional).",
+    "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional)."})
 @Examples({"on load:",
     "\tregister new biome with id \"test:test\":",
     "\t\thas precipitation: true",
     "\t\ttemperature: 2.0",
     "\t\tdownfall: 1.0",
     "\t\teffects:",
-    "\t\t\tfog color: rgb(240,227,159)",
-    "\t\t\twater color: rgb(159,240,215)",
-    "\t\t\twater fog color: rgb(159,240,215)",
-    "\t\t\tsky color: rgb(159,226,240)",
-    "\t\t\tfoliage color: yellow",
-    "\t\t\tgrass color: blue"})
+    "\t\t\tfog_color: rgb(240,227,159)",
+    "\t\t\twater_color: rgb(159,240,215)",
+    "\t\t\twater_fog_color: rgb(159,240,215)",
+    "\t\t\tsky_color: rgb(159,226,240)",
+    "\t\t\tfoliage_color: yellow",
+    "\t\t\tgrass_color: blue"})
 @Since("1.0.0")
 public class SecBiomeSpecialEffects extends Section {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();
 
     static {
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("fog color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("sky color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("water color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("water fog color", null, false, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("foliage color", null, true, Color.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("grass color", null, true, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("fog_color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("sky_color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("water_color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("water_fog_color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("foliage_color", null, true, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("grass_color", null, true, Color.class));
         Skript.registerSection(SecBiomeSpecialEffects.class, "effects");
     }
 
@@ -77,12 +77,12 @@ public class SecBiomeSpecialEffects extends Section {
         EntryContainer container = VALIDATOR.build().validate(sectionNode);
         if (container == null) return false;
 
-        this.fogColor = (Expression<Color>) container.getOptional("fog color", false);
-        this.skyColor = (Expression<Color>) container.getOptional("sky color", false);
-        this.waterColor = (Expression<Color>) container.getOptional("water color", false);
-        this.waterFogColor = (Expression<Color>) container.getOptional("water fog color", false);
-        this.foliageColor = (Expression<Color>) container.getOptional("foliage color", false);
-        this.grassColor = (Expression<Color>) container.getOptional("grass color", false);
+        this.fogColor = (Expression<Color>) container.getOptional("fog_color", false);
+        this.skyColor = (Expression<Color>) container.getOptional("sky_color", false);
+        this.waterColor = (Expression<Color>) container.getOptional("water_color", false);
+        this.waterFogColor = (Expression<Color>) container.getOptional("water_fog_color", false);
+        this.foliageColor = (Expression<Color>) container.getOptional("foliage_color", false);
+        this.grassColor = (Expression<Color>) container.getOptional("grass_color", false);
 
         // These are required
         return this.fogColor != null && this.skyColor != null && this.waterColor != null && this.waterFogColor != null;
