@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
-    id "io.github.goooler.shadow" version "8.1.7"
+    id "com.gradleup.shadow" version "9.0.0-beta6"
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.14" // the latest version can be found on the Gradle Plugin Portal
 }
 
@@ -37,7 +37,7 @@ dependencies {
     }
 
     compileOnly("com.github.ShaneBeee:SkBee:3.8.0")
-    implementation("com.github.ShaneBeee:NMS-API:1.7.3:dev")
+    implementation("com.github.ShaneBeee:NMS-API:master-SNAPSHOT")
 }
 
 build {
