@@ -32,7 +32,8 @@ import java.util.List;
     "- `water_color` = The color of the water in this biome (required).",
     "- `water_fog_color` = The color of the fog when underwater in this biome (required).",
     "- `foliage_color` = The color to use for tree leaves and vines. If not present, the value depends on downfall and temperature (optional).",
-    "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional)."})
+    "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional).",
+    "- `grass_color_modifier` = Built in color modifier for grass blocks (Can be `none`, `dark_forest` or `swamp`)."})
 @Examples({"on load:",
     "\tset {-biome::blue_forest} to register new biome:",
     "\t\tid: \"my_biomes:blue_forest\"",
@@ -58,6 +59,7 @@ public class SecBiomeSpecialEffects extends Section {
         VALIDATOR.addEntryData(new ExpressionEntryData<>("water_fog_color", null, false, Color.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("foliage_color", null, true, Color.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("grass_color", null, true, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("grass_color_modifier", null, true, String.class));
         Skript.registerSection(SecBiomeSpecialEffects.class, "effects");
     }
 
@@ -67,6 +69,7 @@ public class SecBiomeSpecialEffects extends Section {
     private Expression<Color> waterFogColor;
     private Expression<Color> foliageColor;
     private Expression<Color> grassColor;
+    private Expression<String> grassColorModifier;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -84,6 +87,7 @@ public class SecBiomeSpecialEffects extends Section {
         this.waterFogColor = (Expression<Color>) container.getOptional("water_fog_color", false);
         this.foliageColor = (Expression<Color>) container.getOptional("foliage_color", false);
         this.grassColor = (Expression<Color>) container.getOptional("grass_color", false);
+        this.grassColorModifier = (Expression<String>) container.getOptional("grass_color_modifier", false);
 
         // These are required
         return this.fogColor != null && this.skyColor != null && this.waterColor != null && this.waterFogColor != null;
@@ -113,6 +117,10 @@ public class SecBiomeSpecialEffects extends Section {
         if (this.grassColor != null) {
             Color grassColor = this.grassColor.getSingle(event);
             if (grassColor != null) builder.grassColorOverride(grassColor.asBukkitColor());
+        }
+
+        if (this.grassColorModifier != null) {
+            builder.grassColorModifier(this.grassColorModifier.getOptionalSingle(event).orElse("none"));
         }
 
         return super.walk(event, false);

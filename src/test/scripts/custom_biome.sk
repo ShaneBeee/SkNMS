@@ -11,6 +11,7 @@ test "SkNMS - Custom Biome":
 			sky_color: rgb(159,226,240)
 			foliage_color: yellow
 			grass_color: blue
+			grass_color_modifier: "swamp"
 	assert {_biome} is set with "Should have registered"
 	set {_test} to "my_biomes:blue_forest" parsed as biome
 	assert {_test} is set with "The biome should parsed"

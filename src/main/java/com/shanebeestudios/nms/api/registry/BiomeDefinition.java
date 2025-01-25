@@ -10,6 +10,7 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import org.bukkit.Color;
 import org.bukkit.NamespacedKey;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -93,8 +94,13 @@ public class BiomeDefinition {
             return this;
         }
 
-        public Builder grassColorModifier(GrassModifier grassModifier) {
-            this.specialEffectsBuilder().grassColorModifier(grassModifier.getModifier());
+        public Builder grassColorModifier(String grassModifier) {
+            this.specialEffectsBuilder().grassColorModifier(
+                switch (grassModifier.toLowerCase(Locale.ROOT)) {
+                    case "dark_forest" -> GrassColorModifier.DARK_FOREST;
+                    case "swamp" -> GrassColorModifier.SWAMP;
+                    default -> GrassColorModifier.NONE;
+                });
             return this;
         }
 
@@ -119,22 +125,6 @@ public class BiomeDefinition {
                 .mobSpawnSettings(new MobSpawnSettings.Builder().build());
 
             return new BiomeDefinition(this.key, this.biomeBuilder.build());
-        }
-    }
-
-    public enum GrassModifier {
-        NONE(GrassColorModifier.NONE),
-        DARK_FOREST(GrassColorModifier.DARK_FOREST),
-        SWAMP(GrassColorModifier.SWAMP);
-
-        private final GrassColorModifier modifier;
-
-        GrassModifier(GrassColorModifier modifier) {
-            this.modifier = modifier;
-        }
-
-        public GrassColorModifier getModifier() {
-            return this.modifier;
         }
     }
 
