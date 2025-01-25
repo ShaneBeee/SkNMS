@@ -85,7 +85,7 @@ import java.util.List;
     "\tif {_level} > 0:",
     "\t\tset {_time} to \"%{_level} * 3% seconds\" parsed as timespan",
     "\t\tapply wither to victim for {_time}"})
-@Since("INSERT VERSION")
+@Since("1.0.0")
 @SuppressWarnings({"UnstableApiUsage", "unchecked"})
 public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
 
