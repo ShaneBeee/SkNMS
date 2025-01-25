@@ -2,7 +2,7 @@ package com.shanebeestudios.nms;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import com.shanebeestudios.nms.util.Utils;
+import com.shanebeestudios.nms.api.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;

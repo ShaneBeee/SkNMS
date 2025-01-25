@@ -10,7 +10,7 @@ name: Java CI with Gradle
 on:
   push:
     branches:
-      - main
+      - master
       - 'dev/**'
   pull_request:
 

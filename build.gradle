@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'java'
     id "com.gradleup.shadow" version "9.0.0-beta6"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.14" // the latest version can be found on the Gradle Plugin Portal
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
 }
 
 version = '1.0.0'
@@ -37,7 +37,14 @@ dependencies {
     }
 
     compileOnly("com.github.ShaneBeee:SkBee:3.8.0")
-    implementation("com.github.ShaneBeee:NMS-API:master-SNAPSHOT")
+}
+
+jar {
+    archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
+}
+
+shadowJar {
+    archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
 }
 
 build {
@@ -55,11 +62,6 @@ processResources {
         filter ReplaceTokens, tokens: ["version": project.version]
         filter ReplaceTokens, tokens: ["minecraft": minecraft]
     }
-}
-
-shadowJar {
-    archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
-//    relocate("org.bstats", "com.shanebeestudios.skbee.metrics")
 }
 
 // Run task to build jar to another spot

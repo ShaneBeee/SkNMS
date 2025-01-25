@@ -9,8 +9,9 @@ build/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/
 *.iws
-*.iml
+*.imlgit commit -m " Removed idea folder"
 *.ipr
 out/
 !**/src/main/**/out/

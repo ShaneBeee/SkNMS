@@ -12,8 +12,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
+import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.elements.sections.SecBiomeRegister.BiomeEffectsEvent;
-import com.shanebeestudios.nms.api.world.biome.BiomeDefinition;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +23,6 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
 import java.util.List;
 
-@SuppressWarnings("DataFlowIssue")
 @Name("Biome Effects")
 @Description({"Create effects in a biome registration `effects` section.",
     "See [**McWiki Biome Definition**](https://minecraft.wiki/w/Biome_definition) for more details.",
@@ -49,15 +48,15 @@ import java.util.List;
 @Since("1.0.0")
 public class SecBiomeSpecialEffects extends Section {
 
-    private static final EntryValidator.EntryValidatorBuilder VALIDATIOR = EntryValidator.builder();
+    private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();
 
     static {
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("fog color", null, false, Color.class));
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("sky color", null, false, Color.class));
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("water color", null, false, Color.class));
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("water fog color", null, false, Color.class));
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("foliage color", null, true, Color.class));
-        VALIDATIOR.addEntryData(new ExpressionEntryData<>("grass color", null, true, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("fog color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("sky color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("water color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("water fog color", null, false, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("foliage color", null, true, Color.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("grass color", null, true, Color.class));
         Skript.registerSection(SecBiomeSpecialEffects.class, "effects");
     }
 
@@ -68,14 +67,14 @@ public class SecBiomeSpecialEffects extends Section {
     private Expression<Color> foliageColor;
     private Expression<Color> grassColor;
 
-    @SuppressWarnings({"NullableProblems", "unchecked"})
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
         if (!getParser().isCurrentEvent(BiomeEffectsEvent.class)) {
             Skript.error("'effects' section can only be used in a `register new biome` section.");
             return false;
         }
-        EntryContainer container = VALIDATIOR.build().validate(sectionNode);
+        EntryContainer container = VALIDATOR.build().validate(sectionNode);
         if (container == null) return false;
 
         this.fogColor = (Expression<Color>) container.getOptional("fog color", false);
@@ -86,13 +85,9 @@ public class SecBiomeSpecialEffects extends Section {
         this.grassColor = (Expression<Color>) container.getOptional("grass color", false);
 
         // These are required
-        if (this.fogColor == null || this.skyColor == null || this.waterColor == null || this.waterFogColor == null)
-            return false;
-
-        return true;
+        return this.fogColor != null && this.skyColor != null && this.waterColor != null && this.waterFogColor != null;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     protected @Nullable TriggerItem walk(Event event) {
         if (!(event instanceof BiomeEffectsEvent effectsEvent)) return super.walk(event, false);

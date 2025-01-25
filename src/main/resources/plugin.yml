@@ -1,6 +1,6 @@
 name: SkNMS
 main: com.shanebeestudios.nms.SkNMS
-version: '@version@'
+version: '@version@-@minecraft@'
 api-version: '@minecraft@'
 softdepend:
   - Skript

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Skript Hub Docs
+    url: https://skripthub.net/docs/?addon=SkNMS
+    about: Find SkNMS's docs and examples on Skript Hub
+  - name: 💻 Skript Hub Discord
+    url: https://discord.gg/da9n4S7
+    about: For general help with Skript & SkNMS ask in the #skript-help channel in the Skript Hub discord
