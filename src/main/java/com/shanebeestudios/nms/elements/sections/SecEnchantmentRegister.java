@@ -33,9 +33,10 @@ import java.util.List;
 @Description({"Register a new custom enchantment.",
     "There are a LOT of entries for this, so please refer to the " +
         "[**Enchantment Definition**](https://minecraft.wiki/w/Enchantment_definition) page on McWiki for all the details.",
+    "More examples and detailed information provided in the [**SkNMS Wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Custom-Enchantments).",
     "",
     "**NOTES**:",
-    "- Custom enchantments cannot be removed at runtime (a restart is the only way to get rid of them).",
+    "- Custom enchantments cannot be removed at runtime (a restart is the only way to get rid of them or change them after they're registered).",
     "- If you make a change to your custom enchantment, you'll have to restart your server (reloading the script just won't cut it).",
     "- At the time of parsing scripts, your custom enchantment won't be acknowledged (in Skript), " +
         "that will only happen after it actually registers, this is why this returns itself as an enchantment you can save in a variable.",
@@ -53,7 +54,7 @@ import java.util.List;
     "",
     "**TAG ENTRIES**:",
     "These entries are related to the Minecraft Enchantment tags that this enchantment will be added to (all default to false).",
-    "- `is_cursed` = Will add to the `#minecraft:cursed` tag making your item a cursed item (lost on death).",
+    "- `is_cursed` = Will add to the `#minecraft:curse` tag making your item a cursed item (These enchantments have red colored description and cannot be removed with a grindstone).",
     "- `is_treasure` = Will add to the `#minecraft:treasure` tag.",
     "- `is_tradeable` = Will add to the `#minecraft:treasure` and `#minecraft:double_trade_price` tags.",
     "- `is_discoverable` = Will add to the `#minecraft:in_enchanting_table` tag if not cursed or a treasure.",
@@ -62,7 +63,7 @@ import java.util.List;
     "- `is_on_traded_equipment` = If not a treasure, will add to the `#minecraft:on_traded_equipment` tag and can be found on equipment sold by villagers.",
     "",
     "**WARNINGS**:",
-    "Enchantments are not supposed to be created at runtime. This method is super hacky and I highly HIGHLY recommend just using a datapack.",
+    "Enchantments are not supposed to be created at runtime. This method is super hacky and I highly HIGHLY recommend just using a datapack instead.",
     "You must ensure 1 of 2 things:",
     "- If your spawn keeps loaded in your world, you must make sure no items are in any chests or anything in that area that contain these enchantments.",
     "- Or just make sure to turn off your spawn chunk radius (set the gamerule `spawnChunkRadius` to 0 for all worlds).",
@@ -95,10 +96,12 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
         Class<Object>[] exclusiveSetClasses = new Class[]{Enchantment.class, String.class};
         Class<Object>[] itemAndTagClasses = new Class[]{ItemType.class, String.class};
         VALIDATOR = SimpleEntryValidator.builder()
+            // Required
             .addRequiredEntry("id", String.class)
             .addRequiredEntry("description", somethingClasses)
-            .addOptionalEntry("exclusive_set", exclusiveSetClasses)
             .addRequiredEntry("supported_items", itemAndTagClasses)
+            // Optional
+            .addOptionalEntry("exclusive_set", exclusiveSetClasses)
             .addOptionalEntry("primary_items", itemAndTagClasses)
             .addOptionalEntry("weight", Integer.class)
             .addOptionalEntry("max_level", Integer.class)
