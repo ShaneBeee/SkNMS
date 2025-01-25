@@ -34,8 +34,9 @@ import java.util.List;
     "- `foliage_color` = The color to use for tree leaves and vines. If not present, the value depends on downfall and temperature (optional).",
     "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional)."})
 @Examples({"on load:",
-    "\tregister new biome with id \"test:test\":",
-    "\t\thas precipitation: true",
+    "\tset {-biome::blue_forest} to register new biome:",
+    "\t\tid: \"my_biomes:blue_forest\"",
+    "\t\thas_precipitation: true",
     "\t\ttemperature: 2.0",
     "\t\tdownfall: 1.0",
     "\t\teffects:",
