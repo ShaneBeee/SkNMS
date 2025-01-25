@@ -13,6 +13,7 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
+import com.shanebeestudios.nms.api.registry.ParticleOption;
 import com.shanebeestudios.nms.elements.sections.SecBiomeRegister.BiomeEffectsEvent;
 import com.shanebeestudios.skbee.api.util.SimpleEntryValidator;
 import org.bukkit.event.Event;
@@ -35,7 +36,8 @@ import java.util.List;
     "- `water_fog_color` = The color of the fog when underwater in this biome (required).",
     "- `foliage_color` = The color to use for tree leaves and vines. If not present, the value depends on downfall and temperature (optional).",
     "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional).",
-    "- `grass_color_modifier` = Built in color modifier for grass blocks (Can be `none`, `dark_forest` or `swamp`)."})
+    "- `grass_color_modifier` = Built in color modifier for grass blocks (Can be `none`, `dark_forest` or `swamp`).",
+    "- `particle` = Add a particle to use throughout this biome. Accepts a ParticleOption."})
 @Examples({"on load:",
     "\tset {-biome::blue_forest} to register new biome:",
     "\t\tid: \"my_biomes:blue_forest\"",
@@ -64,6 +66,7 @@ public class SecBiomeSpecialEffects extends Section {
         builder.addOptionalEntry("foliage_color", colorClasses);
         builder.addOptionalEntry("grass_color", colorClasses);
         builder.addOptionalEntry("grass_color_modifier", String.class);
+        builder.addOptionalEntry("particle", ParticleOption.class);
         VALIDATOR = builder.build();
         Skript.registerSection(SecBiomeSpecialEffects.class, "effects");
     }
@@ -75,6 +78,7 @@ public class SecBiomeSpecialEffects extends Section {
     private Expression<?> foliageColor;
     private Expression<?> grassColor;
     private Expression<String> grassColorModifier;
+    private Expression<ParticleOption> particle;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -93,6 +97,7 @@ public class SecBiomeSpecialEffects extends Section {
         this.foliageColor = (Expression<?>) container.getOptional("foliage_color", false);
         this.grassColor = (Expression<?>) container.getOptional("grass_color", false);
         this.grassColorModifier = (Expression<String>) container.getOptional("grass_color_modifier", false);
+        this.particle = (Expression<ParticleOption>) container.getOptional("particle", false);
 
         // These are required
         return this.fogColor != null && this.skyColor != null && this.waterColor != null && this.waterFogColor != null;
@@ -117,6 +122,10 @@ public class SecBiomeSpecialEffects extends Section {
 
         if (this.grassColorModifier != null) {
             builder.grassColorModifier(this.grassColorModifier.getOptionalSingle(event).orElse("none"));
+        }
+
+        if (this.particle != null) {
+            builder.particle(this.particle.getSingle(event));
         }
 
         return super.walk(event, false);

@@ -2,12 +2,14 @@ package com.shanebeestudios.nms.api.registry;
 
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import org.bukkit.NamespacedKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -100,6 +102,14 @@ public class BiomeDefinition {
                     case "swamp" -> GrassColorModifier.SWAMP;
                     default -> GrassColorModifier.NONE;
                 });
+            return this;
+        }
+
+        public Builder particle(@Nullable ParticleOption particleOption) {
+            if (particleOption != null) {
+                AmbientParticleSettings settings = particleOption.createParticleSettings();
+                this.specialEffectsBuilder().ambientParticle(settings);
+            }
             return this;
         }
 
