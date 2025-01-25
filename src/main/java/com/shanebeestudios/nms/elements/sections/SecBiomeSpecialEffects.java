@@ -12,7 +12,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
-import com.shanebeestudios.nms.api.world.biome.BiomeDefinition;
+import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.elements.sections.SecBiomeRegister.BiomeEffectsEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;

@@ -1,9 +1,10 @@
-package com.shanebeestudios.nms.api.registry;
+package com.shanebeestudios.nms.api.util;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.registry.RegistryParser;
 import ch.njol.skript.registrations.Classes;
+import com.shanebeestudios.nms.api.registry.EnchantmentDefinition;
 import com.shanebeestudios.skbee.api.reflection.ReflectionUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -18,6 +19,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +51,10 @@ public class RegistryUtils {
     @NotNull
     public static <T> ResourceKey<T> getResourceKey(@NotNull Registry<T> registry, @NotNull String name) {
         return ResourceKey.create(registry.key(), ResourceLocation.parse(name));
+    }
+
+    public static <T> ResourceLocation getResourceLocation(@NotNull NamespacedKey namespacedKey) {
+        return CraftNamespacedKey.toMinecraft(namespacedKey);
     }
 
     public static <T> TagKey<T> getTagKey(@NotNull Registry<T> registry, @NotNull String name) {

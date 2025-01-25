@@ -1,5 +1,6 @@
 package com.shanebeestudios.nms.api.registry;
 
+import com.shanebeestudios.nms.api.util.RegistryUtils;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.Holder;
