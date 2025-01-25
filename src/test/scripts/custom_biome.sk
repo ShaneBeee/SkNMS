@@ -15,3 +15,40 @@ test "SkNMS - Custom Biome":
 	assert {_biome} is set with "Should have registered"
 	set {_test} to "my_biomes:blue_forest" parsed as biome
 	assert {_test} is set with "The biome should parsed"
+	delete {_test}
+
+	set {_biome2} to register new biome:
+		id: "my_biomes:burnt_forest"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		effects:
+			fog_color: 12638463
+			water_color: 9614049
+			water_fog_color: 329011
+			sky_color: 7972607
+			grass_color: 12295008
+			foliage_color: 7435380
+			particle: particle option of white_ash with probability 1
+	assert {_biome2} is set with "Should have registered"
+	set {_test} to "my_biomes:burnt_forest" parsed as biome
+	assert {_test} is set with "The biome should parsed"
+	delete {_test}
+
+	set {_biome3} to register new biome:
+		id: "my_biomes:cool_forest"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		effects:
+			fog_color: 12638463
+			water_color: 9614049
+			water_fog_color: 329011
+			sky_color: 7972607
+			grass_color: 9617074
+			foliage_color: 45188
+			particle: particle option of block with data dirt[] with probability 0.003
+	assert {_biome3} is set with "Should have registered"
+	set {_test} to "my_biomes:cool_forest" parsed as biome
+	assert {_test} is set with "The biome should parsed"
+	delete {_test}
