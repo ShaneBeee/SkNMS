@@ -40,6 +40,14 @@ dependencies {
     implementation("com.github.ShaneBeee:NMS-API:master-SNAPSHOT")
 }
 
+jar {
+    archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
+}
+
+shadowJar {
+    archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
+}
+
 build {
     dependsOn(shadowJar)
     tasks.withType(JavaCompile).tap {
@@ -55,11 +63,6 @@ processResources {
         filter ReplaceTokens, tokens: ["version": project.version]
         filter ReplaceTokens, tokens: ["minecraft": minecraft]
     }
-}
-
-shadowJar {
-    archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
-//    relocate("org.bstats", "com.shanebeestudios.skbee.metrics")
 }
 
 // Run task to build jar to another spot

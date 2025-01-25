@@ -1,0 +1,17 @@
+test "SkNMS - Custom Enchantment":
+	set {_enchantment::explosion} to register enchantment:
+		id: "my_pack:explosion"
+		description: "Explosion"
+		max_level: 3
+		supported_items: "#minecraft:pickaxes"
+		exclusive_set: minecraft:efficiency
+		weight: 5
+		min_cost_base: 25
+		min_cost_per_level_above_first: 11
+		max_cost_base: 40
+		max_cost_per_level_above_first: 11
+		is_discoverable: true
+
+	assert {_enchantment::explosion} is set with "The var should be set"
+	set {_test} to "my_pack:explosion" parsed as enchantment
+	assert {_test} is set with "The enchantment should parsed"
