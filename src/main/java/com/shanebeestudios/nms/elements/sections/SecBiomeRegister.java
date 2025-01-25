@@ -15,6 +15,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -31,14 +32,14 @@ import java.util.List;
     "NOTE: These custom biomes will NOT show up in natural world generation.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
     "**Entries/Sections**:",
-    "- `has precipitation` = Determines whether or not the biome has precipitation.",
+    "- `has_precipitation` = Determines whether or not the biome has precipitation.",
     "- `temperature` = Controls gameplay features like grass and foliage color, and a height adjusted temperature " +
         "(which controls whether raining or snowing if `has precipitation` is true, and generation details of some features).",
     "- `downfall` = Controls grass and foliage color.",
     "- `effects` = A section to add special effects to a biome (see Biome Effects section)."})
 @Examples({"on load:",
     "\tregister new biome with id \"my_biomes:red_forest\":",
-    "\t\thas precipitation: true",
+    "\t\thas_precipitation: true",
     "\t\ttemperature: 2.0",
     "\t\tdownfall: 1.0",
     "\t\teffects:",
@@ -53,10 +54,14 @@ public class SecBiomeRegister extends Section {
 
     public static class BiomeEffectsEvent extends Event {
 
-        BiomeDefinition biomeDefinition;
+        private final BiomeDefinition.Builder builder;
 
-        public BiomeEffectsEvent(BiomeDefinition biomeDefinition) {
-            this.biomeDefinition = biomeDefinition;
+        public BiomeEffectsEvent(BiomeDefinition.Builder builder) {
+            this.builder = builder;
+        }
+
+        public BiomeDefinition.Builder getBiomeBuilder() {
+            return builder;
         }
 
         @Override
@@ -68,7 +73,7 @@ public class SecBiomeRegister extends Section {
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();
 
     static {
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("has precipitation", null, false, Boolean.class));
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("has_precipitation", null, false, Boolean.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
         VALIDATOR.unexpectedNodeTester(node -> {
@@ -87,23 +92,21 @@ public class SecBiomeRegister extends Section {
     private Expression<Number> temperature;
     private Expression<Number> downfall;
 
-    @SuppressWarnings({"NullableProblems", "unchecked"})
+    @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
         this.container = VALIDATOR.build().validate(sectionNode);
         if (this.container == null) return false;
 
         this.id = LiteralUtils.defendExpression(exprs[0]);
-        this.hasPrecipitation = (Expression<Boolean>) container.getOptional("has precipitation", false);
+        this.hasPrecipitation = (Expression<Boolean>) container.getOptional("has_precipitation", false);
         this.temperature = (Expression<Number>) container.getOptional("temperature", false);
         this.downfall = (Expression<Number>) container.getOptional("downfall", false);
 
-        if (this.id == null || this.hasPrecipitation == null || this.temperature == null || this.downfall == null) {
-            return false;
-        }
-        return true;
+        return this.id != null && this.hasPrecipitation != null && this.temperature != null && this.downfall != null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected @Nullable TriggerItem walk(@NotNull Event event) {
         Object single = this.id.getSingle(event);
@@ -114,12 +117,13 @@ public class SecBiomeRegister extends Section {
             return super.walk(event, false);
 
         NamespacedKey key = single instanceof NamespacedKey nsk ? nsk : single instanceof String s ? NamespacedKey.fromString(s) : null;
-        if (key == null) return super.walk(event, false);
+        if (key == null || Registry.BIOME.get(key) != null)
+            return super.walk(event, false);
 
-        BiomeDefinition biomeDefinition = new BiomeDefinition(key);
-        biomeDefinition.hasPrecipitation(hasPrecipitation);
-        biomeDefinition.temperature(temperature.floatValue());
-        biomeDefinition.downfall(downfall.floatValue());
+        BiomeDefinition.Builder builder = new BiomeDefinition.Builder(key);
+        builder.hasPrecipitation(hasPrecipitation);
+        builder.temperature(temperature.floatValue());
+        builder.downfall(downfall.floatValue());
 
         // SPECIAL EFFECTS
         for (Node node : this.container.getUnhandledNodes()) {
@@ -127,12 +131,12 @@ public class SecBiomeRegister extends Section {
                 getParser().setCurrentEvent("effects section", BiomeEffectsEvent.class);
                 Section parse = Section.parse(node.getKey(), "Invalid Section: " + node.getKey(), sectionNode, null);
                 if (parse != null) {
-                    Section.walk(parse, new BiomeEffectsEvent(biomeDefinition));
+                    Section.walk(parse, new BiomeEffectsEvent(builder));
                 }
             }
         }
 
-        biomeDefinition.register();
+        builder.build().register();
         return super.walk(event, false);
     }
 

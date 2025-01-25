@@ -1,9 +1,7 @@
 package com.shanebeestudios.nms.api.world;
 
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.shanebeestudios.nms.api.util.McUtils;
-import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -13,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -135,7 +132,7 @@ public class WorldApi {
 
         for (ChunkAccess chunkAccess : chunkAccessList) {
             chunkAccess.fillBiomesFromNoise(McUtils.getBiomeResolver(new MutableInt(0), chunkAccess, box, biome,
-                    biomeHolder -> replaceBiome == null || biomeHolder.is(replaceBiome)), level.getChunkSource().randomState().sampler());
+                biomeHolder -> replaceBiome == null || biomeHolder.is(replaceBiome)), level.getChunkSource().randomState().sampler());
             chunkAccess.markUnsaved();
         }
         level.getChunkSource().chunkMap.resendBiomesForChunks(chunkAccessList);
@@ -170,7 +167,7 @@ public class WorldApi {
         ServerLevel level = levelPos.getFirst();
         ResourceLocation resourceLocation = McUtils.getResourceLocation(biomeKey);
         Pair<BlockPos, Holder<Biome>> closestBiome3d = level.findClosestBiome3d(holder ->
-                holder.is(resourceLocation), blockPos, radius, step, 64);
+            holder.is(resourceLocation), blockPos, radius, step, 64);
 
         if (closestBiome3d == null) return null;
         BlockPos biomePos = closestBiome3d.getFirst();
@@ -227,23 +224,27 @@ public class WorldApi {
         BlockState changeTo = McUtils.getBlockStateFromData(data);
 
         Set<Property<?>> properties = Set.of(changeTo.getProperties().toArray(new Property<?>[0]));
-        BlockInput changeInput = new BlockInput(changeTo, properties, null);
+        //BlockInput changeInput = new BlockInput(changeTo, properties, null);
         BlockState toReplace = replace != null ? McUtils.getBlockStateFromData(replace) : null;
 
-        List<BlockPos> replacedBlocks = Lists.newArrayList();
+        List<LevelChunk> chunks = new ArrayList<>();
         for (BlockPos pos : BlockPos.betweenClosed(blockPos, blockPos2)) {
-            if (toReplace == null || level.getBlockState(pos).getBlock() == toReplace.getBlock()) {
-                BlockEntity blockEntity = level.getBlockEntity(pos);
-                Clearable.tryClear(blockEntity);
-                if (changeInput.place(level, pos, 2)) {
-                    replacedBlocks.add(pos.immutable());
-                }
+            LevelChunk chunkAt = level.getChunkAt(pos);
+            if (!chunks.contains(chunkAt)) {
+                chunks.add(chunkAt);
             }
+            BlockPos newPos = new BlockPos(pos.getX() - (chunkAt.locX << 4), pos.getY(), pos.getZ() - (chunkAt.locZ << 4));
+
+            if (toReplace == null || chunkAt.getBlockState(newPos).getBlock() == toReplace.getBlock()) {
+                Clearable.tryClear(chunkAt.getBlockEntity(newPos));
+                chunkAt.setBlockState(newPos, changeTo, false, false);
+            }
+
+        }
+        for (LevelChunk chunk : chunks) {
+            world.refreshChunk(chunk.locX, chunk.locZ);
         }
 
-        for (BlockPos pos : replacedBlocks) {
-            level.blockUpdated(pos, level.getBlockState(pos).getBlock());
-        }
     }
 
 }

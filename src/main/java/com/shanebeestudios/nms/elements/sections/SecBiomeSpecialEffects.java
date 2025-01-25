@@ -99,19 +99,19 @@ public class SecBiomeSpecialEffects extends Section {
         if (fogColor == null || skyColor == null || waterColor == null || waterFogColor == null)
             return super.walk(event, false);
 
-        BiomeDefinition biomeDefinition = effectsEvent.biomeDefinition;
-        biomeDefinition.fogColor(fogColor.asBukkitColor());
-        biomeDefinition.skyColor(skyColor.asBukkitColor());
-        biomeDefinition.waterColor(waterColor.asBukkitColor());
-        biomeDefinition.waterFogColor(waterFogColor.asBukkitColor());
+        BiomeDefinition.Builder builder = effectsEvent.getBiomeBuilder();
+        builder.fogColor(fogColor.asBukkitColor());
+        builder.skyColor(skyColor.asBukkitColor());
+        builder.waterColor(waterColor.asBukkitColor());
+        builder.waterFogColor(waterFogColor.asBukkitColor());
 
         if (this.foliageColor != null) {
             Color foliageColor = this.foliageColor.getSingle(event);
-            if (foliageColor != null) biomeDefinition.foliageColorOverride(foliageColor.asBukkitColor());
+            if (foliageColor != null) builder.foliageColorOverride(foliageColor.asBukkitColor());
         }
         if (this.grassColor != null) {
             Color grassColor = this.grassColor.getSingle(event);
-            if (grassColor != null) biomeDefinition.grassColorOverride(grassColor.asBukkitColor());
+            if (grassColor != null) builder.grassColorOverride(grassColor.asBukkitColor());
         }
 
         return super.walk(event, false);

@@ -4,6 +4,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.registry.RegistryParser;
 import ch.njol.skript.registrations.Classes;
+import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.registry.EnchantmentDefinition;
 import com.shanebeestudios.skbee.api.reflection.ReflectionUtils;
 import net.minecraft.core.Holder;
@@ -19,7 +20,9 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.biome.Biome;
 import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.block.CraftBiome;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +42,7 @@ public class RegistryUtils {
     private static final MinecraftServer SERVER = MinecraftServer.getServer();
     private static final MappedRegistry<Enchantment> ENCHANT_REGISTRY = getRegistry(Registries.ENCHANTMENT);
     private static final MappedRegistry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
+    private static final MappedRegistry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
 
     public static MappedRegistry<Enchantment> getEnchantRegistry() {
         return ENCHANT_REGISTRY;
@@ -190,15 +194,29 @@ public class RegistryUtils {
 
         setupDistribution(intrusiveHolder, definition);
         RegistryUtils.freeze(ENCHANT_REGISTRY);
-        refreshSkriptRegistry();
+        refreshSkriptRegistry(org.bukkit.enchantments.Enchantment.class);
 
         return CraftEnchantment.minecraftToBukkit(enchantment);
     }
 
-    public static void refreshSkriptRegistry() {
+    public static org.bukkit.block.Biome registerBiome(BiomeDefinition definition) {
+        unfreeze(BIOME_REGISTRY);
+
+        ResourceLocation key =  definition.getKey();
+        ResourceKey<Biome> resourceKey = ResourceKey.create(Registries.BIOME, key);
+        Biome biome = definition.getBiome();
+        Holder.Reference<Biome> intrusiveHolder = BIOME_REGISTRY.createIntrusiveHolder(biome);
+        Registry.register(BIOME_REGISTRY, resourceKey, biome);
+
+        freeze(BIOME_REGISTRY);
+        refreshSkriptRegistry(org.bukkit.block.Biome.class);
+        return CraftBiome.minecraftToBukkit(biome);
+    }
+
+    public static <T> void refreshSkriptRegistry(Class<T> registryClass) {
         // Refresh Skript's Enchantment registry to make sure it contains new enchantments
-        ClassInfo<org.bukkit.enchantments.Enchantment> classInfo = Classes.getExactClassInfo(org.bukkit.enchantments.Enchantment.class);
-        Parser<? extends org.bukkit.enchantments.Enchantment> parser = classInfo.getParser();
+        ClassInfo<T> classInfo = Classes.getExactClassInfo(registryClass);
+        Parser<? extends T> parser = classInfo.getParser();
         try {
             Method refresh = RegistryParser.class.getDeclaredMethod("refresh");
             refresh.setAccessible(true);
