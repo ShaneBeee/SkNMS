@@ -55,3 +55,4 @@ jobs:
           test_script_directory: src/test/scripts
           skript_repo_ref: 2.10.0
           extra_plugins_directory: src/test/plugins/
+          run_vanilla_tests: false # Temp disable until Skript fixes their tests
