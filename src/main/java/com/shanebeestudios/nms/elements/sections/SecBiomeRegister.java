@@ -36,6 +36,7 @@ import java.util.List;
 @Description({"Register a new biome.",
     "NOTE: These custom biomes will NOT show up in natural world generation.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
+    "See more examples on the [**SkNMS Wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Custom-Biomes).",
     "**Entries/Sections**:",
     "- `has_precipitation` = Determines whether or not the biome has precipitation.",
     "- `temperature` = Controls gameplay features like grass and foliage color, and a height adjusted temperature " +

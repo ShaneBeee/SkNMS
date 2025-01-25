@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.ParticleOption;
@@ -45,6 +46,7 @@ public class ExprParticleOption extends SimpleExpression<ParticleOption> {
         return true;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     protected ParticleOption @Nullable [] get(Event event) {
         Particle particle = this.particle.getSingle(event);
@@ -65,7 +67,13 @@ public class ExprParticleOption extends SimpleExpression<ParticleOption> {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return "";
+        SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+        builder.append("particle option of", this.particle);
+        if (this.data != null) {
+            builder.append("with data", this.data);
+        }
+        builder.append("with probability", this.probability);
+        return builder.toString();
     }
 
 }

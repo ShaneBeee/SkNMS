@@ -27,7 +27,8 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 @Name("Biome Effects")
 @Description({"Create effects in a biome registration `effects` section.",
-    "See [**McWiki Biome Definition**](https://minecraft.wiki/w/Biome_definition) for more details.",
+    "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
+    "See more examples on the [**SkNMS Wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Custom-Biomes).",
     "**Entries**:",
     "All color entries accept Skript colors, RGB colors as well as integers (Refer to the above wiki to see information about the integers).",
     "- `fog_color` = The color of fog in this biome (required).",
