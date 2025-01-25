@@ -15,6 +15,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.block.Biome;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.entry.SectionEntryData;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
@@ -83,13 +85,18 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         VALIDATOR.addEntryData(new ExpressionEntryData<>("has_precipitation", null, false, Boolean.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
-        VALIDATOR.unexpectedNodeTester(node -> {
-            if (node instanceof SectionNode sectionNode) {
-                String key = sectionNode.getKey();
-                return key == null || !key.contains("effects");
-            }
-            return true;
-        });
+        if (Bukkit.getPluginManager().isPluginEnabled("SkriptHubDocsTool")) {
+            // Dummy section for generating docs
+            VALIDATOR.addEntryData(new SectionEntryData("effects", null, true));
+        } else {
+            VALIDATOR.unexpectedNodeTester(node -> {
+                if (node instanceof SectionNode sectionNode) {
+                    String key = sectionNode.getKey();
+                    return key == null || !key.contains("effects");
+                }
+                return true;
+            });
+        }
         Skript.registerExpression(SecBiomeRegister.class, Biome.class, ExpressionType.SIMPLE,
             "register [new] [custom] biome");
     }
