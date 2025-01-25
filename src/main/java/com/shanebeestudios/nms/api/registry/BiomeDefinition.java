@@ -64,52 +64,45 @@ public class BiomeDefinition {
         }
 
         public Builder fogColor(Color fogColor) {
-            this.checkAndCreateSpecialEffects();
-            this.specialEffects.fogColor(fogColor.asRGB());
+            this.specialEffectsBuilder().fogColor(fogColor.asRGB());
             return this;
         }
 
         public Builder waterColor(Color waterColor) {
-            this.checkAndCreateSpecialEffects();
-            this.specialEffects.waterColor(waterColor.asRGB());
+            this.specialEffectsBuilder().waterColor(waterColor.asRGB());
             return this;
         }
 
         public Builder waterFogColor(Color waterFogColor) {
-            this.checkAndCreateSpecialEffects();
-            this.specialEffects.waterFogColor(waterFogColor.asRGB());
+            this.specialEffectsBuilder().waterFogColor(waterFogColor.asRGB());
             return this;
         }
 
         public Builder skyColor(Color skyColor) {
-            this.checkAndCreateSpecialEffects();
-            this.specialEffects.skyColor(skyColor.asRGB());
+            this.specialEffectsBuilder().skyColor(skyColor.asRGB());
             return this;
         }
 
         public Builder foliageColorOverride(Color foliageColor) {
-            this.checkAndCreateSpecialEffects();
-            this.specialEffects.foliageColorOverride(foliageColor.asRGB());
+            this.specialEffectsBuilder().foliageColorOverride(foliageColor.asRGB());
             return this;
         }
 
         public Builder grassColorOverride(Color grassColor) {
-            this.checkAndCreateSpecialEffects();
-            this.specialEffects.grassColorOverride(grassColor.asRGB());
+            this.specialEffectsBuilder().grassColorOverride(grassColor.asRGB());
             return this;
         }
 
         public Builder grassColorModifier(GrassModifier grassModifier) {
-            this.checkAndCreateSpecialEffects();
-            this.specialEffects.grassColorModifier(grassModifier.getModifier());
+            this.specialEffectsBuilder().grassColorModifier(grassModifier.getModifier());
             return this;
         }
 
-        private void checkAndCreateSpecialEffects() {
+        private BiomeSpecialEffects.Builder specialEffectsBuilder() {
             if (this.specialEffects == null) {
                 this.specialEffects = new BiomeSpecialEffects.Builder();
             }
-
+            return this.specialEffects;
         }
 
         public BiomeDefinition build() {
