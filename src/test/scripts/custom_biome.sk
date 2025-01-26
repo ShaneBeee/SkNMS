@@ -52,3 +52,25 @@ test "SkNMS - Custom Biome":
 	set {_test} to "my_biomes:cool_forest" parsed as biome
 	assert {_test} is set with "The biome should parsed"
 	delete {_test}
+
+	set {_biome4} to register new biome:
+		id: "my_biomes:colorful_coast"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		features:
+			underground_ores:
+				apply feature "minecraft:ore_dirt"
+				apply feature "minecraft:ore_coal_upper"
+				apply feature "minecraft:ore_coal_lower"
+			vegetal_decoration:
+				apply feature "minecraft:glow_lichen"
+				apply feature "minecraft:patch_grass_savanna"
+				apply feature "minecraft:patch_tall_grass_2"
+				apply feature "minecraft:brown_mushroom_normal"
+				apply feature "minecraft:red_mushroom_normal"
+				apply feature "minecraft:patch_sugar_cane"
+	assert {_biome4} is set with "Should have registered"
+	set {_test} to "my_biomes:colorful_coast" parsed as biome
+	assert {_test} is set with "The biome should parsed"
+	delete {_test}
