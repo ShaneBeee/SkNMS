@@ -3,6 +3,8 @@ package com.shanebeestudios.nms.api.registry;
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.random.Weight;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
@@ -11,6 +13,8 @@ import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.entity.CraftEntityType;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -48,6 +52,7 @@ public class BiomeDefinition {
         private final Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();
         private BiomeSpecialEffects.Builder specialEffects = null;
         private final BiomeGenerationSettings.PlainBuilder genSettings = new BiomeGenerationSettings.PlainBuilder();
+        private final MobSpawnSettings.Builder mobSpawnSettings = new MobSpawnSettings.Builder();
 
         public Builder(NamespacedKey key) {
             this.key = key;
@@ -124,6 +129,16 @@ public class BiomeDefinition {
             return this;
         }
 
+        public Builder addMobSpawn(int step, EntityType entityType, int weight, int minCount, int maxCount) {
+            minCount = Math.max(minCount, 1);
+            maxCount = Math.max(maxCount, minCount);
+            MobCategory mobCategory = MobCategory.values()[step];
+            net.minecraft.world.entity.EntityType<?> nmsEntityType = CraftEntityType.bukkitToMinecraft(entityType);
+            MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType, Weight.of(weight), minCount, maxCount);
+            this.mobSpawnSettings.addSpawn(mobCategory, spawnerData);
+            return this;
+        }
+
         private BiomeSpecialEffects.Builder specialEffectsBuilder() {
             if (this.specialEffects == null) {
                 this.specialEffects = new BiomeSpecialEffects.Builder();
@@ -142,7 +157,7 @@ public class BiomeDefinition {
                             .waterFogColor(329011))
                     .build())
                 .generationSettings(this.genSettings.build())
-                .mobSpawnSettings(new MobSpawnSettings.Builder().build());
+                .mobSpawnSettings(this.mobSpawnSettings.build());
 
             return new BiomeDefinition(this.key, this.biomeBuilder.build());
         }

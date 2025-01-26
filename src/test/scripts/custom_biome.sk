@@ -74,3 +74,19 @@ test "SkNMS - Custom Biome":
 	set {_test} to "my_biomes:colorful_coast" parsed as biome
 	assert {_test} is set with "The biome should parsed"
 	delete {_test}
+
+	set {_biome5} to register new biome:
+		id: "my_biomes:sheepy_town"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		spawners:
+			creature:
+				apply spawner for sheep with weight 12 and with min count 4
+			monster:
+				apply spawner for illusioner with weight 1 and with min count 1
+				apply spawner for zombie, skeleton and creeper with weight 3 and with min count 1
+	assert {_biome5} is set with "Should have registered"
+	set {_test} to "my_biomes:sheepy_town" parsed as biome
+	assert {_test} is set with "The biome should parsed"
+	delete {_test}

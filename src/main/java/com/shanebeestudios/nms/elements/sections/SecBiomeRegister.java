@@ -38,6 +38,7 @@ import java.util.List;
     "NOTE: These custom biomes will NOT show up in natural world generation.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
     "See more examples on the [**SkNMS Wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Custom-Biomes).",
+    "",
     "**Entries/Sections**:",
     "- `has_precipitation` = Determines whether or not the biome has precipitation.",
     "- `temperature` = Controls gameplay features like grass and foliage color, and a height adjusted temperature " +
@@ -45,7 +46,9 @@ import java.util.List;
     "- `downfall` = Controls grass and foliage color.",
     "- `effects` = A section to add special effects to a biome (see Biome Effects section).",
     "- `features` = A section to apply different [**Placed Features**](https://minecraft.wiki/w/Placed_feature) that will apply during chunk generation. " +
-        "See the Biome Features section and Apply Biome Features effect for more information."})
+        "See the Biome Features section and Apply Biome Features effect for more information.",
+    "- `spawners` = A section to determine which mobs spawn in this biome " +
+        "(See the biome spawners section and apply biome spawner effect for more information)."})
 @Examples({"on load:",
     "\tset {-biome::blue_forest} to register new biome:",
     "\t\tid: \"my_biomes:blue_forest\"",
@@ -99,6 +102,7 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         VALIDATOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
         VALIDATOR.addEntryData(new SectionEntryData("features", null, true));
+        VALIDATOR.addEntryData(new SectionEntryData("spawners", null, true));
         if (Bukkit.getPluginManager().isPluginEnabled("SkriptHubDocsTool")) {
             // Dummy section for generating docs
             VALIDATOR.addEntryData(new SectionEntryData("effects", null, true));
@@ -122,6 +126,7 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
     private Expression<Number> downfall;
     private Section effects;
     private Trigger features;
+    private Trigger spawners;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -148,6 +153,10 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         SectionNode featuresNode = (SectionNode) container.getOptional("features", false);
         if (featuresNode != null) {
             this.features = loadCode(featuresNode, "features", null, BiomeEffectsEvent.class);
+        }
+        SectionNode spawnersNode = (SectionNode) container.getOptional("spawners", false);
+        if (spawnersNode != null) {
+            this.spawners = loadCode(spawnersNode, "spawners", null, BiomeEffectsEvent.class);
         }
 
         return this.id != null && this.hasPrecipitation != null && this.temperature != null && this.downfall != null;
@@ -179,7 +188,7 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         builder.temperature(temperature.floatValue());
         builder.downfall(downfall.floatValue());
 
-        // SPECIAL EFFECTS
+        // EFFECTS
         if (this.effects != null) {
             Section.walk(this.effects, new BiomeEffectsEvent(builder));
         }
@@ -187,6 +196,11 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         // FEATURES
         if (this.features != null) {
             Trigger.walk(this.features, new BiomeEffectsEvent(builder));
+        }
+
+        // SPAWNERS
+        if (this.spawners != null) {
+            Trigger.walk(this.spawners, new BiomeEffectsEvent(builder));
         }
 
         return new Biome[]{builder.build().register()};
