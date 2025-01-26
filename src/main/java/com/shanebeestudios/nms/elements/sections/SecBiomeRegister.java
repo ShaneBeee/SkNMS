@@ -12,6 +12,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
@@ -42,7 +43,9 @@ import java.util.List;
     "- `temperature` = Controls gameplay features like grass and foliage color, and a height adjusted temperature " +
         "(which controls whether raining or snowing if `has precipitation` is true, and generation details of some features).",
     "- `downfall` = Controls grass and foliage color.",
-    "- `effects` = A section to add special effects to a biome (see Biome Effects section)."})
+    "- `effects` = A section to add special effects to a biome (see Biome Effects section).",
+    "- `features` = A section to apply different [**Placed Features**](https://minecraft.wiki/w/Placed_feature) that will apply during chunk generation. " +
+        "See the Biome Features section and Apply Biome Features effect for more information."})
 @Examples({"on load:",
     "\tset {-biome::blue_forest} to register new biome:",
     "\t\tid: \"my_biomes:blue_forest\"",
@@ -62,6 +65,7 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
     public static class BiomeEffectsEvent extends Event {
 
         private final BiomeDefinition.Builder builder;
+        private int step = 0;
 
         public BiomeEffectsEvent(BiomeDefinition.Builder builder) {
             this.builder = builder;
@@ -69,6 +73,14 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
 
         public BiomeDefinition.Builder getBiomeBuilder() {
             return builder;
+        }
+
+        public int getStep() {
+            return step;
+        }
+
+        public void setStep(int step) {
+            this.step = step;
         }
 
         @Override
@@ -86,6 +98,7 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         VALIDATOR.addEntryData(new ExpressionEntryData<>("has_precipitation", null, false, Boolean.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
+        VALIDATOR.addEntryData(new SectionEntryData("features", null, true));
         if (Bukkit.getPluginManager().isPluginEnabled("SkriptHubDocsTool")) {
             // Dummy section for generating docs
             VALIDATOR.addEntryData(new SectionEntryData("effects", null, true));
@@ -108,6 +121,7 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
     private Expression<Boolean> hasPrecipitation;
     private Expression<Number> temperature;
     private Expression<Number> downfall;
+    private Trigger features;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -120,6 +134,10 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         this.hasPrecipitation = (Expression<Boolean>) container.getOptional("has_precipitation", false);
         this.temperature = (Expression<Number>) container.getOptional("temperature", false);
         this.downfall = (Expression<Number>) container.getOptional("downfall", false);
+        SectionNode featuresNode = (SectionNode) container.getOptional("features", false);
+        if (featuresNode != null) {
+            this.features = loadCode(featuresNode, "features", null, BiomeEffectsEvent.class);
+        }
 
         return this.id != null && this.hasPrecipitation != null && this.temperature != null && this.downfall != null;
     }
@@ -152,13 +170,20 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
 
         // SPECIAL EFFECTS
         for (Node node : this.container.getUnhandledNodes()) {
+            Skript.info("Unhandled node: " + node.getKey());
             if (node instanceof SectionNode sectionNode) {
-                getParser().setCurrentEvent("effects section", BiomeEffectsEvent.class);
+                String name = sectionNode.getKey();
+                getParser().setCurrentEvent(name + " section", BiomeEffectsEvent.class);
                 Section parse = Section.parse(node.getKey(), "Invalid Section: " + node.getKey(), sectionNode, null);
                 if (parse != null) {
                     Section.walk(parse, new BiomeEffectsEvent(builder));
                 }
             }
+        }
+
+        // FEATURES
+        if (this.features != null) {
+            Trigger.walk(this.features, new BiomeEffectsEvent(builder));
         }
 
         return new Biome[]{builder.build().register()};

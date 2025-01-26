@@ -21,6 +21,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.block.CraftBiome;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
@@ -43,6 +44,7 @@ public class RegistryUtils {
     private static final MappedRegistry<Enchantment> ENCHANT_REGISTRY = getRegistry(Registries.ENCHANTMENT);
     private static final MappedRegistry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
     private static final MappedRegistry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
+    private static final MappedRegistry<PlacedFeature> PLACED_FEATURE_REGISTRY = getRegistry(Registries.PLACED_FEATURE);
 
     public static MappedRegistry<Enchantment> getEnchantRegistry() {
         return ENCHANT_REGISTRY;
@@ -211,6 +213,11 @@ public class RegistryUtils {
         freeze(BIOME_REGISTRY);
         refreshSkriptRegistry(org.bukkit.block.Biome.class);
         return CraftBiome.minecraftToBukkit(biome);
+    }
+
+    public static Holder<PlacedFeature> getFeature(NamespacedKey key) {
+        ResourceLocation resourceLocation = getResourceLocation(key);
+        return PLACED_FEATURE_REGISTRY.get(resourceLocation).orElse(null);
     }
 
     public static <T> void refreshSkriptRegistry(Class<T> registryClass) {

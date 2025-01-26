@@ -1,6 +1,7 @@
 package com.shanebeestudios.nms.api.registry;
 
 import com.shanebeestudios.nms.api.util.RegistryUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
@@ -8,6 +9,7 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +47,7 @@ public class BiomeDefinition {
         private final NamespacedKey key;
         private final Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();
         private BiomeSpecialEffects.Builder specialEffects = null;
+        private final BiomeGenerationSettings.PlainBuilder genSettings = new BiomeGenerationSettings.PlainBuilder();
 
         public Builder(NamespacedKey key) {
             this.key = key;
@@ -113,6 +116,14 @@ public class BiomeDefinition {
             return this;
         }
 
+        public Builder addFeature(int step, NamespacedKey key) {
+            Holder<PlacedFeature> feature = RegistryUtils.getFeature(key);
+            if (feature != null) {
+                this.genSettings.addFeature(step, feature);
+            }
+            return this;
+        }
+
         private BiomeSpecialEffects.Builder specialEffectsBuilder() {
             if (this.specialEffects == null) {
                 this.specialEffects = new BiomeSpecialEffects.Builder();
@@ -130,7 +141,7 @@ public class BiomeDefinition {
                             .waterColor(4159204)
                             .waterFogColor(329011))
                     .build())
-                .generationSettings(new BiomeGenerationSettings.PlainBuilder().build())
+                .generationSettings(this.genSettings.build())
                 .mobSpawnSettings(new MobSpawnSettings.Builder().build());
 
             return new BiomeDefinition(this.key, this.biomeBuilder.build());
