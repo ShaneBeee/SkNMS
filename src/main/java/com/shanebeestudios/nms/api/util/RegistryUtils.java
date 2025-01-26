@@ -1,5 +1,6 @@
 package com.shanebeestudios.nms.api.util;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.registry.RegistryParser;
@@ -221,6 +222,9 @@ public class RegistryUtils {
     }
 
     public static <T> void refreshSkriptRegistry(Class<T> registryClass) {
+        ClassLoader classLoader = Skript.class.getClassLoader();
+        boolean assertionStatus = Skript.class.desiredAssertionStatus();
+        classLoader.setClassAssertionStatus(Skript.class.getName(), false);
         // Refresh Skript's Enchantment registry to make sure it contains new enchantments
         ClassInfo<T> classInfo = Classes.getExactClassInfo(registryClass);
         Parser<? extends T> parser = classInfo.getParser();
@@ -231,6 +235,7 @@ public class RegistryUtils {
         } catch (Exception ignore) {
 
         }
+        classLoader.setClassAssertionStatus(Skript.class.getName(), assertionStatus);
     }
 
 }
