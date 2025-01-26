@@ -7,15 +7,15 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
+import com.shanebeestudios.nms.api.skript.RegistrationSection;
+import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -28,7 +28,6 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.SectionEntryData;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.List;
 
@@ -49,8 +48,8 @@ import java.util.List;
         "See the Biome Features section and Apply Biome Features effect for more information.",
     "- `spawners` = A section to determine which mobs spawn in this biome " +
         "(See the biome spawners section and apply biome spawner effect for more information)."})
-@Examples({"on load:",
-    "\tset {-biome::blue_forest} to register new biome:",
+@Examples({"registry registration:",
+    "\tregister new biome:",
     "\t\tid: \"my_biomes:blue_forest\"",
     "\t\thas_precipitation: true",
     "\t\ttemperature: 2.0",
@@ -63,7 +62,7 @@ import java.util.List;
     "\t\t\tfoliage_color: yellow",
     "\t\t\tgrass_color: blue"})
 @Since("1.0.0")
-public class SecBiomeRegister extends SectionExpression<Biome> implements SyntaxRuntimeErrorProducer {
+public class SecBiomeRegister extends RegistrationSection {
 
     public static class BiomeEffectsEvent extends Event {
 
@@ -115,11 +114,9 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
                 return true;
             });
         }
-        Skript.registerExpression(SecBiomeRegister.class, Biome.class, ExpressionType.SIMPLE,
-            "register [new] [custom] biome");
+        Skript.registerSection(SecBiomeRegister.class, "register [new] [custom] biome");
     }
 
-    private Node node;
     private Expression<?> id;
     private Expression<Boolean> hasPrecipitation;
     private Expression<Number> temperature;
@@ -131,7 +128,10 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-        this.node = getParser().getNode();
+        if (!getParser().isCurrentStructure(StructRegistryRegistration.class)) {
+            Skript.error("Biomes can only be registered in a 'registry registration' structure");
+            return false;
+        }
         EntryContainer container = VALIDATOR.build().validate(sectionNode);
         if (container == null) return false;
 
@@ -152,11 +152,11 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
 
         SectionNode featuresNode = (SectionNode) container.getOptional("features", false);
         if (featuresNode != null) {
-            this.features = loadCode(featuresNode, "features", null, BiomeEffectsEvent.class);
+            this.features = loadCode(featuresNode, "features", BiomeEffectsEvent.class);
         }
         SectionNode spawnersNode = (SectionNode) container.getOptional("spawners", false);
         if (spawnersNode != null) {
-            this.spawners = loadCode(spawnersNode, "spawners", null, BiomeEffectsEvent.class);
+            this.spawners = loadCode(spawnersNode, "spawners", BiomeEffectsEvent.class);
         }
 
         return this.id != null && this.hasPrecipitation != null && this.temperature != null && this.downfall != null;
@@ -164,7 +164,8 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
 
     @SuppressWarnings("deprecation")
     @Override
-    protected Biome @Nullable [] get(Event event) {
+    protected @Nullable TriggerItem walk(Event event) {
+        TriggerItem next = getNext();
         Object single = this.id.getSingle(event);
         Boolean hasPrecipitation = this.hasPrecipitation.getSingle(event);
         Number temperature = this.temperature.getSingle(event);
@@ -179,8 +180,7 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         }
         Biome biome = Registry.BIOME.get(key);
         if (biome != null) {
-            warning("Biome '" + key + "' already exists!");
-            return new Biome[]{biome};
+            return next;
         }
 
         BiomeDefinition.Builder builder = new BiomeDefinition.Builder(key);
@@ -203,27 +203,13 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
             Trigger.walk(this.spawners, new BiomeEffectsEvent(builder));
         }
 
-        return new Biome[]{builder.build().register()};
+        builder.build().register();
+        return next;
     }
 
     @Override
     public @NotNull String toString(Event e, boolean d) {
         return "register new biome";
-    }
-
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
-
-    @Override
-    public Class<? extends Biome> getReturnType() {
-        return Biome.class;
-    }
-
-    @Override
-    public Node getNode() {
-        return this.node;
     }
 
 }

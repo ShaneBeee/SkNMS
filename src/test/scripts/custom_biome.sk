@@ -1,5 +1,5 @@
-test "SkNMS - Custom Biome":
-	set {_biome} to register new biome:
+registry registration:
+	register new biome:
 		id: "my_biomes:blue_forest"
 		has_precipitation: true
 		temperature: 2.0
@@ -12,12 +12,8 @@ test "SkNMS - Custom Biome":
 			foliage_color: yellow
 			grass_color: blue
 			grass_color_modifier: "swamp"
-	assert {_biome} is set with "Should have registered"
-	set {_test} to "my_biomes:blue_forest" parsed as biome
-	assert {_test} is set with "The biome should parsed"
-	delete {_test}
 
-	set {_biome2} to register new biome:
+	register new biome:
 		id: "my_biomes:burnt_forest"
 		has_precipitation: true
 		temperature: 0.7
@@ -30,12 +26,8 @@ test "SkNMS - Custom Biome":
 			grass_color: 12295008
 			foliage_color: 7435380
 			particle: particle option of white_ash with probability 1
-	assert {_biome2} is set with "Should have registered"
-	set {_test} to "my_biomes:burnt_forest" parsed as biome
-	assert {_test} is set with "The biome should parsed"
-	delete {_test}
 
-	set {_biome3} to register new biome:
+	register new biome:
 		id: "my_biomes:cool_forest"
 		has_precipitation: true
 		temperature: 0.7
@@ -48,12 +40,8 @@ test "SkNMS - Custom Biome":
 			grass_color: 9617074
 			foliage_color: 45188
 			particle: particle option of block with data dirt[] with probability 0.003
-	assert {_biome3} is set with "Should have registered"
-	set {_test} to "my_biomes:cool_forest" parsed as biome
-	assert {_test} is set with "The biome should parsed"
-	delete {_test}
 
-	set {_biome4} to register new biome:
+	register new biome:
 		id: "my_biomes:colorful_coast"
 		has_precipitation: true
 		temperature: 0.7
@@ -70,12 +58,8 @@ test "SkNMS - Custom Biome":
 				apply feature "minecraft:brown_mushroom_normal"
 				apply feature "minecraft:red_mushroom_normal"
 				apply feature "minecraft:patch_sugar_cane"
-	assert {_biome4} is set with "Should have registered"
-	set {_test} to "my_biomes:colorful_coast" parsed as biome
-	assert {_test} is set with "The biome should parsed"
-	delete {_test}
 
-	set {_biome5} to register new biome:
+	register new biome:
 		id: "my_biomes:sheepy_town"
 		has_precipitation: true
 		temperature: 0.7
@@ -86,7 +70,11 @@ test "SkNMS - Custom Biome":
 			monster:
 				apply spawner for illusioner with weight 1 and with min count 1
 				apply spawner for zombie, skeleton and creeper with weight 3 and with min count 1
-	assert {_biome5} is set with "Should have registered"
-	set {_test} to "my_biomes:sheepy_town" parsed as biome
-	assert {_test} is set with "The biome should parsed"
-	delete {_test}
+
+test "SkNMS - Custom Biome":
+	set {_b::1} to my_biomes:blue_forest
+	set {_b::2} to my_biomes:burnt_forest
+	set {_b::3} to my_biomes:cool_forest
+	set {_b::4} to my_biomes:colorful_coast
+	set {_b::5} to my_biomes:sheepy_town
+	assert size of {_b::*} = 5 with "Should be 5 biomes"
