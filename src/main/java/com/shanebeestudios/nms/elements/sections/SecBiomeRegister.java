@@ -116,24 +116,35 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
     }
 
     private Node node;
-    private EntryContainer container;
     private Expression<?> id;
     private Expression<Boolean> hasPrecipitation;
     private Expression<Number> temperature;
     private Expression<Number> downfall;
+    private Section effects;
     private Trigger features;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
         this.node = getParser().getNode();
-        this.container = VALIDATOR.build().validate(sectionNode);
-        if (this.container == null) return false;
+        EntryContainer container = VALIDATOR.build().validate(sectionNode);
+        if (container == null) return false;
 
         this.id = (Expression<?>) container.getOptional("id", false);
         this.hasPrecipitation = (Expression<Boolean>) container.getOptional("has_precipitation", false);
         this.temperature = (Expression<Number>) container.getOptional("temperature", false);
         this.downfall = (Expression<Number>) container.getOptional("downfall", false);
+
+
+        for (Node node : container.getUnhandledNodes()) {
+            if (node instanceof SectionNode secNode && secNode.getKey().equals("effects")) {
+                Class<? extends Event>[] currentEvents = getParser().getCurrentEvents();
+                getParser().setCurrentEvent("effects section", BiomeEffectsEvent.class);
+                this.effects = Section.parse(node.getKey(), "Invalid Section: " + node.getKey(), secNode, null);
+                getParser().setCurrentEvents(currentEvents);
+            }
+        }
+
         SectionNode featuresNode = (SectionNode) container.getOptional("features", false);
         if (featuresNode != null) {
             this.features = loadCode(featuresNode, "features", null, BiomeEffectsEvent.class);
@@ -169,16 +180,8 @@ public class SecBiomeRegister extends SectionExpression<Biome> implements Syntax
         builder.downfall(downfall.floatValue());
 
         // SPECIAL EFFECTS
-        for (Node node : this.container.getUnhandledNodes()) {
-            Skript.info("Unhandled node: " + node.getKey());
-            if (node instanceof SectionNode sectionNode) {
-                String name = sectionNode.getKey();
-                getParser().setCurrentEvent(name + " section", BiomeEffectsEvent.class);
-                Section parse = Section.parse(node.getKey(), "Invalid Section: " + node.getKey(), sectionNode, null);
-                if (parse != null) {
-                    Section.walk(parse, new BiomeEffectsEvent(builder));
-                }
-            }
+        if (this.effects != null) {
+            Section.walk(this.effects, new BiomeEffectsEvent(builder));
         }
 
         // FEATURES
