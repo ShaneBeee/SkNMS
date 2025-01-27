@@ -39,8 +39,8 @@ import java.util.List;
     "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional).",
     "- `grass_color_modifier` = Built in color modifier for grass blocks (Can be `none`, `dark_forest` or `swamp`).",
     "- `particle` = Add a particle to use throughout this biome. Accepts a ParticleOption."})
-@Examples({"on load:",
-    "\tset {-biome::blue_forest} to register new biome:",
+@Examples({"registry registration:",
+    "\tregister new biome:",
     "\t\tid: \"my_biomes:blue_forest\"",
     "\t\thas_precipitation: true",
     "\t\ttemperature: 2.0",

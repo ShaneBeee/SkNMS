@@ -24,7 +24,7 @@ import java.util.List;
 @Description({"Apply features to biomes.",
     "Refer to [**BiomeDefinition**](https://minecraft.wiki/w/Biome_definition) and " +
         "[**Placed Feature**](https://minecraft.wiki/w/Placed_feature) on McWiki for full details."})
-@Examples({"set {-biomes::colorful_coast} to register new biome:",
+@Examples({"register new biome:",
     "\tid: \"my_biomes:colorful_coast\"",
     "\thas_precipitation: true",
     "\ttemperature: 0.7",
