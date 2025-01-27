@@ -3,6 +3,7 @@ package com.shanebeestudios.nms.api.registry;
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.random.Weight;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
@@ -17,6 +18,8 @@ import org.bukkit.craftbukkit.entity.CraftEntityType;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -28,10 +31,12 @@ public class BiomeDefinition {
 
     private final ResourceLocation key;
     private final Biome biome;
+    private final List<TagKey<Biome>> tagKeys;
 
-    public BiomeDefinition(NamespacedKey key, Biome biome) {
+    public BiomeDefinition(NamespacedKey key, Biome biome, List<TagKey<Biome>> tagKeys) {
         this.key = RegistryUtils.getResourceLocation(key);
         this.biome = biome;
+        this.tagKeys = tagKeys;
     }
 
     public ResourceLocation getKey() {
@@ -39,7 +44,11 @@ public class BiomeDefinition {
     }
 
     public Biome getBiome() {
-        return biome;
+        return this.biome;
+    }
+
+    public List<TagKey<Biome>> getTagKeys() {
+        return this.tagKeys;
     }
 
     public org.bukkit.block.Biome register() {
@@ -53,6 +62,7 @@ public class BiomeDefinition {
         private BiomeSpecialEffects.Builder specialEffects = null;
         private final BiomeGenerationSettings.PlainBuilder genSettings = new BiomeGenerationSettings.PlainBuilder();
         private final MobSpawnSettings.Builder mobSpawnSettings = new MobSpawnSettings.Builder();
+        private final List<TagKey<Biome>> tagKeys = new ArrayList<>();
 
         public Builder(NamespacedKey key) {
             this.key = key;
@@ -129,6 +139,12 @@ public class BiomeDefinition {
             return this;
         }
 
+        public Builder addTag(NamespacedKey key) {
+            TagKey<Biome> tagKey = RegistryUtils.getTagKey(RegistryUtils.getBiomeRegistry(), key.toString());
+            this.tagKeys.add(tagKey);
+            return this;
+        }
+
         public Builder addMobSpawn(int step, EntityType entityType, int weight, int minCount, int maxCount) {
             minCount = Math.max(minCount, 1);
             maxCount = Math.max(maxCount, minCount);
@@ -159,7 +175,7 @@ public class BiomeDefinition {
                 .generationSettings(this.genSettings.build())
                 .mobSpawnSettings(this.mobSpawnSettings.build());
 
-            return new BiomeDefinition(this.key, this.biomeBuilder.build());
+            return new BiomeDefinition(this.key, this.biomeBuilder.build(), this.tagKeys);
         }
     }
 

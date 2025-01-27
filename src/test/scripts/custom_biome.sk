@@ -71,10 +71,20 @@ registry registration:
 				apply spawner for illusioner with weight 1 and with min count 1
 				apply spawner for zombie, skeleton and creeper with weight 3 and with min count 1
 
+	register new biome:
+		id: "my_biomes:fancy_forest"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		tags:
+			apply tag "minecraft:is_forest"
+			apply tag "minecraft:has_structure/village_plains"
+
 test "SkNMS - Custom Biome":
 	set {_b::1} to my_biomes:blue_forest
 	set {_b::2} to my_biomes:burnt_forest
 	set {_b::3} to my_biomes:cool_forest
 	set {_b::4} to my_biomes:colorful_coast
 	set {_b::5} to my_biomes:sheepy_town
-	assert size of {_b::*} = 5 with "Should be 5 biomes"
+	set {_b::6} to my_biomes:fancy_forest
+	assert size of {_b::*} = 6 with "Should be 6 biomes"

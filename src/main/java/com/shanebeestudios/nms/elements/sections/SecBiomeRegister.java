@@ -47,7 +47,8 @@ import java.util.List;
     "- `features` = A section to apply different [**Placed Features**](https://minecraft.wiki/w/Placed_feature) that will apply during chunk generation. " +
         "See the Biome Features section and Apply Biome Features effect for more information.",
     "- `spawners` = A section to determine which mobs spawn in this biome " +
-        "(See the biome spawners section and apply biome spawner effect for more information)."})
+        "(See the biome spawners section and apply biome spawner effect for more information).",
+    "- `tags` = A section to specify which biome tags you would like to include your biome in."})
 @Examples({"registry registration:",
     "\tregister new biome:",
     "\t\tid: \"my_biomes:blue_forest\"",
@@ -102,6 +103,7 @@ public class SecBiomeRegister extends RegistrationSection {
         VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
         VALIDATOR.addEntryData(new SectionEntryData("features", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("spawners", null, true));
+        VALIDATOR.addEntryData(new SectionEntryData("tags", null, true));
         if (Bukkit.getPluginManager().isPluginEnabled("SkriptHubDocsTool")) {
             // Dummy section for generating docs
             VALIDATOR.addEntryData(new SectionEntryData("effects", null, true));
@@ -124,6 +126,7 @@ public class SecBiomeRegister extends RegistrationSection {
     private Section effects;
     private Trigger features;
     private Trigger spawners;
+    private Trigger tags;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -157,6 +160,10 @@ public class SecBiomeRegister extends RegistrationSection {
         SectionNode spawnersNode = (SectionNode) container.getOptional("spawners", false);
         if (spawnersNode != null) {
             this.spawners = loadCode(spawnersNode, "spawners", BiomeEffectsEvent.class);
+        }
+        SectionNode tagsNode = (SectionNode) container.getOptional("tags", false);
+        if (tagsNode != null) {
+            this.tags = loadCode(tagsNode, "tags", BiomeEffectsEvent.class);
         }
 
         return this.id != null && this.hasPrecipitation != null && this.temperature != null && this.downfall != null;
@@ -201,6 +208,11 @@ public class SecBiomeRegister extends RegistrationSection {
         // SPAWNERS
         if (this.spawners != null) {
             Trigger.walk(this.spawners, new BiomeEffectsEvent(builder));
+        }
+
+        // TAGS
+        if (this.tags != null) {
+            Trigger.walk(this.tags, new BiomeEffectsEvent(builder));
         }
 
         builder.build().register();
