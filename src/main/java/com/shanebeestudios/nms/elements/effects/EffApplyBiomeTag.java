@@ -26,13 +26,13 @@ import org.jetbrains.annotations.Nullable;
     "\t\ttemperature: 0.7",
     "\t\tdownfall: 0.8",
     "\t\ttags:",
-    "\t\t\tapply tag \"minecraft:has_structure/village_taiga\"",
-    "\t\t\tapply tag \"minecraft:is_forest\""})
+    "\t\t\tapply to tag \"minecraft:has_structure/village_taiga\"",
+    "\t\t\tapply to tag \"minecraft:is_forest\""})
 @Since("INSERT VERSION")
 public class EffApplyBiomeTag extends Effect {
 
     static {
-        Skript.registerEffect(EffApplyBiomeTag.class, "apply [biome] tag[s] %strings%");
+        Skript.registerEffect(EffApplyBiomeTag.class, "apply to [biome] tag[s] %strings%");
     }
 
     private Expression<String> strings;
@@ -60,7 +60,7 @@ public class EffApplyBiomeTag extends Effect {
 
     @Override
     public String toString(@Nullable Event event, boolean debug) {
-        return "apply biome tag[s] " + this.strings.toString(event, debug);
+        return "apply to biome tag[s] " + this.strings.toString(event, debug);
     }
 
 }

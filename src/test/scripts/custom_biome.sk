@@ -77,8 +77,8 @@ registry registration:
 		temperature: 0.7
 		downfall: 0.8
 		tags:
-			apply tag "minecraft:is_forest"
-			apply tag "minecraft:has_structure/village_plains"
+			apply to tag "minecraft:is_forest"
+			apply to tag "minecraft:has_structure/village_plains"
 
 test "SkNMS - Custom Biome":
 	set {_b::1} to my_biomes:blue_forest
