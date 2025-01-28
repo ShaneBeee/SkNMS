@@ -1,5 +1,5 @@
-test "SkNMS - Custom Enchantment":
-	set {_enchantment::explosion} to register enchantment:
+registry registration:
+	register enchantment:
 		id: "my_pack:explosion"
 		description: "Explosion"
 		max_level: 3
@@ -12,6 +12,10 @@ test "SkNMS - Custom Enchantment":
 		max_cost_per_level_above_first: 11
 		is_discoverable: true
 
-	assert {_enchantment::explosion} is set with "The var should be set"
+test "SkNMS - Custom Enchantment":
+	set {_test} to my_pack:explosion
+	assert {_test} is set with "The var should be set"
+	delete {_test}
+
 	set {_test} to "my_pack:explosion" parsed as enchantment
 	assert {_test} is set with "The enchantment should parsed"

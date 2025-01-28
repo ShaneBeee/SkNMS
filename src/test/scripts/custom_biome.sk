@@ -1,0 +1,90 @@
+registry registration:
+	register new biome:
+		id: "my_biomes:blue_forest"
+		has_precipitation: true
+		temperature: 2.0
+		downfall: 1.0
+		effects:
+			fog_color: rgb(240,227,159)
+			water_color: rgb(159,240,215)
+			water_fog_color: rgb(159,240,215)
+			sky_color: rgb(159,226,240)
+			foliage_color: yellow
+			grass_color: blue
+			grass_color_modifier: "swamp"
+
+	register new biome:
+		id: "my_biomes:burnt_forest"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		effects:
+			fog_color: 12638463
+			water_color: 9614049
+			water_fog_color: 329011
+			sky_color: 7972607
+			grass_color: 12295008
+			foliage_color: 7435380
+			particle: particle option of white_ash with probability 1
+
+	register new biome:
+		id: "my_biomes:cool_forest"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		effects:
+			fog_color: 12638463
+			water_color: 9614049
+			water_fog_color: 329011
+			sky_color: 7972607
+			grass_color: 9617074
+			foliage_color: 45188
+			particle: particle option of block with data dirt[] with probability 0.003
+
+	register new biome:
+		id: "my_biomes:colorful_coast"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		features:
+			underground_ores:
+				apply feature "minecraft:ore_dirt"
+				apply feature "minecraft:ore_coal_upper"
+				apply feature "minecraft:ore_coal_lower"
+			vegetal_decoration:
+				apply feature "minecraft:glow_lichen"
+				apply feature "minecraft:patch_grass_savanna"
+				apply feature "minecraft:patch_tall_grass_2"
+				apply feature "minecraft:brown_mushroom_normal"
+				apply feature "minecraft:red_mushroom_normal"
+				apply feature "minecraft:patch_sugar_cane"
+
+	register new biome:
+		id: "my_biomes:sheepy_town"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		spawners:
+			creature:
+				apply spawner for sheep with weight 12 and with min count 4
+			monster:
+				apply spawner for illusioner with weight 1 and with min count 1
+				apply spawner for zombie, skeleton and creeper with weight 3 and with min count 1
+
+	register new biome:
+		id: "my_biomes:fancy_forest"
+		has_precipitation: true
+		temperature: 0.7
+		downfall: 0.8
+		tags:
+			apply to tag "minecraft:is_forest"
+			apply to tag "minecraft:has_structure/village_plains"
+
+test "SkNMS - Custom Biome":
+	set {_b::1} to my_biomes:blue_forest
+	set {_b::2} to my_biomes:burnt_forest
+	set {_b::3} to my_biomes:cool_forest
+	set {_b::4} to my_biomes:colorful_coast
+	set {_b::5} to my_biomes:sheepy_town
+	set {_b::6} to my_biomes:fancy_forest
+	assert size of {_b::*} = 6 with "Should be 6 biomes"

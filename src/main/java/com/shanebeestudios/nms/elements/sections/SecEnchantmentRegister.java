@@ -7,13 +7,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.EnchantmentDefinition;
+import com.shanebeestudios.nms.api.skript.RegistrationSection;
+import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
 import com.shanebeestudios.skbee.api.util.SimpleEntryValidator;
 import com.shanebeestudios.skbee.api.util.Util;
 import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
@@ -38,9 +38,6 @@ import java.util.List;
     "**NOTES**:",
     "- Custom enchantments cannot be removed at runtime (a restart is the only way to get rid of them or change them after they're registered).",
     "- If you make a change to your custom enchantment, you'll have to restart your server (reloading the script just won't cut it).",
-    "- At the time of parsing scripts, your custom enchantment won't be acknowledged (in Skript), " +
-        "that will only happen after it actually registers, this is why this returns itself as an enchantment you can save in a variable.",
-    "- The parsed as expression will work, ex: `\"custom:my_enchant\" parsed as enchantment`.",
     "- I did not add an `effects` entry as it's super duper convoluted, and you can handle what your enchantment does via code.",
     "",
     "**DEFINITION ENTRIES**:",
@@ -63,36 +60,35 @@ import java.util.List;
     "- `is_on_traded_equipment` = If not a treasure, will add to the `#minecraft:on_traded_equipment` tag and can be found on equipment sold by villagers.",
     "",
     "**WARNINGS**:",
-    "Enchantments are not supposed to be created at runtime. This method is super hacky and I highly HIGHLY recommend just using a datapack instead.",
-    "You must ensure 1 of 2 things:",
-    "- If your spawn keeps loaded in your world, you must make sure no items are in any chests or anything in that area that contain these enchantments.",
-    "- Or just make sure to turn off your spawn chunk radius (set the gamerule `spawnChunkRadius` to 0 for all worlds).",
-    "This is due to these enchantments will register to Minecraft via Skript AFTER your world/spawn chunks load.",
-    "Do not, I repeat... DO NOT save custom enchantments to variables (Skript will panic trying to load enchantments that arent registered yet). " +
+    "- Enchantments are not supposed to be created at runtime. This method is super hacky and I highly HIGHLY recommend just using a datapack instead.",
+    "- You must ensure 1 of 2 things:",
+    "  - If your spawn keeps loaded in your world, you must make sure no items are in any chests or anything in that area that contain these enchantments.",
+    "  - Or just make sure to turn off your spawn chunk radius (set the gamerule `spawnChunkRadius` to 0 for all worlds).",
+    "  This is due to these enchantments will register to Minecraft via Skript AFTER your world/spawn chunks load.",
+    "- Do not, I repeat... DO NOT save custom enchantments to variables (Skript will panic trying to load enchantments that arent registered yet). " +
         "RAM/Memory variables are safe!",
     "That said, enjoy your new custom enchantments."})
 @Examples({"# Wither Sword Enchantment",
-    "on load:",
-    "\tif {-enchantment::wither} is not set:",
-    "\t\tset {-enchantment::wither} to register enchantment:",
-    "\t\t\tid: \"my_pack:wither\"",
-    "\t\t\tdescription: mini message from \"<red>Wither\"",
-    "\t\t\tsupported_items: \"minecraft:swords\"",
-    "\t\t\tmax_level: 5",
+    "registry registration:",
+    "\tregister enchantment:",
+    "\t\tid: \"my_pack:wither\"",
+    "\t\tdescription: mini message from \"<red>Wither\"",
+    "\t\tsupported_items: \"minecraft:swords\"",
+    "\t\tmax_level: 5",
     "",
     "on damage of mob by player:",
-    "\tset {_level} to enchantment level of {-enchantment::wither} of attacker's tool",
+    "\tset {_level} to enchantment level of my_pack:wither of attacker's tool",
     "\tif {_level} > 0:",
     "\t\tset {_time} to \"%{_level} * 3% seconds\" parsed as timespan",
     "\t\tapply wither to victim for {_time}"})
 @Since("1.0.0")
 @SuppressWarnings({"UnstableApiUsage", "unchecked"})
-public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
+public class SecEnchantmentRegister extends RegistrationSection {
 
     private static final EntryValidator VALIDATOR;
 
     static {
-        Class<Object>[] somethingClasses = new Class[]{ComponentWrapper.class,String.class};
+        Class<Object>[] somethingClasses = new Class[]{ComponentWrapper.class, String.class};
         Class<Object>[] exclusiveSetClasses = new Class[]{Enchantment.class, String.class};
         Class<Object>[] itemAndTagClasses = new Class[]{ItemType.class, String.class};
         VALIDATOR = SimpleEntryValidator.builder()
@@ -119,8 +115,7 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
             .addOptionalEntry("is_on_mob_spawn_equipment", Boolean.class)
             .addOptionalEntry("is_on_traded_equipment", Boolean.class)
             .build();
-        Skript.registerExpression(SecEnchantmentRegister.class, Enchantment.class, ExpressionType.COMBINED,
-            "register [new] [custom] enchantment");
+        Skript.registerSection(SecEnchantmentRegister.class, "register [new] [custom] enchantment");
     }
 
     private Expression<String> id;
@@ -147,6 +142,11 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
+        if (!getParser().isCurrentStructure(StructRegistryRegistration.class)) {
+            Skript.error("Enchantments can only be registered in a 'registry registration' structure");
+            return false;
+        }
+
         if (sectionNode == null) return false;
         EntryContainer container = VALIDATOR.validate(sectionNode);
         if (container == null) return false;
@@ -179,11 +179,13 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
 
     @SuppressWarnings("deprecation")
     @Override
-    protected Enchantment @Nullable [] get(Event event) {
-        if (this.id == null || this.description == null || this.supportedItems == null) return null;
+    protected @Nullable TriggerItem walk(Event event) {
+        TriggerItem next = getNext();
+
+        if (this.id == null || this.description == null || this.supportedItems == null) return next;
 
         NamespacedKey namespacedKey = Util.getNamespacedKey(this.id.getSingle(event), false);
-        if (namespacedKey == null || Registry.ENCHANTMENT.get(namespacedKey) != null) return null;
+        if (namespacedKey == null || Registry.ENCHANTMENT.get(namespacedKey) != null) return next;
 
         EnchantmentDefinition.Builder builder = new EnchantmentDefinition.Builder();
         builder.id(namespacedKey);
@@ -192,8 +194,9 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
         Object description = this.description.getSingle(event);
         if (description != null) {
             if (description instanceof ComponentWrapper cw) descriptionComponent = cw.getComponent();
-            // ComponentWrapper -> Component = Make sure to properly parse colors
-            else if (description instanceof String string) descriptionComponent = ComponentWrapper.fromText(string).getComponent();
+                // ComponentWrapper -> Component = Make sure to properly parse colors
+            else if (description instanceof String string)
+                descriptionComponent = ComponentWrapper.fromText(string).getComponent();
         }
         builder.description(descriptionComponent);
 
@@ -284,17 +287,8 @@ public class SecEnchantmentRegister extends SectionExpression<Enchantment> {
             this.isOnTradedEquipment.getOptionalSingle(event).ifPresent(builder::isOnTradedEquipment);
         }
 
-        return new Enchantment[]{builder.build().register()};
-    }
-
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
-
-    @Override
-    public Class<? extends Enchantment> getReturnType() {
-        return Enchantment.class;
+        builder.build().register();
+        return next;
     }
 
     @Override

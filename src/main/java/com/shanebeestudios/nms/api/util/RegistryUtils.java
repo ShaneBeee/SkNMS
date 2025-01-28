@@ -1,9 +1,11 @@
 package com.shanebeestudios.nms.api.util;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.registry.RegistryParser;
 import ch.njol.skript.registrations.Classes;
+import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.registry.EnchantmentDefinition;
 import com.shanebeestudios.skbee.api.reflection.ReflectionUtils;
 import net.minecraft.core.Holder;
@@ -19,7 +21,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.block.CraftBiome;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.jetbrains.annotations.NotNull;
@@ -37,15 +42,21 @@ import java.util.function.BiConsumer;
 public class RegistryUtils {
 
     private static final MinecraftServer SERVER = MinecraftServer.getServer();
-    private static final MappedRegistry<Enchantment> ENCHANT_REGISTRY = getRegistry(Registries.ENCHANTMENT);
-    private static final MappedRegistry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
+    private static final Registry<Enchantment> ENCHANT_REGISTRY = getRegistry(Registries.ENCHANTMENT);
+    private static final Registry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
+    private static final Registry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
+    private static final Registry<PlacedFeature> PLACED_FEATURE_REGISTRY = getRegistry(Registries.PLACED_FEATURE);
 
-    public static MappedRegistry<Enchantment> getEnchantRegistry() {
+    public static Registry<Enchantment> getEnchantRegistry() {
         return ENCHANT_REGISTRY;
     }
 
-    public static MappedRegistry<Item> getItemRegistry() {
+    public static Registry<Item> getItemRegistry() {
         return ITEM_REGISTRY;
+    }
+
+    public static Registry<Biome> getBiomeRegistry() {
+        return BIOME_REGISTRY;
     }
 
     @NotNull
@@ -62,12 +73,12 @@ public class RegistryUtils {
     }
 
     @NotNull
-    private static <T> Map<TagKey<T>, HolderSet.Named<T>> getFrozenTags(@NotNull MappedRegistry<T> registry) {
+    private static <T> Map<TagKey<T>, HolderSet.Named<T>> getFrozenTags(@NotNull Registry<T> registry) {
         return (Map<TagKey<T>, HolderSet.Named<T>>) ReflectionUtils.getField("frozenTags", registry.getClass(), registry);
     }
 
     @NotNull
-    private static <T> Object getAllTags(@NotNull MappedRegistry<T> registry) {
+    private static <T> Object getAllTags(@NotNull Registry<T> registry) {
         return ReflectionUtils.getField("allTags", MappedRegistry.class, registry);
     }
 
@@ -76,12 +87,12 @@ public class RegistryUtils {
         return new HashMap<>((Map<TagKey<T>, HolderSet.Named<T>>) ReflectionUtils.getField("val$map", tagSet.getClass(), tagSet));
     }
 
-    public static <T> void unfreeze(@NotNull MappedRegistry<T> registry) {
+    public static <T> void unfreeze(@NotNull Registry<T> registry) {
         ReflectionUtils.setField("frozen", registry, false);
         ReflectionUtils.setField("unregisteredIntrusiveHolders", registry, new IdentityHashMap<>());
     }
 
-    public static <T> void freeze(@NotNull MappedRegistry<T> registry) {
+    public static <T> void freeze(@NotNull Registry<T> registry) {
         Object tagSet = getAllTags(registry);
 
         Map<TagKey<T>, HolderSet.Named<T>> tagsMap = getTagsMap(tagSet);
@@ -95,7 +106,7 @@ public class RegistryUtils {
         ReflectionUtils.setField("allTags", registry.getClass(), registry, tagSet);
     }
 
-    private static <T> void unbound(@NotNull MappedRegistry<T> registry) {
+    private static <T> void unbound(@NotNull Registry<T> registry) {
         Class<?> tagSetClass = ReflectionUtils.getNMSClass("net.minecraft.core.MappedRegistry$TagSet");
         try {
             Method unbound = tagSetClass.getMethod("unbound");
@@ -107,22 +118,30 @@ public class RegistryUtils {
         }
     }
 
-    private static void addInTag(@NotNull TagKey<Enchantment> tagKey, @NotNull Holder.Reference<Enchantment> reference) {
-        modifyTag(ENCHANT_REGISTRY, tagKey, reference, List::add);
+    private static <T> void addInTag(@NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference) {
+        Registry<T> registry = getRegistry((ResourceKey<Registry<T>>) tagKey.registry());
+        modifyTag(registry, tagKey, reference, List::add);
     }
 
-    private static void removeFromTag(@NotNull TagKey<Enchantment> tagKey, @NotNull Holder.Reference<Enchantment> reference) {
-        modifyTag(ENCHANT_REGISTRY, tagKey, reference, List::remove);
+    private static <T> void removeFromTag(@NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference) {
+        Registry<T> registry = getRegistry((ResourceKey<Registry<T>>) tagKey.registry());
+        modifyTag(registry, tagKey, reference, List::remove);
     }
 
-    private static <T> void modifyTag(@NotNull MappedRegistry<T> registry, @NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference, @NotNull BiConsumer<List<Holder<T>>, Holder.Reference<T>> consumer) {
+    private static <T> void modifyTag(@NotNull Registry<T> registry, @NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference, @NotNull BiConsumer<List<Holder<T>>, Holder.Reference<T>> consumer) {
         HolderSet.Named<T> holders = registry.get(tagKey).orElse(null);
         if (holders == null) return;
 
         List<Holder<T>> contents = new ArrayList<>(holders.stream().toList());
         consumer.accept(contents, reference);
 
-        registry.bindTag(tagKey, contents);
+        if (registry instanceof MappedRegistry<T> mappedRegistry) {
+            mappedRegistry.bindTag(tagKey, contents);
+        }
+    }
+
+    private static void setupBiomeDistribution(@NotNull Holder.Reference<Biome> reference, BiomeDefinition definition) {
+        definition.getTagKeys().forEach(tag -> addInTag(tag, reference));
     }
 
     private static void setupDistribution(@NotNull Holder.Reference<Enchantment> reference, EnchantmentDefinition distribution) {
@@ -175,12 +194,12 @@ public class RegistryUtils {
         }
     }
 
-    public static <T> MappedRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
-        return (MappedRegistry<T>) MinecraftServer.getServer().registryAccess().lookup(key).orElseThrow();
+    public static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> key) {
+        return MinecraftServer.getServer().registryAccess().lookup(key).orElseThrow();
     }
 
     public static org.bukkit.enchantments.Enchantment registerEnchantment(EnchantmentDefinition definition) {
-        RegistryUtils.unfreeze(ENCHANT_REGISTRY);
+        unfreeze(ENCHANT_REGISTRY);
 
         ResourceLocation key = CraftNamespacedKey.toMinecraft(definition.getId());
         ResourceKey<Enchantment> resourceKey = ResourceKey.create(Registries.ENCHANTMENT, key);
@@ -189,16 +208,40 @@ public class RegistryUtils {
         Registry.register(ENCHANT_REGISTRY, resourceKey, enchantment);
 
         setupDistribution(intrusiveHolder, definition);
-        RegistryUtils.freeze(ENCHANT_REGISTRY);
-        refreshSkriptRegistry();
+        freeze(ENCHANT_REGISTRY);
+        refreshSkriptRegistry(org.bukkit.enchantments.Enchantment.class);
 
         return CraftEnchantment.minecraftToBukkit(enchantment);
     }
 
-    public static void refreshSkriptRegistry() {
+    public static org.bukkit.block.Biome registerBiome(BiomeDefinition definition) {
+        unfreeze(BIOME_REGISTRY);
+
+        ResourceLocation key = definition.getKey();
+        ResourceKey<Biome> resourceKey = ResourceKey.create(Registries.BIOME, key);
+        Biome biome = definition.getBiome();
+        Holder.Reference<Biome> intrusiveHolder = BIOME_REGISTRY.createIntrusiveHolder(biome);
+        Registry.register(BIOME_REGISTRY, resourceKey, biome);
+
+        setupBiomeDistribution(intrusiveHolder, definition);
+        freeze(BIOME_REGISTRY);
+        refreshSkriptRegistry(org.bukkit.block.Biome.class);
+
+        return CraftBiome.minecraftToBukkit(biome);
+    }
+
+    public static Holder<PlacedFeature> getFeature(NamespacedKey key) {
+        ResourceLocation resourceLocation = getResourceLocation(key);
+        return PLACED_FEATURE_REGISTRY.get(resourceLocation).orElse(null);
+    }
+
+    public static <T> void refreshSkriptRegistry(Class<T> registryClass) {
+        ClassLoader classLoader = Skript.class.getClassLoader();
+        boolean assertionStatus = Skript.class.desiredAssertionStatus();
+        classLoader.setClassAssertionStatus(Skript.class.getName(), false);
         // Refresh Skript's Enchantment registry to make sure it contains new enchantments
-        ClassInfo<org.bukkit.enchantments.Enchantment> classInfo = Classes.getExactClassInfo(org.bukkit.enchantments.Enchantment.class);
-        Parser<? extends org.bukkit.enchantments.Enchantment> parser = classInfo.getParser();
+        ClassInfo<T> classInfo = Classes.getExactClassInfo(registryClass);
+        Parser<? extends T> parser = classInfo.getParser();
         try {
             Method refresh = RegistryParser.class.getDeclaredMethod("refresh");
             refresh.setAccessible(true);
@@ -206,6 +249,7 @@ public class RegistryUtils {
         } catch (Exception ignore) {
 
         }
+        classLoader.setClassAssertionStatus(Skript.class.getName(), assertionStatus);
     }
 
 }

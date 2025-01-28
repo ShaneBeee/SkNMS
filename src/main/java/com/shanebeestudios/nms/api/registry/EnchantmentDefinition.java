@@ -5,7 +5,7 @@ import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -192,7 +192,7 @@ public class EnchantmentDefinition {
 
         private HolderSet<Enchantment> createExclusiveSet() {
             HolderSet<Enchantment> exclusiveSet = HolderSet.empty();
-            MappedRegistry<Enchantment> enchantRegistry = RegistryUtils.getEnchantRegistry();
+            Registry<Enchantment> enchantRegistry = RegistryUtils.getEnchantRegistry();
             if (this.exclusiveSetTag != null) {
                 TagKey<Enchantment> tagKey = RegistryUtils.getTagKey(enchantRegistry, this.exclusiveSetTag);
                 Optional<HolderSet.Named<Enchantment>> holders = enchantRegistry.get(tagKey);
@@ -212,7 +212,7 @@ public class EnchantmentDefinition {
 
         private HolderSet<Item> createItemSet(String tag, List<Material> sets) {
             HolderSet<Item> itemSet = HolderSet.empty();
-            MappedRegistry<Item> itemRegistry = RegistryUtils.getItemRegistry();
+            Registry<Item> itemRegistry = RegistryUtils.getItemRegistry();
             if (tag != null) {
                 TagKey<Item> tagKey = RegistryUtils.getTagKey(itemRegistry, tag);
                 Optional<HolderSet.Named<Item>> holders = itemRegistry.get(tagKey);
