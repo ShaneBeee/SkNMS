@@ -1,145 +1,181 @@
 package com.shanebeestudios.nms.api.registry;
 
 import com.shanebeestudios.nms.api.util.RegistryUtils;
-import com.shanebeestudios.skbee.api.reflection.ReflectionUtils;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.random.Weight;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier;
 import net.minecraft.world.level.biome.MobSpawnSettings;
-import org.bukkit.Color;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.entity.CraftEntityType;
+import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.IdentityHashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Create/Register a new Biome
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class BiomeDefinition {
 
     private final ResourceLocation key;
-    private final Biome.BiomeBuilder biomeBuilder;
-    private BiomeSpecialEffects.Builder specialEffects = null;
+    private final Biome biome;
+    private final List<TagKey<Biome>> tagKeys;
 
-    public BiomeDefinition(NamespacedKey key) {
+    public BiomeDefinition(NamespacedKey key, Biome biome, List<TagKey<Biome>> tagKeys) {
         this.key = RegistryUtils.getResourceLocation(key);
-        this.biomeBuilder = new Biome.BiomeBuilder();
+        this.biome = biome;
+        this.tagKeys = tagKeys;
     }
 
-    public BiomeDefinition temperature(float temperature) {
-        this.biomeBuilder.temperature(temperature);
-        return this;
+    public ResourceLocation getKey() {
+        return this.key;
     }
 
-    public BiomeDefinition downfall(float downfall) {
-        this.biomeBuilder.downfall(downfall);
-        return this;
+    public Biome getBiome() {
+        return this.biome;
     }
 
-    public BiomeDefinition hasPrecipitation(boolean hasPrecipitation) {
-        this.biomeBuilder.hasPrecipitation(hasPrecipitation);
-        return this;
+    public List<TagKey<Biome>> getTagKeys() {
+        return this.tagKeys;
     }
 
-    public BiomeDefinition fogColor(Color fogColor) {
-        this.checkAndCreateSpecialEffects();
-        this.specialEffects.fogColor(fogColor.asRGB());
-        return this;
+    public org.bukkit.block.Biome register() {
+        return RegistryUtils.registerBiome(this);
     }
 
-    public BiomeDefinition waterColor(Color waterColor) {
-        this.checkAndCreateSpecialEffects();
-        this.specialEffects.waterColor(waterColor.asRGB());
-        return this;
-    }
+    public static class Builder {
 
-    public BiomeDefinition waterFogColor(Color waterFogColor) {
-        this.checkAndCreateSpecialEffects();
-        this.specialEffects.waterFogColor(waterFogColor.asRGB());
-        return this;
-    }
+        private final NamespacedKey key;
+        private final Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();
+        private BiomeSpecialEffects.Builder specialEffects = null;
+        private final BiomeGenerationSettings.PlainBuilder genSettings = new BiomeGenerationSettings.PlainBuilder();
+        private final MobSpawnSettings.Builder mobSpawnSettings = new MobSpawnSettings.Builder();
+        private final List<TagKey<Biome>> tagKeys = new ArrayList<>();
 
-    public BiomeDefinition skyColor(Color skyColor) {
-        this.checkAndCreateSpecialEffects();
-        this.specialEffects.skyColor(skyColor.asRGB());
-        return this;
-    }
-
-    public BiomeDefinition foliageColorOverride(Color foliageColor) {
-        this.checkAndCreateSpecialEffects();
-        this.specialEffects.foliageColorOverride(foliageColor.asRGB());
-        return this;
-    }
-
-    public BiomeDefinition grassColorOverride(Color grassColor) {
-        this.checkAndCreateSpecialEffects();
-        this.specialEffects.grassColorOverride(grassColor.asRGB());
-        return this;
-    }
-
-    public BiomeDefinition grassColorModifier(GrassModifier grassModifier) {
-        this.checkAndCreateSpecialEffects();
-        this.specialEffects.grassColorModifier(grassModifier.getModifier());
-        return this;
-    }
-
-    private void checkAndCreateSpecialEffects() {
-        if (this.specialEffects == null) {
-            this.specialEffects = new BiomeSpecialEffects.Builder();
+        public Builder(NamespacedKey key) {
+            this.key = key;
         }
 
-    }
-
-    public void register() {
-        registerAndReturn();
-    }
-
-    @SuppressWarnings({"UnusedReturnValue", "ReplaceNullCheck"})
-    public Biome registerAndReturn() {
-        if (this.specialEffects != null) {
-            this.biomeBuilder.specialEffects(this.specialEffects.build());
-        } else {
-            // Match from Plains
-            this.biomeBuilder.specialEffects((new BiomeSpecialEffects.Builder())
-                .fogColor(12638463)
-                .skyColor(7907327)
-                .waterColor(4159204)
-                .waterFogColor(329011)
-                .build());
+        public Builder temperature(float temperature) {
+            this.biomeBuilder.temperature(temperature);
+            return this;
         }
 
-        this.biomeBuilder.generationSettings((new BiomeGenerationSettings.PlainBuilder()).build());
-        this.biomeBuilder.mobSpawnSettings((new MobSpawnSettings.Builder()).build());
-        Biome biome = this.biomeBuilder.build();
-        Registry<Biome> biomeRegistry = RegistryUtils.getRegistry(Registries.BIOME);
-        ReflectionUtils.setField("frozen", biomeRegistry, false);
-        ReflectionUtils.setField("unregisteredIntrusiveHolders", biomeRegistry, new IdentityHashMap<>());
-        Holder.Reference<Biome> holder = biomeRegistry.createIntrusiveHolder(biome);
-        ResourceKey<Biome> resourceKey = ResourceKey.create(Registries.BIOME, this.key);
-        Registry.register(biomeRegistry, resourceKey, (Biome) holder.value());
-        biomeRegistry.freeze();
-        return biome;
-    }
-
-    public enum GrassModifier {
-        NONE(GrassColorModifier.NONE),
-        DARK_FOREST(GrassColorModifier.DARK_FOREST),
-        SWAMP(GrassColorModifier.SWAMP);
-
-        private final GrassColorModifier modifier;
-
-        private GrassModifier(GrassColorModifier modifier) {
-            this.modifier = modifier;
+        public Builder downfall(float downfall) {
+            this.biomeBuilder.downfall(downfall);
+            return this;
         }
 
-        public GrassColorModifier getModifier() {
-            return this.modifier;
+        public Builder hasPrecipitation(boolean hasPrecipitation) {
+            this.biomeBuilder.hasPrecipitation(hasPrecipitation);
+            return this;
+        }
+
+        public Builder fogColor(int fogColor) {
+            this.specialEffectsBuilder().fogColor(fogColor);
+            return this;
+        }
+
+        public Builder waterColor(int waterColor) {
+            this.specialEffectsBuilder().waterColor(waterColor);
+            return this;
+        }
+
+        public Builder waterFogColor(int waterFogColor) {
+            this.specialEffectsBuilder().waterFogColor(waterFogColor);
+            return this;
+        }
+
+        public Builder skyColor(int skyColor) {
+            this.specialEffectsBuilder().skyColor(skyColor);
+            return this;
+        }
+
+        public Builder foliageColorOverride(int foliageColor) {
+            this.specialEffectsBuilder().foliageColorOverride(foliageColor);
+            return this;
+        }
+
+        public Builder grassColorOverride(int grassColor) {
+            this.specialEffectsBuilder().grassColorOverride(grassColor);
+            return this;
+        }
+
+        public Builder grassColorModifier(String grassModifier) {
+            this.specialEffectsBuilder().grassColorModifier(
+                switch (grassModifier.toLowerCase(Locale.ROOT)) {
+                    case "dark_forest" -> GrassColorModifier.DARK_FOREST;
+                    case "swamp" -> GrassColorModifier.SWAMP;
+                    default -> GrassColorModifier.NONE;
+                });
+            return this;
+        }
+
+        public Builder particle(@Nullable ParticleOption particleOption) {
+            if (particleOption != null) {
+                AmbientParticleSettings settings = particleOption.createParticleSettings();
+                this.specialEffectsBuilder().ambientParticle(settings);
+            }
+            return this;
+        }
+
+        public Builder addFeature(int step, NamespacedKey key) {
+            Holder<PlacedFeature> feature = RegistryUtils.getFeature(key);
+            if (feature != null) {
+                this.genSettings.addFeature(step, feature);
+            }
+            return this;
+        }
+
+        public Builder addTag(NamespacedKey key) {
+            TagKey<Biome> tagKey = RegistryUtils.getTagKey(RegistryUtils.getBiomeRegistry(), key.toString());
+            this.tagKeys.add(tagKey);
+            return this;
+        }
+
+        public Builder addMobSpawn(int step, EntityType entityType, int weight, int minCount, int maxCount) {
+            minCount = Math.max(minCount, 1);
+            maxCount = Math.max(maxCount, minCount);
+            MobCategory mobCategory = MobCategory.values()[step];
+            net.minecraft.world.entity.EntityType<?> nmsEntityType = CraftEntityType.bukkitToMinecraft(entityType);
+            MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType, Weight.of(weight), minCount, maxCount);
+            this.mobSpawnSettings.addSpawn(mobCategory, spawnerData);
+            return this;
+        }
+
+        private BiomeSpecialEffects.Builder specialEffectsBuilder() {
+            if (this.specialEffects == null) {
+                this.specialEffects = new BiomeSpecialEffects.Builder();
+            }
+            return this.specialEffects;
+        }
+
+        public BiomeDefinition build() {
+            this.biomeBuilder
+                .specialEffects(Objects.requireNonNullElseGet(this.specialEffects, () ->
+                        // Match from Plains if no special effects present
+                        new BiomeSpecialEffects.Builder()
+                            .fogColor(12638463)
+                            .skyColor(7907327)
+                            .waterColor(4159204)
+                            .waterFogColor(329011))
+                    .build())
+                .generationSettings(this.genSettings.build())
+                .mobSpawnSettings(this.mobSpawnSettings.build());
+
+            return new BiomeDefinition(this.key, this.biomeBuilder.build(), this.tagKeys);
         }
     }
 
