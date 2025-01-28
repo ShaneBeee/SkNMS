@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
     "\tmonster:",
     "\t\tapply spawner for illusioner with weight 1 and with min count 1",
     "\t\tapply spawner for zombie, skeleton and creeper with weight 3 and with min count 1"})
-@Since("INSERT VERSION")
+@Since("1.1.0")
 public class EffApplySpawner extends Effect {
 
     static {

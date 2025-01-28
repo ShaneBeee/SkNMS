@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
     "\t\t\tapply feature \"minecraft:brown_mushroom_normal\"",
     "\t\t\tapply feature \"minecraft:red_mushroom_normal\"",
     "\t\t\tapply feature \"minecraft:patch_sugar_cane\""})
-@Since("INSERT VERSION")
+@Since("1.1.0")
 public class EffApplyBiomeFeature extends Effect {
 
     static {

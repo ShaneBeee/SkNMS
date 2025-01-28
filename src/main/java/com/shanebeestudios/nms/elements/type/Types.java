@@ -13,7 +13,7 @@ public class Types {
             .user("particle ?options?")
             .name("Particle Option")
             .description("Represents a particle option for a biome effect.")
-            .since("INSERT VERSION")
+            .since("1.1.0")
             .parser(new Parser<>() {
 
                 @Override

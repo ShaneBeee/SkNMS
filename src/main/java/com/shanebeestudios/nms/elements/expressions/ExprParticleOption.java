@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @Examples({"particle option of white_ash with probability 1",
     "particle option of pale_oak_leaves with probability 0.05",
     "particle option of block with data oak_leaves[] with probability 0.1"})
-@Since("INSERT VERSION")
+@Since("1.1.0")
 public class ExprParticleOption extends SimpleExpression<ParticleOption> {
 
     static {

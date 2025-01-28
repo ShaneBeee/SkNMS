@@ -44,7 +44,7 @@ import java.util.List;
     "\t\t\tapply feature \"minecraft:brown_mushroom_normal\"",
     "\t\t\tapply feature \"minecraft:red_mushroom_normal\"",
     "\t\t\tapply feature \"minecraft:patch_sugar_cane\""})
-@Since("INSERT VERSION")
+@Since("1.1.0")
 public class SecBiomeFeatures extends Section {
 
     private static final String[] PATTERNS = Arrays.stream(Decoration.values()).map(Decoration::getName).toArray(String[]::new);

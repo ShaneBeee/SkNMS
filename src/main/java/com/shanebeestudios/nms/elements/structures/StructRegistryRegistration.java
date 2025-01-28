@@ -17,7 +17,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 @Name("Registry Registration")
 @Description("This structure is used for registering new registry entries such as custom biomes and enchantments.")
-@Since("INSERT VERSION")
+@Since("1.1.0")
 public class StructRegistryRegistration extends Structure {
 
     private static final Priority PRIORITY = new Priority(201);

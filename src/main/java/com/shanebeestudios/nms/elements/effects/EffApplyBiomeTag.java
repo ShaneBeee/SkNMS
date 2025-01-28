@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
     "\t\ttags:",
     "\t\t\tapply to tag \"minecraft:has_structure/village_taiga\"",
     "\t\t\tapply to tag \"minecraft:is_forest\""})
-@Since("INSERT VERSION")
+@Since("1.1.0")
 public class EffApplyBiomeTag extends Effect {
 
     static {
