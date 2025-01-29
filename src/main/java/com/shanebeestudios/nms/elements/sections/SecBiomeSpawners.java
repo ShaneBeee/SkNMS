@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-@Name("Biome Spawners")
+@Name("Biome Definition Spawners")
 @Description({"Define which mobs will spawn in your biome.",
     "This is used in the `spawners` section of the biome registration section.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",})

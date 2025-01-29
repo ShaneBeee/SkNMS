@@ -29,7 +29,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 
 import java.util.List;
 
-@Name("Register Enchantment")
+@Name("Enchantment Definition Registration")
 @Description({"Register a new custom enchantment.",
     "There are a LOT of entries for this, so please refer to the " +
         "[**Enchantment Definition**](https://minecraft.wiki/w/Enchantment_definition) page on McWiki for all the details.",

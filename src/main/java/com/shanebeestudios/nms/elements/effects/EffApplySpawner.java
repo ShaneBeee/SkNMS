@@ -16,7 +16,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Apply Biome Spawner")
+@Name("Apply Biome Definition Spawner")
 @Description({"Create a spawner entry for the `spawners` section of a biome registration.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
     "`minecraftentitytypes` = The type of entity to spawn (This is from SkBee).",

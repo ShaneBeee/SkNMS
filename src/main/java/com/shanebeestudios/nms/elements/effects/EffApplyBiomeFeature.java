@@ -16,7 +16,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Apply Biome Feature")
+@Name("Apply Biome Definition Feature")
 @Description({"Used in a `features` section of the biome registration section, you can apply different features to generate in the biome.",
     "Refer to [**BiomeDefinition**](https://minecraft.wiki/w/Biome_definition) and " +
         "[**Placed Feature**](https://minecraft.wiki/w/Placed_feature) on McWiki for full details."})
