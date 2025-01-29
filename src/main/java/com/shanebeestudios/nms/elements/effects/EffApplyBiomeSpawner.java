@@ -30,10 +30,10 @@ import org.jetbrains.annotations.Nullable;
     "\t\tapply spawner for illusioner with weight 1 and with min count 1",
     "\t\tapply spawner for zombie, skeleton and creeper with weight 3 and with min count 1"})
 @Since("1.1.0")
-public class EffApplySpawner extends Effect {
+public class EffApplyBiomeSpawner extends Effect {
 
     static {
-        Skript.registerEffect(EffApplySpawner.class,
+        Skript.registerEffect(EffApplyBiomeSpawner.class,
             "apply spawner (of|for) %minecraftentitytypes% with weight [of] %integer% [[and] with min count %-integer% [[and] max count %-integer%]]");
     }
 

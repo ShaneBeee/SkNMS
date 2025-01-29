@@ -28,6 +28,7 @@ import org.bukkit.craftbukkit.block.CraftBiome;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
 import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -68,8 +69,12 @@ public class RegistryUtils {
         return CraftNamespacedKey.toMinecraft(namespacedKey);
     }
 
-    public static <T> TagKey<T> getTagKey(@NotNull Registry<T> registry, @NotNull String name) {
-        return TagKey.create(registry.key(), ResourceLocation.parse(name));
+    public static <T> @Nullable TagKey<T> getTagKey(@NotNull Registry<T> registry, @NotNull String name) {
+        TagKey<T> tagKey = TagKey.create(registry.key(), ResourceLocation.parse(name));
+        if (registry.get(tagKey).isPresent()) {
+            return tagKey;
+        }
+        return null;
     }
 
     @NotNull

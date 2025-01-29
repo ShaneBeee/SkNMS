@@ -26,7 +26,6 @@ import java.util.Objects;
 /**
  * Create/Register a new Biome
  */
-@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class BiomeDefinition {
 
     private final ResourceLocation key;
@@ -68,91 +67,83 @@ public class BiomeDefinition {
             this.key = key;
         }
 
-        public Builder temperature(float temperature) {
+        public void temperature(float temperature) {
             this.biomeBuilder.temperature(temperature);
-            return this;
         }
 
-        public Builder downfall(float downfall) {
+        public void downfall(float downfall) {
             this.biomeBuilder.downfall(downfall);
-            return this;
         }
 
-        public Builder hasPrecipitation(boolean hasPrecipitation) {
+        public void hasPrecipitation(boolean hasPrecipitation) {
             this.biomeBuilder.hasPrecipitation(hasPrecipitation);
-            return this;
         }
 
-        public Builder fogColor(int fogColor) {
+        public void fogColor(int fogColor) {
             this.specialEffectsBuilder().fogColor(fogColor);
-            return this;
         }
 
-        public Builder waterColor(int waterColor) {
+        public void waterColor(int waterColor) {
             this.specialEffectsBuilder().waterColor(waterColor);
-            return this;
         }
 
-        public Builder waterFogColor(int waterFogColor) {
+        public void waterFogColor(int waterFogColor) {
             this.specialEffectsBuilder().waterFogColor(waterFogColor);
-            return this;
         }
 
-        public Builder skyColor(int skyColor) {
+        public void skyColor(int skyColor) {
             this.specialEffectsBuilder().skyColor(skyColor);
-            return this;
         }
 
-        public Builder foliageColorOverride(int foliageColor) {
+        public void foliageColorOverride(int foliageColor) {
             this.specialEffectsBuilder().foliageColorOverride(foliageColor);
-            return this;
         }
 
-        public Builder grassColorOverride(int grassColor) {
+        public void grassColorOverride(int grassColor) {
             this.specialEffectsBuilder().grassColorOverride(grassColor);
-            return this;
         }
 
-        public Builder grassColorModifier(String grassModifier) {
+        public void grassColorModifier(String grassModifier) {
             this.specialEffectsBuilder().grassColorModifier(
                 switch (grassModifier.toLowerCase(Locale.ROOT)) {
                     case "dark_forest" -> GrassColorModifier.DARK_FOREST;
                     case "swamp" -> GrassColorModifier.SWAMP;
                     default -> GrassColorModifier.NONE;
                 });
-            return this;
         }
 
-        public Builder particle(@Nullable ParticleOption particleOption) {
+        public void particle(@Nullable ParticleOption particleOption) {
             if (particleOption != null) {
                 AmbientParticleSettings settings = particleOption.createParticleSettings();
                 this.specialEffectsBuilder().ambientParticle(settings);
             }
-            return this;
         }
 
-        public Builder addFeature(int step, NamespacedKey key) {
+        public boolean addFeature(int step, NamespacedKey key) {
             Holder<PlacedFeature> feature = RegistryUtils.getFeature(key);
             if (feature != null) {
                 this.genSettings.addFeature(step, feature);
+                return true;
             }
-            return this;
+            return false;
         }
 
-        public Builder addTag(NamespacedKey key) {
+        public boolean addTag(NamespacedKey key) {
             TagKey<Biome> tagKey = RegistryUtils.getTagKey(RegistryUtils.getBiomeRegistry(), key.toString());
-            this.tagKeys.add(tagKey);
-            return this;
+            if (tagKey != null) {
+                this.tagKeys.add(tagKey);
+                return true;
+            }
+            return false;
         }
 
-        public Builder addMobSpawn(int step, EntityType entityType, int weight, int minCount, int maxCount) {
+        public void addMobSpawn(int step, EntityType entityType, int weight, int minCount, int maxCount) {
             minCount = Math.max(minCount, 1);
             maxCount = Math.max(maxCount, minCount);
             MobCategory mobCategory = MobCategory.values()[step];
             net.minecraft.world.entity.EntityType<?> nmsEntityType = CraftEntityType.bukkitToMinecraft(entityType);
             MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType, Weight.of(weight), minCount, maxCount);
             this.mobSpawnSettings.addSpawn(mobCategory, spawnerData);
-            return this;
         }
 
         private BiomeSpecialEffects.Builder specialEffectsBuilder() {

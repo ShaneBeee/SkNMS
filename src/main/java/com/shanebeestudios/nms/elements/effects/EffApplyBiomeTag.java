@@ -51,8 +51,9 @@ public class EffApplyBiomeTag extends Effect {
             for (String string : this.strings.getArray(event)) {
                 if (string.startsWith("#")) string = string.substring(1);
                 NamespacedKey namespacedKey = Util.getNamespacedKey(string, false);
-                if (namespacedKey != null) {
-                    builder.addTag(namespacedKey);
+                if (namespacedKey == null || !builder.addTag(namespacedKey)) {
+                    String tag = namespacedKey != null ? namespacedKey.toString() : string;
+                    warningRegex("Invalid tag '" + tag + "'", "\".+\"");
                 }
             }
         }

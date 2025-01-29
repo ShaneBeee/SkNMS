@@ -62,9 +62,10 @@ public class EffApplyBiomeFeature extends Effect {
             BiomeDefinition.Builder builder = effectsEvent.getBiomeBuilder();
             int step = effectsEvent.getStep();
             for (String string : this.strings.getArray(event)) {
-                NamespacedKey namespacedKey = Util.getNamespacedKey(string, false);
-                if (namespacedKey != null) {
-                    builder.addFeature(step, namespacedKey);
+                NamespacedKey key = Util.getNamespacedKey(string, false);
+                if (key == null || !builder.addFeature(step, key)) {
+                    String feature = key != null ? key.toString() : string;
+                    warningRegex("Invalid feature '" + feature + "'", "\".+\"");
                 }
             }
         }
