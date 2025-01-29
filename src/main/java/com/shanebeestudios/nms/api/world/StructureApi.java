@@ -75,7 +75,13 @@ public class StructureApi {
 
         PlacedFeature placedFeature = McUtils.getRegistryValue(PLACED_FEATURE_REGISTRY, featureKey);
         if (placedFeature != null) {
-            return placedFeature.placeWithBiomeCheck(serverLevel, serverLevel.getChunkSource().getGenerator(), serverLevel.getRandom(), blockPos);
+            try {
+                return placedFeature.place(serverLevel, serverLevel.getChunkSource().getGenerator(), serverLevel.getRandom(), blockPos);
+            } catch (IllegalStateException e) {
+                if (e.getMessage().contains("biome")) {
+                    return placedFeature.placeWithBiomeCheck(serverLevel, serverLevel.getChunkSource().getGenerator(), serverLevel.getRandom(), blockPos);
+                }
+            }
         }
         return false;
     }
@@ -115,7 +121,7 @@ public class StructureApi {
         Holder.Reference<Structure> structureHolder = McUtils.getHolderReference(STRUCTURE_REGISTRY, structureKey);
         if (structureHolder != null) {
             Pair<BlockPos, Holder<Structure>> nearestMapStructure = serverLevel.getChunkSource().getGenerator()
-                    .findNearestMapStructure(serverLevel, HolderSet.direct(structureHolder), blockPos, radius, findUnexplored);
+                .findNearestMapStructure(serverLevel, HolderSet.direct(structureHolder), blockPos, radius, findUnexplored);
             if (nearestMapStructure != null) {
                 return McUtils.getLocation(nearestMapStructure.getFirst(), serverLevel);
             }
