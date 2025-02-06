@@ -3,6 +3,8 @@ package com.shanebeestudios.nms;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import com.shanebeestudios.nms.api.util.Utils;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,10 +33,13 @@ public class SkNMS extends JavaPlugin {
                 }
             } else {
                 Utils.error("Skript is no longer accepting registration, addon not loading!");
+                return;
             }
         } else {
             Utils.error("'Skript' and/or 'SkBee' missing, SkNMS not loading!");
+            return;
         }
+        loadMetrics();
     }
 
     @Override
@@ -44,5 +49,10 @@ public class SkNMS extends JavaPlugin {
     public static SkNMS getInstance() {
         return PLUGIN_INSTANCE;
     }
-    
+
+    private void loadMetrics() {
+        Metrics metrics = new Metrics(this, 24666);
+        metrics.addCustomChart(new SimplePie("skript_version", () -> Skript.getVersion().toString()));
+    }
+
 }

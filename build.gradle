@@ -36,7 +36,11 @@ dependencies {
         transitive = false
     }
 
+    // SkBee
     compileOnly("com.github.ShaneBeee:SkBee:3.8.0")
+
+    // bStats
+    implementation(group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.2')
 }
 
 jar {
@@ -45,6 +49,7 @@ jar {
 
 shadowJar {
     archiveFileName = project.name + "-" + project.version + "-" + minecraft + ".jar"
+    relocate("org.bstats", "com.shanebeestudios.nms.metrics")
 }
 
 build {
