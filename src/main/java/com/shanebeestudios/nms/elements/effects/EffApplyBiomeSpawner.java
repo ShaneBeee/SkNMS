@@ -16,7 +16,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Apply Biome Spawner")
+@Name("Apply Biome Definition Spawner")
 @Description({"Create a spawner entry for the `spawners` section of a biome registration.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
     "`minecraftentitytypes` = The type of entity to spawn (This is from SkBee).",
@@ -30,10 +30,10 @@ import org.jetbrains.annotations.Nullable;
     "\t\tapply spawner for illusioner with weight 1 and with min count 1",
     "\t\tapply spawner for zombie, skeleton and creeper with weight 3 and with min count 1"})
 @Since("1.1.0")
-public class EffApplySpawner extends Effect {
+public class EffApplyBiomeSpawner extends Effect {
 
     static {
-        Skript.registerEffect(EffApplySpawner.class,
+        Skript.registerEffect(EffApplyBiomeSpawner.class,
             "apply spawner (of|for) %minecraftentitytypes% with weight [of] %integer% [[and] with min count %-integer% [[and] max count %-integer%]]");
     }
 

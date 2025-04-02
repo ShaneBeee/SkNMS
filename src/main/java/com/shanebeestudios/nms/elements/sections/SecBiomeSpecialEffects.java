@@ -25,7 +25,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
-@Name("Biome Effects")
+@Name("Biome Definition Effects")
 @Description({"Create effects in a biome registration `effects` section.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
     "See more examples on the [**SkNMS Wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Custom-Biomes).",

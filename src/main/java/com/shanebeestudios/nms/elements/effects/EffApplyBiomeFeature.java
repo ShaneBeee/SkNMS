@@ -16,7 +16,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Apply Biome Feature")
+@Name("Apply Biome Definition Feature")
 @Description({"Used in a `features` section of the biome registration section, you can apply different features to generate in the biome.",
     "Refer to [**BiomeDefinition**](https://minecraft.wiki/w/Biome_definition) and " +
         "[**Placed Feature**](https://minecraft.wiki/w/Placed_feature) on McWiki for full details."})
@@ -62,9 +62,10 @@ public class EffApplyBiomeFeature extends Effect {
             BiomeDefinition.Builder builder = effectsEvent.getBiomeBuilder();
             int step = effectsEvent.getStep();
             for (String string : this.strings.getArray(event)) {
-                NamespacedKey namespacedKey = Util.getNamespacedKey(string, false);
-                if (namespacedKey != null) {
-                    builder.addFeature(step, namespacedKey);
+                NamespacedKey key = Util.getNamespacedKey(string, false);
+                if (key == null || !builder.addFeature(step, key)) {
+                    String feature = key != null ? key.toString() : string;
+                    warningRegex("Invalid feature '" + feature + "'", "\".+\"");
                 }
             }
         }

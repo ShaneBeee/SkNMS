@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-@Name("Biome Features")
+@Name("Biome Definition Features")
 @Description({"Apply features to biomes.",
     "Refer to [**BiomeDefinition**](https://minecraft.wiki/w/Biome_definition) and " +
         "[**Placed Feature**](https://minecraft.wiki/w/Placed_feature) on McWiki for full details."})

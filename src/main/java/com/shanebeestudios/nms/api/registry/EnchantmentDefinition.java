@@ -49,16 +49,16 @@ public class EnchantmentDefinition {
         return RegistryUtils.registerEnchantment(this);
     }
 
-    @SuppressWarnings({"UnusedReturnValue", "UnstableApiUsage"})
+    @SuppressWarnings("UnstableApiUsage")
     public static class Builder {
         NamespacedKey id;
         Component description;
         List<org.bukkit.enchantments.Enchantment> exclusiveSet = new ArrayList<>();
-        String exclusiveSetTag;
+        TagKey<Enchantment> exclusiveSetTag;
         List<Material> supportedItems = new ArrayList<>();
-        String supportedItemsTag;
+        TagKey<Item> supportedItemsTag;
         List<Material> primaryItems = new ArrayList<>();
-        String primaryItemsTag;
+        TagKey<Item> primaryItemsTag;
         int weight = 1;
         int maxLevel = 1;
         int minCostBase = 1;
@@ -75,127 +75,130 @@ public class EnchantmentDefinition {
         boolean isOnTradedEquipment = false;
         List<org.bukkit.inventory.EquipmentSlotGroup> slots = new ArrayList<>();
 
-        public Builder id(NamespacedKey id) {
+        public void id(NamespacedKey id) {
             this.id = id;
-            return this;
         }
 
-        public Builder description(Component description) {
+        public void description(Component description) {
             this.description = description;
-            return this;
         }
 
-        public Builder addExclusiveSet(org.bukkit.enchantments.Enchantment exclusiveSet) {
+        public void addExclusiveSet(org.bukkit.enchantments.Enchantment exclusiveSet) {
             this.exclusiveSet.add(exclusiveSet);
-            return this;
         }
 
-        public Builder exclusiveSetTag(String exclusiveSetTag) {
-            this.exclusiveSetTag = exclusiveSetTag.replace("#", "");
-            return this;
+        public boolean exclusiveSetTag(NamespacedKey tag) {
+            Registry<Enchantment> enchantRegistry = RegistryUtils.getEnchantRegistry();
+            TagKey<Enchantment> tagKey = RegistryUtils.getTagKey(enchantRegistry, tag.toString());
+            if (tagKey != null) {
+                Optional<HolderSet.Named<Enchantment>> holders = enchantRegistry.get(tagKey);
+                if (holders.isPresent()) {
+                    this.exclusiveSetTag = tagKey;
+                    return true;
+                }
+            }
+            return false;
         }
 
-        public Builder supportedItemTag(String supportedItemTag) {
-            this.supportedItemsTag = supportedItemTag.replace("#", "");
-            return this;
+        public boolean supportedItemTag(NamespacedKey tag) {
+            Registry<Item> itemRegistry = RegistryUtils.getItemRegistry();
+            TagKey<Item> tagKey = RegistryUtils.getTagKey(itemRegistry, tag.toString());
+            if (tagKey != null) {
+                Optional<HolderSet.Named<Item>> holders = itemRegistry.get(tagKey);
+                if (holders.isPresent()) {
+                    this.supportedItemsTag = tagKey;
+                    return true;
+                }
+            }
+            return false;
         }
 
-        public Builder addSupportedItem(Material item) {
+        public void addSupportedItem(Material item) {
             this.supportedItems.add(item);
-            return this;
         }
 
-        public Builder addPrimaryItem(Material item) {
+        public boolean primaryItemTag(NamespacedKey tag) {
+            Registry<Item> itemRegistry = RegistryUtils.getItemRegistry();
+            TagKey<Item> tagKey = RegistryUtils.getTagKey(itemRegistry, tag.toString());
+            if (tagKey != null) {
+                Optional<HolderSet.Named<Item>> holders = itemRegistry.get(tagKey);
+                if (holders.isPresent()) {
+                    this.primaryItemsTag = tagKey;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void addPrimaryItem(Material item) {
             this.primaryItems.add(item);
-            return this;
         }
 
-        public Builder primaryItemTag(String primaryItemTag) {
-            this.primaryItemsTag = primaryItemTag.replace("#", "");
-            return this;
-        }
-
-        public Builder weight(int weight) {
+        public void weight(int weight) {
             this.weight = weight;
-            return this;
         }
 
-        public Builder maxLevel(int maxLevel) {
+        public void maxLevel(int maxLevel) {
             this.maxLevel = maxLevel;
-            return this;
         }
 
-        public Builder minCostBase(int minCostBase) {
+        public void minCostBase(int minCostBase) {
             this.minCostBase = minCostBase;
-            return this;
         }
 
-        public Builder minCostPerLevelAboveFirst(int minCostPerLevelAboveFirst) {
+        public void minCostPerLevelAboveFirst(int minCostPerLevelAboveFirst) {
             this.minCostPerLevelAboveFirst = minCostPerLevelAboveFirst;
-            return this;
         }
 
-        public Builder maxCostBase(int maxCostBase) {
+        public void maxCostBase(int maxCostBase) {
             this.maxCostBase = maxCostBase;
-            return this;
         }
 
-        public Builder maxCostPerLevelAboveFirst(int maxCostPerLevelAboveFirst) {
+        public void maxCostPerLevelAboveFirst(int maxCostPerLevelAboveFirst) {
             this.maxCostPerLevelAboveFirst = maxCostPerLevelAboveFirst;
-            return this;
         }
 
-        public Builder anvilCost(int anvilCost) {
+        public void anvilCost(int anvilCost) {
             this.anvilCost = anvilCost;
-            return this;
         }
 
-        public Builder addSlot(org.bukkit.inventory.EquipmentSlotGroup slot) {
+        public void addSlot(org.bukkit.inventory.EquipmentSlotGroup slot) {
             this.slots.add(slot);
-            return this;
         }
 
-        public Builder isCursed(boolean cursed) {
+        public void isCursed(boolean cursed) {
             this.isCursed = cursed;
-            return this;
         }
 
-        public Builder isTreasure(boolean treasure) {
+        public void isTreasure(boolean treasure) {
             this.isTreasure = treasure;
-            return this;
         }
 
-        public Builder isTradeable(boolean tradeable) {
+        public void isTradeable(boolean tradeable) {
             this.isTradeable = tradeable;
-            return this;
         }
 
-        public Builder isDiscoverable(boolean discoverable) {
+        public void isDiscoverable(boolean discoverable) {
             this.isDiscoverable = discoverable;
-            return this;
         }
 
-        public Builder isOnRandomLoot(boolean onRandomLoot) {
+        public void isOnRandomLoot(boolean onRandomLoot) {
             this.isOnRandomLoot = onRandomLoot;
-            return this;
         }
 
-        public Builder isOnMobSpawnEquipment(boolean onMobSpawnEquipment) {
+        public void isOnMobSpawnEquipment(boolean onMobSpawnEquipment) {
             this.isOnMobSpawnEquipment = onMobSpawnEquipment;
-            return this;
         }
 
-        public Builder isOnTradedEquipment(boolean onTradedEquipment) {
+        public void isOnTradedEquipment(boolean onTradedEquipment) {
             this.isOnTradedEquipment = onTradedEquipment;
-            return this;
         }
 
         private HolderSet<Enchantment> createExclusiveSet() {
             HolderSet<Enchantment> exclusiveSet = HolderSet.empty();
             Registry<Enchantment> enchantRegistry = RegistryUtils.getEnchantRegistry();
             if (this.exclusiveSetTag != null) {
-                TagKey<Enchantment> tagKey = RegistryUtils.getTagKey(enchantRegistry, this.exclusiveSetTag);
-                Optional<HolderSet.Named<Enchantment>> holders = enchantRegistry.get(tagKey);
+                Optional<HolderSet.Named<Enchantment>> holders = enchantRegistry.get(this.exclusiveSetTag);
                 if (holders.isPresent()) {
                     exclusiveSet = holders.get();
                 }
@@ -210,11 +213,10 @@ public class EnchantmentDefinition {
             return exclusiveSet;
         }
 
-        private HolderSet<Item> createItemSet(String tag, List<Material> sets) {
+        private HolderSet<Item> createItemSet(TagKey<Item> tagKey, List<Material> sets) {
             HolderSet<Item> itemSet = HolderSet.empty();
             Registry<Item> itemRegistry = RegistryUtils.getItemRegistry();
-            if (tag != null) {
-                TagKey<Item> tagKey = RegistryUtils.getTagKey(itemRegistry, tag);
+            if (tagKey != null) {
                 Optional<HolderSet.Named<Item>> holders = itemRegistry.get(tagKey);
                 if (holders.isPresent()) {
                     itemSet = holders.get();

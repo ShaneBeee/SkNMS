@@ -16,6 +16,7 @@ import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.skript.RegistrationSection;
 import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
+import com.shanebeestudios.skbee.api.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -32,7 +33,7 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 import java.util.List;
 
 @SuppressWarnings({"DataFlowIssue", "unchecked"})
-@Name("Biome Registration")
+@Name("Biome Definition Registration")
 @Description({"Register a new biome.",
     "NOTE: These custom biomes will NOT show up in natural world generation.",
     "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
@@ -104,7 +105,7 @@ public class SecBiomeRegister extends RegistrationSection {
         VALIDATOR.addEntryData(new SectionEntryData("features", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("spawners", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("tags", null, true));
-        if (Bukkit.getPluginManager().isPluginEnabled("SkriptHubDocsTool")) {
+        if (Bukkit.getPluginManager().getPlugin("SkriptHubDocsTool") != null) {
             // Dummy section for generating docs
             VALIDATOR.addEntryData(new SectionEntryData("effects", null, true));
         } else {

@@ -18,6 +18,7 @@ import com.shanebeestudios.skbee.api.util.SimpleEntryValidator;
 import com.shanebeestudios.skbee.api.util.Util;
 import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
@@ -29,7 +30,7 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 
 import java.util.List;
 
-@Name("Register Enchantment")
+@Name("Enchantment Definition Registration")
 @Description({"Register a new custom enchantment.",
     "There are a LOT of entries for this, so please refer to the " +
         "[**Enchantment Definition**](https://minecraft.wiki/w/Enchantment_definition) page on McWiki for all the details.",
@@ -203,7 +204,10 @@ public class SecEnchantmentRegister extends RegistrationSection {
         if (this.exclusiveSet != null) {
             for (Object object : this.exclusiveSet.getArray(event)) {
                 if (object instanceof String string) {
-                    builder.exclusiveSetTag(string);
+                    NamespacedKey key = Util.getNamespacedKey(string.replace("#", ""), false);
+                    if (key == null || !builder.exclusiveSetTag(key)) {
+                        warning("Invalid tag '" + string + "'");
+                    }
                     break;
                 } else if (object instanceof Enchantment enchantment) {
                     builder.addExclusiveSet(enchantment);
@@ -213,20 +217,40 @@ public class SecEnchantmentRegister extends RegistrationSection {
 
         for (Object object : this.supportedItems.getArray(event)) {
             if (object instanceof String string) {
-                builder.supportedItemTag(string);
+                NamespacedKey key = Util.getNamespacedKey(string.replace("#", ""), false);
+                if (key == null || !builder.supportedItemTag(key)) {
+                    String tag = key != null ? key.toString() : string;
+                    warning("Invalid tag '" + tag + "'");
+                }
+                break;
             }
             if (object instanceof ItemType itemType) {
-                builder.addSupportedItem(itemType.getMaterial());
+                Material material = itemType.getMaterial();
+                if (!material.isItem()) {
+                    warning("Material '" + material + "' is not a. item.");
+                    continue;
+                }
+                builder.addSupportedItem(material);
             }
         }
 
         if (this.primaryItems != null) {
             for (Object object : this.primaryItems.getArray(event)) {
                 if (object instanceof String string) {
-                    builder.primaryItemTag(string);
+                    NamespacedKey key = Util.getNamespacedKey(string.replace("#", ""), false);
+                    if (key == null || !builder.primaryItemTag(key)) {
+                        String tag = key != null ? key.toString() : string;
+                        warningRegex("Invalid tag '" + tag + "'", "\".+\"");
+                    }
+                    break;
                 }
                 if (object instanceof ItemType itemType) {
-                    builder.addPrimaryItem(itemType.getMaterial());
+                    Material material = itemType.getMaterial();
+                    if (!material.isItem()) {
+                        warning("Material '" + material + "' is not a. item.");
+                        continue;
+                    }
+                    builder.addPrimaryItem(material);
                 }
             }
         }

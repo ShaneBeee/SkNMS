@@ -16,7 +16,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Apply Biome Tag")
+@Name("Apply Biome Definition Tag")
 @Description("Used in a `tags` section of the biome registration section, " +
     "you can specify which biome tags for your biome to be included in.")
 @Examples({"registry registration:",
@@ -51,8 +51,9 @@ public class EffApplyBiomeTag extends Effect {
             for (String string : this.strings.getArray(event)) {
                 if (string.startsWith("#")) string = string.substring(1);
                 NamespacedKey namespacedKey = Util.getNamespacedKey(string, false);
-                if (namespacedKey != null) {
-                    builder.addTag(namespacedKey);
+                if (namespacedKey == null || !builder.addTag(namespacedKey)) {
+                    String tag = namespacedKey != null ? namespacedKey.toString() : string;
+                    warningRegex("Invalid tag '" + tag + "'", "\".+\"");
                 }
             }
         }
