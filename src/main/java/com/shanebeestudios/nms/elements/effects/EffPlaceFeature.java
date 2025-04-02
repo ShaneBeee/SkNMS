@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
     "- Placed features are tested at 0,0,0 in a chunk, therefor your exact location will not be used."})
 @Examples({"place configured feature \"minecraft:trees_plains\" at target block",
     "place placed feature \"minecraft:pale_moss_patch\" at target block"})
-@Since("INSERT VERSION")
+@Since("1.2.0")
 public class EffPlaceFeature extends Effect {
 
     static {

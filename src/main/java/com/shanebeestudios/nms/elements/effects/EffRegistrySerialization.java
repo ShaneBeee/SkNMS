@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
     "serialize minecraft:sharpness to datapack file",
     "serialize all biomes to file",
     "serialize all enchantments to file"})
-@Since("INSERT VERSION")
+@Since("1.2.0")
 public class EffRegistrySerialization extends Effect {
 
     static {
