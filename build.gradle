@@ -29,7 +29,8 @@ repositories {
 
 dependencies {
     // Paper
-    paperweight.paperDevBundle("${minecraft}-R0.1-SNAPSHOT")
+    //paperweight.paperDevBundle("${minecraft}-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.5-no-moonrise-SNAPSHOT")
 
     // Skript
     compileOnly(group: 'com.github.SkriptLang', name: 'Skript', version: '2.10.0') {
@@ -73,6 +74,6 @@ processResources {
 tasks.register('server', Copy) {
     from shadowJar
     // Change this to wherever you want your jar to build
-    into '/Users/ShaneBee/Desktop/Server/Skript/1-21-4/plugins'
+    into '/Users/ShaneBee/Desktop/Server/Skript/1-21-5/plugins'
 }
 

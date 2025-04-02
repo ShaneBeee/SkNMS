@@ -9,7 +9,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Clearable;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -236,8 +235,8 @@ public class WorldApi {
             BlockPos newPos = new BlockPos(pos.getX() - (chunkAt.locX << 4), pos.getY(), pos.getZ() - (chunkAt.locZ << 4));
 
             if (toReplace == null || chunkAt.getBlockState(newPos).getBlock() == toReplace.getBlock()) {
-                Clearable.tryClear(chunkAt.getBlockEntity(newPos));
-                chunkAt.setBlockState(newPos, changeTo, false, false);
+                chunkAt.removeBlockEntity(newPos);
+                chunkAt.setBlockState(newPos, changeTo, 3);
             }
 
         }

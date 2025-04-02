@@ -4,7 +4,6 @@ import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.random.Weight;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
@@ -142,8 +141,8 @@ public class BiomeDefinition {
             maxCount = Math.max(maxCount, minCount);
             MobCategory mobCategory = MobCategory.values()[step];
             net.minecraft.world.entity.EntityType<?> nmsEntityType = CraftEntityType.bukkitToMinecraft(entityType);
-            MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType, Weight.of(weight), minCount, maxCount);
-            this.mobSpawnSettings.addSpawn(mobCategory, spawnerData);
+            MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType,  minCount, maxCount);
+            this.mobSpawnSettings.addSpawn(mobCategory, weight, spawnerData);
         }
 
         private BiomeSpecialEffects.Builder specialEffectsBuilder() {
