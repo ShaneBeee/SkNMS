@@ -36,6 +36,7 @@ import java.util.List;
     "- `water_color` = The color of the water in this biome (required).",
     "- `water_fog_color` = The color of the fog when underwater in this biome (required).",
     "- `foliage_color` = The color to use for tree leaves and vines. If not present, the value depends on downfall and temperature (optional).",
+    "- `dry_foliage_color` = The color used for tinting blocks using dry foliage tinting.",
     "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional).",
     "- `grass_color_modifier` = Built in color modifier for grass blocks (Can be `none`, `dark_forest` or `swamp`).",
     "- `particle` = Add a particle to use throughout this biome. Accepts a ParticleOption."})
@@ -51,6 +52,7 @@ import java.util.List;
     "\t\t\twater_fog_color: rgb(159,240,215)",
     "\t\t\tsky_color: rgb(159,226,240)",
     "\t\t\tfoliage_color: yellow",
+    "\t\t\tdrt_foliage_color: rgb(249,171,123)",
     "\t\t\tgrass_color: blue"})
 @Since("1.0.0")
 public class SecBiomeSpecialEffects extends Section {
@@ -65,6 +67,7 @@ public class SecBiomeSpecialEffects extends Section {
         builder.addRequiredEntry("water_color", colorClasses);
         builder.addRequiredEntry("water_fog_color", colorClasses);
         builder.addOptionalEntry("foliage_color", colorClasses);
+        builder.addOptionalEntry("dry_foliage_color", colorClasses);
         builder.addOptionalEntry("grass_color", colorClasses);
         builder.addOptionalEntry("grass_color_modifier", String.class);
         builder.addOptionalEntry("particle", ParticleOption.class);
@@ -77,6 +80,7 @@ public class SecBiomeSpecialEffects extends Section {
     private Expression<?> waterColor;
     private Expression<?> waterFogColor;
     private Expression<?> foliageColor;
+    private Expression<?> dryFoliageColor;
     private Expression<?> grassColor;
     private Expression<String> grassColorModifier;
     private Expression<ParticleOption> particle;
@@ -96,6 +100,7 @@ public class SecBiomeSpecialEffects extends Section {
         this.waterColor = (Expression<?>) container.getOptional("water_color", false);
         this.waterFogColor = (Expression<?>) container.getOptional("water_fog_color", false);
         this.foliageColor = (Expression<?>) container.getOptional("foliage_color", false);
+        this.dryFoliageColor = (Expression<?>) container.getOptional("dry_foliage_color", false);
         this.grassColor = (Expression<?>) container.getOptional("grass_color", false);
         this.grassColorModifier = (Expression<String>) container.getOptional("grass_color_modifier", false);
         this.particle = (Expression<ParticleOption>) container.getOptional("particle", false);
@@ -116,6 +121,9 @@ public class SecBiomeSpecialEffects extends Section {
 
         if (this.foliageColor != null) {
             builder.foliageColorOverride(getColor(this.foliageColor.getSingle(event)));
+        }
+        if (this.dryFoliageColor != null) {
+            builder.dryFoliageColorrOverride(getColor(this.dryFoliageColor.getSingle(event)));
         }
         if (this.grassColor != null) {
             builder.grassColorOverride(getColor(this.grassColor.getSingle(event)));

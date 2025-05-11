@@ -98,6 +98,10 @@ public class BiomeDefinition {
             this.specialEffectsBuilder().foliageColorOverride(foliageColor);
         }
 
+        public void dryFoliageColorrOverride(int dryFoliageColor) {
+            this.specialEffectsBuilder().dryFoliageColorOverride(dryFoliageColor);
+        }
+
         public void grassColorOverride(int grassColor) {
             this.specialEffectsBuilder().grassColorOverride(grassColor);
         }
@@ -141,7 +145,7 @@ public class BiomeDefinition {
             maxCount = Math.max(maxCount, minCount);
             MobCategory mobCategory = MobCategory.values()[step];
             net.minecraft.world.entity.EntityType<?> nmsEntityType = CraftEntityType.bukkitToMinecraft(entityType);
-            MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType,  minCount, maxCount);
+            MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType, minCount, maxCount);
             this.mobSpawnSettings.addSpawn(mobCategory, weight, spawnerData);
         }
 
