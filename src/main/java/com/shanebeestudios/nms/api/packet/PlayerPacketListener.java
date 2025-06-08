@@ -2,11 +2,8 @@ package com.shanebeestudios.nms.api.packet;
 
 import com.shanebeestudios.nms.SkNMS;
 import com.shanebeestudios.nms.api.util.McUtils;
-import com.shanebeestudios.skbee.api.nbt.NBTContainer;
-import com.shanebeestudios.skbee.api.util.Util;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
@@ -52,17 +49,6 @@ public class PlayerPacketListener implements Listener {
         ServerPlayer serverPlayer = ((CraftPlayer) bukkitPlayer).getHandle();
 
         ChannelDuplexHandler handler = new ChannelDuplexHandler() {
-            @Override
-            public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-//                if (msg instanceof Packet<?> packet) {
-//                    PacketEvent packetEvent = new PacketClientboundEvent(packet, bukkitPlayer);
-//                    if (!packetEvent.callEvent()) return;
-//                    super.write(ctx, packetEvent.getPacket(), promise);
-//                    return;
-//                }
-                super.write(ctx, msg, promise);
-            }
-
             @SuppressWarnings("DeconstructionCanBeUsed")
             @Override
             public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
@@ -70,9 +56,8 @@ public class PlayerPacketListener implements Listener {
                     if (packet instanceof ServerboundCustomClickActionPacket actionPacket) {
                         ResourceLocation id = actionPacket.id();
                         NamespacedKey nsk = McUtils.getNamespacedKey(id);
-                        String data;
                         Optional<Tag> payload = actionPacket.payload();
-                        data = payload.map(Tag::toString).orElse("{}");
+                        String data = payload.map(Tag::toString).orElse("{}");
                         Bukkit.getScheduler().runTask(SkNMS.getInstance(), () ->
                             new DynamicClickEvent(bukkitPlayer, nsk, data).callEvent());
                     }
