@@ -50,7 +50,7 @@ import java.util.Optional;
     "- `action` = A click event (from SkBee), also called a [**Static Action**](https://minecraft.wiki/w/Dialog#Static_action_types). " +
         "This is what happens when the player clicks the button.",
     "- `id` = The id of a [**Custom Dynmaic Action**](https://minecraft.wiki/w/Dialog#dynamic/custom). " +
-        "This will fire the `` event along with the provided data from an input.",
+        "This will fire the 'Dynamic Action Button Click' event along with the provided data from an input.",
     "- `additions` = An additional NBT compound to go along with your custom dynamic action."})
 @Examples({"add static action button:",
     "\tlabel: mini message from \"Creative Gamemode\"",
