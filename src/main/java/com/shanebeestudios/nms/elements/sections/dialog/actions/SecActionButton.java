@@ -11,16 +11,15 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.shanebeestudios.nms.api.util.McUtils;
 import com.shanebeestudios.nms.elements.sections.dialog.event.DialogRegisterEvent;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
 import com.shanebeestudios.skbee.api.skript.base.Section;
 import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dialog.ActionButton;
@@ -81,7 +80,7 @@ public class SecActionButton extends Section {
         @SuppressWarnings("unchecked")
         Class<Object>[] idClasses = new Class[]{String.class, NamespacedKey.class};
         VALIDATOR.addEntryData(new ExpressionEntryData<>("id", null, true, idClasses));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("additions", null, true, String.class)); // TODO NBT-API
+        VALIDATOR.addEntryData(new ExpressionEntryData<>("additions", null, true, NBTCompound.class));
 
         Skript.registerSection(SecActionButton.class, "add (:static|dynamic) action button");
     }
@@ -92,7 +91,7 @@ public class SecActionButton extends Section {
     private Expression<Integer> width;
     private Expression<ClickEvent> action;
     private Expression<?> id;
-    private Expression<String> additions;
+    private Expression<NBTCompound> additions;
 
 
     @SuppressWarnings("unchecked")
@@ -113,7 +112,7 @@ public class SecActionButton extends Section {
             this.action = (Expression<ClickEvent>) container.getOptional("action", false);
         } else {
             this.id = (Expression<String>) container.getOptional("id", false);
-            this.additions = (Expression<String>) container.getOptional("additions", false);
+            this.additions = (Expression<NBTCompound>) container.getOptional("additions", false);
         }
         return true;
     }
@@ -152,14 +151,9 @@ public class SecActionButton extends Section {
 
                 Optional<CompoundTag> additions = Optional.empty();
                 if (this.additions != null) {
-                    String string = this.additions.getSingle(event);
-                    if (string != null) {
-                        try {
-                            // TODO - Use NBT-API
-                            additions = Optional.of(TagParser.parseCompoundFully(string));
-                        } catch (CommandSyntaxException ignore) {
-
-                        }
+                    NBTCompound nbtCompound = this.additions.getSingle(event);
+                    if (nbtCompound != null) {
+                        additions = Optional.of(((CompoundTag) nbtCompound.getCompound()));
                     }
                 }
 

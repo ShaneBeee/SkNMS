@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import com.shanebeestudios.nms.api.packet.DynamicClickEvent;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
@@ -15,14 +16,14 @@ public class OtherEvents extends SimpleEvent {
                 "dynamic [action] button click")
             .description("Called when a player clicks a dynamic action button.",
                 "**Event-Values**:",
-                "- `event-string` = ",
-                "- `event-namespacedkey` = The ID given to the action button.",
+                "- `event-namespacedkey` = The NamespacedKey ID given to the action button.",
+                "- `event-string` = String version of NamespacedKey ID.",
                 "- `event-nbtcompound` = The NBT data sent along with the click.")
             .since("INSERT VERSION");
 
-        EventValues.registerEventValue(DynamicClickEvent.class, String.class, DynamicClickEvent::getData); // TODO change to key
+        EventValues.registerEventValue(DynamicClickEvent.class, NBTCompound.class, DynamicClickEvent::getData);
         EventValues.registerEventValue(DynamicClickEvent.class, NamespacedKey.class, DynamicClickEvent::getKey);
-        // TODO NBT
+        EventValues.registerEventValue(DynamicClickEvent.class, String.class, event -> event.getKey().toString());
         EventValues.registerEventValue(DynamicClickEvent.class, Player.class, DynamicClickEvent::getPlayer);
     }
 

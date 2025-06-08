@@ -1,5 +1,6 @@
 package com.shanebeestudios.nms.api.packet;
 
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -12,9 +13,9 @@ public class DynamicClickEvent extends Event {
 
     private final Player player;
     private final NamespacedKey key;
-    private final String data; // TODO NBT
+    private final NBTCompound data;
 
-    public DynamicClickEvent(Player player, NamespacedKey key, String data) {
+    public DynamicClickEvent(Player player, NamespacedKey key, NBTCompound data) {
         this.player = player;
         this.key = key;
         this.data = data;
@@ -28,7 +29,7 @@ public class DynamicClickEvent extends Event {
         return this.key;
     }
 
-    public String getData() {
+    public NBTCompound getData() {
         return this.data;
     }
 
