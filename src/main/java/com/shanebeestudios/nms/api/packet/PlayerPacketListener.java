@@ -2,8 +2,12 @@ package com.shanebeestudios.nms.api.packet;
 
 import com.shanebeestudios.nms.SkNMS;
 import com.shanebeestudios.nms.api.util.McUtils;
+import com.shanebeestudios.skbee.api.nbt.NBTApi;
+import com.shanebeestudios.skbee.api.nbt.NBTCompound;
+import com.shanebeestudios.skbee.api.nbt.NBTContainer;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
@@ -25,6 +29,7 @@ import java.util.Optional;
 public class PlayerPacketListener implements Listener {
 
     private static boolean registered = false;
+    private static boolean nbtEnabled = false;
 
     /**
      * Register a listener for {@link PacketEvent packet events}
@@ -38,6 +43,7 @@ public class PlayerPacketListener implements Listener {
         }
         Bukkit.getPluginManager().registerEvents(new PlayerPacketListener(), plugin);
         registered = true;
+        nbtEnabled = NBTApi.isEnabled();
     }
 
     private PlayerPacketListener() {
@@ -49,17 +55,28 @@ public class PlayerPacketListener implements Listener {
         ServerPlayer serverPlayer = ((CraftPlayer) bukkitPlayer).getHandle();
 
         ChannelDuplexHandler handler = new ChannelDuplexHandler() {
-            @SuppressWarnings("DeconstructionCanBeUsed")
+            @SuppressWarnings({"DeconstructionCanBeUsed", "deprecation"})
             @Override
             public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
                 if (msg instanceof Packet<?> packet) {
-                    if (packet instanceof ServerboundCustomClickActionPacket actionPacket) {
+                    if (packet instanceof ServerboundCustomClickActionPacket actionPacket && nbtEnabled) {
                         ResourceLocation id = actionPacket.id();
                         NamespacedKey nsk = McUtils.getNamespacedKey(id);
                         Optional<Tag> payload = actionPacket.payload();
-                        String data = payload.map(Tag::toString).orElse("{}");
+
+                        NBTCompound nbtCompound;
+                        if (payload.isPresent()) {
+                            Tag tag = payload.get();
+                            if (tag instanceof CompoundTag compoundTag) nbtCompound = new NBTContainer(compoundTag);
+                            else {
+                                nbtCompound = null;
+                            }
+                        } else {
+                            nbtCompound = null;
+                        }
+
                         Bukkit.getScheduler().runTask(SkNMS.getInstance(), () ->
-                            new DynamicClickEvent(bukkitPlayer, nsk, data).callEvent());
+                            new DynamicClickEvent(bukkitPlayer, nsk, nbtCompound).callEvent());
                     }
                 }
                 super.channelRead(ctx, msg);
