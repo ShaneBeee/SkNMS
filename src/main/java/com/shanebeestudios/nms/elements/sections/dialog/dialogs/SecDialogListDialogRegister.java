@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.skript.RegistrationSection;
 import com.shanebeestudios.nms.api.util.McUtils;
@@ -26,7 +27,9 @@ import net.minecraft.server.dialog.CommonDialogData;
 import net.minecraft.server.dialog.Dialog;
 import net.minecraft.server.dialog.DialogAction;
 import net.minecraft.server.dialog.DialogListDialog;
+import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -39,7 +42,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Name("Dialog - Multi Action Dialog Registration")
+@Name("Dialog - Multi Action Dialog")
 @Description({"A dialog screen with scrollable list of buttons leading directly to other dialogs, arranged in columns.",
     "Titles of those buttons will be taken from external_title fields of targeted dialogs.",
     "If `exit_action` is present, a button for it will appear in the footer, otherwise the footer is not present.",
@@ -47,8 +50,11 @@ import java.util.Optional;
     "See [**Dialog List Dialog**](https://minecraft.wiki/w/Dialog#dialog_list) on McWiki for further details.",
     "See [**snippets**](https://github.com/ShaneBeee/SkriptSnippets/tree/master/snippets/dialog) for comprehensive examples.",
     "",
+    "You can either register a dialog in the `registry registration` structure, and open it later or you can create/open a dialog on the fly.",
+    "**Register**: Register a dialog with an `id` (The id that represents this dialog, accepts a string or NamespacedKey).",
+    "**Open**: Create a dialog and directly open it to a player without registration.",
+    "",
     "**Entries**:",
-    "- `id` = The id that represents this dialog (Accepts a string or NamespacedKey).",
     "- `title` = Screen title, appearing at the top of the dialog, accepts a string/text component.",
     "- `external_title` = Name to be used for a button leading to this dialog (for example, on the pause menu), accepts a string.text component. " +
         "If not present, `title` will be used instead. [Optional]",
@@ -93,8 +99,14 @@ public class SecDialogListDialogRegister extends RegistrationSection {
         VALIDATOR.addEntryData(new ExpressionEntryData<>("columns", null, true, Integer.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("button_width", null, true, Integer.class));
 
-        Skript.registerSection(SecDialogListDialogRegister.class, "register [new] dialog list dialog");
+        Skript.registerSection(SecConfirmationDialogRegister.class,
+            "register [new] dialog list dialog with id %string/namespacedkey%",
+            "open [new] dialog list dialog to %players%");
     }
+
+    // DYNAMIC
+    private boolean dynamic = false;
+    private Expression<Player> players;
 
     // GENERAL DIALOG
     private Expression<?> id;
@@ -115,15 +127,24 @@ public class SecDialogListDialogRegister extends RegistrationSection {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-        if (!getParser().isCurrentStructure(StructRegistryRegistration.class)) {
+        if (matchedPattern == 0 && !getParser().isCurrentStructure(StructRegistryRegistration.class)) {
             Skript.error("Dialogs can only be registered in a 'registry registration' structure");
             return false;
+        } else if (matchedPattern == 1) {
+            if (getParser().isCurrentStructure(StructRegistryRegistration.class)) {
+                Skript.error("Dialogs cannot be opened in a 'registry registration' structure");
+                return false;
+            }
+            this.dynamic = true;
+            this.players = (Expression<Player>) exprs[0];
         }
         EntryContainer container = VALIDATOR.build().validate(sectionNode);
         if (container == null) return false;
 
         // GENERAL DIALOG
-        this.id = (Expression<?>) container.getOptional("id", false);
+        if (!this.dynamic) {
+            this.id = exprs[0];
+        }
         this.title = (Expression<?>) container.getOptional("title", false);
         this.externalTitle = (Expression<?>) container.getOptional("external_title", false);
         SectionNode bodiesNode = (SectionNode) container.getOptional("body", false);
@@ -152,13 +173,6 @@ public class SecDialogListDialogRegister extends RegistrationSection {
     @Override
     protected @Nullable TriggerItem walk(Event event) {
         TriggerItem next = getNext();
-        Object idSingle = this.id.getSingle(event);
-
-        NamespacedKey key = idSingle instanceof NamespacedKey nsk ? nsk : idSingle instanceof String s ? NamespacedKey.fromString(s) : null;
-        if (key == null) {
-            error("ID is invalid, no dialog created: " + this.id.toString(event, true));
-            return next;
-        }
 
         Component title;
         if (this.title == null) {
@@ -203,15 +217,17 @@ public class SecDialogListDialogRegister extends RegistrationSection {
 
         // Sections
         DialogRegisterEvent dialogEvent = new DialogRegisterEvent();
-        if (this.bodies != null) {
-            Trigger.walk(this.bodies, dialogEvent);
-        }
-        if (this.inputs != null) {
-            Trigger.walk(this.inputs, dialogEvent);
-        }
-        if (this.exit_action != null) {
-            Trigger.walk(this.exit_action, dialogEvent);
-        }
+        Variables.withLocalVariables(event, dialogEvent, () -> {
+            if (this.bodies != null) {
+                Trigger.walk(this.bodies, dialogEvent);
+            }
+            if (this.inputs != null) {
+                Trigger.walk(this.inputs, dialogEvent);
+            }
+            if (this.exit_action != null) {
+                Trigger.walk(this.exit_action, dialogEvent);
+            }
+        });
 
         DialogAction afterAction = this.afterAction == null ? DialogAction.CLOSE : switch (Objects.requireNonNull(this.afterAction.getSingle(event))) {
             case "none" -> DialogAction.NONE;
@@ -238,7 +254,21 @@ public class SecDialogListDialogRegister extends RegistrationSection {
 
         Optional<ActionButton> exitActionButton = Optional.ofNullable(dialogEvent.getExitActionButton());
         DialogListDialog dialog = new DialogListDialog(commonDialogData, dialogs, exitActionButton, columns, buttonWidth);
-        RegistryUtils.registerDialog(dialog, key);
+        if (this.dynamic) {
+            Holder<Dialog> holder = Holder.direct(dialog);
+            for (Player player : this.players.getArray(event)) {
+                ServerPlayer serverPlayer = McUtils.getServerPlayer(player);
+                serverPlayer.openDialog(holder);
+            }
+        } else {
+            Object idSingle = this.id.getSingle(event);
+            NamespacedKey key = idSingle instanceof NamespacedKey nsk ? nsk : idSingle instanceof String s ? NamespacedKey.fromString(s) : null;
+            if (key == null) {
+                error("ID is invalid, no dialog created: " + this.id.toString(event, true));
+                return next;
+            }
+            RegistryUtils.registerDialog(dialog, key);
+        }
 
         return next;
     }

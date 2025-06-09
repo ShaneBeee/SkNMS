@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.skript.RegistrationSection;
 import com.shanebeestudios.nms.api.util.McUtils;
@@ -17,12 +18,16 @@ import com.shanebeestudios.nms.api.util.RegistryUtils;
 import com.shanebeestudios.nms.elements.sections.dialog.event.DialogRegisterEvent;
 import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
 import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.dialog.ActionButton;
 import net.minecraft.server.dialog.CommonDialogData;
+import net.minecraft.server.dialog.Dialog;
 import net.minecraft.server.dialog.DialogAction;
 import net.minecraft.server.dialog.MultiActionDialog;
+import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -34,15 +39,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Name("Dialog - Multi Action Dialog Registration")
+@Name("Dialog - Multi Action Dialog")
 @Description({"A dialog screen with a scrollable list of action buttons arranged in columns.",
     "If `exit_action` is present, a button for it will appear in the footer, otherwise the footer is not present.",
     "`exit_action` is also used for the Escape action.",
     "See [**Multi Action Dialog**](https://minecraft.wiki/w/Dialog#multi_action) on McWiki for further details.",
     "See [**snippets**](https://github.com/ShaneBeee/SkriptSnippets/tree/master/snippets/dialog) for comprehensive examples.",
     "",
+    "You can either register a dialog in the `registry registration` structure, and open it later or you can create/open a dialog on the fly.",
+    "**Register**: Register a dialog with an `id` (The id that represents this dialog, accepts a string or NamespacedKey).",
+    "**Open**: Create a dialog and directly open it to a player without registration.",
+    "",
     "**Entries**:",
-    "- `id` = The id that represents this dialog (Accepts a string or NamespacedKey).",
     "- `title` = Screen title, appearing at the top of the dialog, accepts a string/text component.",
     "- `external_title` = Name to be used for a button leading to this dialog (for example, on the pause menu), accepts a string.text component. " +
         "If not present, `title` will be used instead. [Optional]",
@@ -68,10 +76,7 @@ public class SecMultiDialogRegister extends RegistrationSection {
     static {
         // GENERAL DIALOG
         @SuppressWarnings("unchecked")
-        Class<Object>[] idClasses = new Class[]{String.class, NamespacedKey.class};
-        @SuppressWarnings("unchecked")
         Class<Object>[] compClasses = new Class[]{String.class, ComponentWrapper.class};
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("id", null, false, idClasses));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("title", null, false, compClasses));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("external_title", null, true, compClasses));
         VALIDATOR.addEntryData(new SectionEntryData("body", null, true));
@@ -84,8 +89,14 @@ public class SecMultiDialogRegister extends RegistrationSection {
         VALIDATOR.addEntryData(new SectionEntryData("actions", null, false));
         VALIDATOR.addEntryData(new SectionEntryData("exit_action", null, true));
 
-        Skript.registerSection(SecMultiDialogRegister.class, "register [new] multi action dialog");
+        Skript.registerSection(SecMultiDialogRegister.class,
+            "register [new] multi action dialog with id %string/namespacedkey%",
+            "open [new] multi action dialog to %players%");
     }
+
+    // DYNAMIC
+    private boolean dynamic = false;
+    private Expression<Player> players;
 
     // GENERAL DIALOG
     private Expression<?> id;
@@ -104,15 +115,24 @@ public class SecMultiDialogRegister extends RegistrationSection {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-        if (!getParser().isCurrentStructure(StructRegistryRegistration.class)) {
+        if (matchedPattern == 0 && !getParser().isCurrentStructure(StructRegistryRegistration.class)) {
             Skript.error("Dialogs can only be registered in a 'registry registration' structure");
             return false;
+        } else if (matchedPattern == 1) {
+            if (getParser().isCurrentStructure(StructRegistryRegistration.class)) {
+                Skript.error("Dialogs cannot be opened in a 'registry registration' structure");
+                return false;
+            }
+            this.dynamic = true;
+            this.players = (Expression<Player>) exprs[0];
         }
         EntryContainer container = VALIDATOR.build().validate(sectionNode);
         if (container == null) return false;
 
         // GENERAL DIALOG
-        this.id = (Expression<?>) container.getOptional("id", false);
+        if (!this.dynamic) {
+            this.id = exprs[0];
+        }
         this.title = (Expression<?>) container.getOptional("title", false);
         this.externalTitle = (Expression<?>) container.getOptional("external_title", false);
         SectionNode bodiesNode = (SectionNode) container.getOptional("body", false);
@@ -143,13 +163,6 @@ public class SecMultiDialogRegister extends RegistrationSection {
     @Override
     protected @Nullable TriggerItem walk(Event event) {
         TriggerItem next = getNext();
-        Object idSingle = this.id.getSingle(event);
-
-        NamespacedKey key = idSingle instanceof NamespacedKey nsk ? nsk : idSingle instanceof String s ? NamespacedKey.fromString(s) : null;
-        if (key == null) {
-            error("ID is invalid, no dialog created: " + this.id.toString(event, true));
-            return next;
-        }
 
         Component title;
         if (this.title == null) {
@@ -189,16 +202,18 @@ public class SecMultiDialogRegister extends RegistrationSection {
 
         // Sections
         DialogRegisterEvent dialogEvent = new DialogRegisterEvent();
-        Trigger.walk(this.actions, dialogEvent);
-        if (this.bodies != null) {
-            Trigger.walk(this.bodies, dialogEvent);
-        }
-        if (this.inputs != null) {
-            Trigger.walk(this.inputs, dialogEvent);
-        }
-        if (this.exit_action != null) {
-            Trigger.walk(this.exit_action, dialogEvent);
-        }
+        Variables.withLocalVariables(event, dialogEvent, () -> {
+            Trigger.walk(this.actions, dialogEvent);
+            if (this.bodies != null) {
+                Trigger.walk(this.bodies, dialogEvent);
+            }
+            if (this.inputs != null) {
+                Trigger.walk(this.inputs, dialogEvent);
+            }
+            if (this.exit_action != null) {
+                Trigger.walk(this.exit_action, dialogEvent);
+            }
+        });
 
         DialogAction afterAction = this.afterAction == null ? DialogAction.CLOSE : switch (Objects.requireNonNull(this.afterAction.getSingle(event))) {
             case "none" -> DialogAction.NONE;
@@ -217,14 +232,31 @@ public class SecMultiDialogRegister extends RegistrationSection {
 
         Optional<ActionButton> exitActionButton = Optional.ofNullable(dialogEvent.getExitActionButton());
         MultiActionDialog dialog = new MultiActionDialog(commonDialogData, dialogEvent.getActions(), exitActionButton, columns);
-        RegistryUtils.registerDialog(dialog, key);
+        if (this.dynamic) {
+            Holder<Dialog> holder = Holder.direct(dialog);
+            for (Player player : this.players.getArray(event)) {
+                ServerPlayer serverPlayer = McUtils.getServerPlayer(player);
+                serverPlayer.openDialog(holder);
+            }
+        } else {
+            Object idSingle = this.id.getSingle(event);
+            NamespacedKey key = idSingle instanceof NamespacedKey nsk ? nsk : idSingle instanceof String s ? NamespacedKey.fromString(s) : null;
+            if (key == null) {
+                error("ID is invalid, no dialog created: " + this.id.toString(event, true));
+                return next;
+            }
+            RegistryUtils.registerDialog(dialog, key);
+        }
 
         return next;
     }
 
     @Override
     public String toString(@Nullable Event e, boolean d) {
-        return "register multi action dialog";
+        if (this.dynamic) {
+            return "open multi action dialog to " + this.players.toString(e, d);
+        }
+        return "register multi action dialog with id " + this.id.toString(e, d);
     }
 
 }
