@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.util.McUtils;
 import com.shanebeestudios.nms.elements.sections.dialog.event.DialogRegisterEvent;
@@ -132,7 +133,9 @@ public class SecSingleOptionInput extends Section {
         }
 
         OptionsEvent optionsEvent = new OptionsEvent();
-        Trigger.walk(this.options, optionsEvent);
+        Variables.withLocalVariables(event, optionsEvent, () -> {
+            Trigger.walk(this.options, optionsEvent);
+        });
 
         if (event instanceof DialogRegisterEvent actionEvent) {
             SingleOptionInput input = new SingleOptionInput(width, optionsEvent.getEntries(), label, labelVisible);

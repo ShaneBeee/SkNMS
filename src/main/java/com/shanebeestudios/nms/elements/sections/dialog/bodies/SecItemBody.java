@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.elements.sections.dialog.event.DialogRegisterEvent;
 import com.shanebeestudios.nms.elements.sections.dialog.event.PlainMessageEvent;
@@ -106,7 +107,9 @@ public class SecItemBody extends Section {
         Optional<PlainMessage> description = Optional.empty();
         if (this.description != null) {
             PlainMessageEvent plainMessageEvent = new PlainMessageEvent();
-            Trigger.walk(this.description, plainMessageEvent);
+            Variables.withLocalVariables(event, plainMessageEvent, () ->
+                Trigger.walk(this.description, plainMessageEvent));
+
             description = Optional.of(plainMessageEvent.getPlainMessage());
         }
 
