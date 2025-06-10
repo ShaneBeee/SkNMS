@@ -74,7 +74,7 @@ public class SecBooleanInput extends Section {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
         if (!getParser().isCurrentEvent(DialogRegisterEvent.class)) {
-            Skript.error("Inputs can only be used in an 'input' section.");
+            Skript.error("A boolean input can only be used in an 'inputs' section of a dialog.");
             return false;
         }
         EntryContainer container = VALIDATOR.build().validate(sectionNode);

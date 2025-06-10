@@ -88,7 +88,7 @@ public class SecNumberRangeInput extends Section {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
         if (!getParser().isCurrentEvent(DialogRegisterEvent.class)) {
-            Skript.error("some error");
+            Skript.error("A number range input can only be used in an 'inputs' section of a dialog.");
             return false;
         }
         EntryContainer container = VALIDATOR.build().validate(sectionNode);

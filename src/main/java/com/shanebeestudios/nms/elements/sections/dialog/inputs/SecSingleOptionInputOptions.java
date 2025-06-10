@@ -67,7 +67,7 @@ public class SecSingleOptionInputOptions extends Section {
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
         if (!getParser().isCurrentEvent(OptionsEvent.class)) {
-            Skript.error("some error");
+            Skript.error("An options entry can only be used in an 'options' section of a single option input.");
             return false;
         }
         EntryContainer container = VALIDATOR.build().validate(sectionNode);
