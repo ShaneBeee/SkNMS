@@ -82,10 +82,7 @@ public class SecDialogListDialogRegister extends RegistrationSection {
     static {
         // GENERAL DIALOG
         @SuppressWarnings("unchecked")
-        Class<Object>[] idClasses = new Class[]{String.class, NamespacedKey.class};
-        @SuppressWarnings("unchecked")
         Class<Object>[] compClasses = new Class[]{String.class, ComponentWrapper.class};
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("id", null, false, idClasses));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("title", null, false, compClasses));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("external_title", null, true, compClasses));
         VALIDATOR.addEntryData(new SectionEntryData("body", null, true));
@@ -99,7 +96,7 @@ public class SecDialogListDialogRegister extends RegistrationSection {
         VALIDATOR.addEntryData(new ExpressionEntryData<>("columns", null, true, Integer.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("button_width", null, true, Integer.class));
 
-        Skript.registerSection(SecConfirmationDialogRegister.class,
+        Skript.registerSection(SecDialogListDialogRegister.class,
             "register [new] dialog list dialog with id %string/namespacedkey%",
             "open [new] dialog list dialog to %players%");
     }

@@ -76,10 +76,7 @@ public class SecNoticeDialogRegister extends RegistrationSection {
     static {
         // GENERAL DIALOG
         @SuppressWarnings("unchecked")
-        Class<Object>[] idClasses = new Class[]{String.class, NamespacedKey.class};
-        @SuppressWarnings("unchecked")
         Class<Object>[] compClasses = new Class[]{String.class, ComponentWrapper.class};
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("id", null, false, idClasses));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("title", null, false, compClasses));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("external_title", null, true, compClasses));
         VALIDATOR.addEntryData(new SectionEntryData("body", null, true));
@@ -90,7 +87,7 @@ public class SecNoticeDialogRegister extends RegistrationSection {
         // NOTICE DIALOG STUFF
         VALIDATOR.addEntryData(new SectionEntryData("action", null, true));
 
-        Skript.registerSection(SecConfirmationDialogRegister.class,
+        Skript.registerSection(SecNoticeDialogRegister.class,
             "register [new] notice dialog with id %string/namespacedkey%",
             "open [new] notice dialog to %players%");
     }
