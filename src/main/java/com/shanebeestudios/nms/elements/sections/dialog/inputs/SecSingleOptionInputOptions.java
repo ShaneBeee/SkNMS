@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @Name("Dialog - Single Option Input - Option Entry")
 @Description({"An option to be used in an options section of a single option input.",
-    "See [**Single Option Input on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialog-Registration#single-option-input) for more info.",
+    "See [**Single Option Input on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#single-option-input) for more info.",
     "**Entries**:",
     "- `display` = A string/text component for what is displayed as the option.",
     "- `initial` = Only one option can have this set to true. " +

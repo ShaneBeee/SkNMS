@@ -59,15 +59,15 @@ import java.util.Optional;
     "- `external_title` = Name to be used for a button leading to this dialog (for example, on the pause menu), accepts a string.text component. " +
         "If not present, `title` will be used instead. [Optional]",
     "- `body` = Optional section for body elements or a single body element. " +
-        "See [**Body Format on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialog-Registration#body-format) " +
+        "See [**Body Format on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#body-format) " +
         "and [**Body Format on McWiki**](https://minecraft.wiki/w/Dialog#Body_format) for further info.",
     "- `inputs` = Optional section for input controls. " +
-        "See [**Input Control on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialog-Registration#input-control)" +
+        "See [**Input Control on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#input-control)" +
         "and [**Input Control on McWiki**](https://minecraft.wiki/w/Dialog#Input_control_format) for further info.",
     "- `can_close_with_escape` = Can dialog be dismissed with Escape key. Defaults to true. [Optional]",
     "- `after_action` = An additional operation performed on the dialog after click or submit actions (accepts a string)." +
         "Options are \"close\", \"none\" and \"wait_for_response\"." +
-        "See [**Common Entries on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialog-Registration#common-entries) for further info.",
+        "See [**Common Entries on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#common-entries) for further info.",
     "- `dialogs` = A list of strings of previously defined dialogs. " +
         "Will accept the ID of the other dialogs, whether registered by you or from datapacks.",
     "- `exit_action` = Action for leaving the dialog. Same as action sections but will only accept one action. [Optional]",

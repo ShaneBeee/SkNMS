@@ -32,14 +32,14 @@ import java.util.List;
 
 @Name("Dialog - Single Option Input")
 @Description({"A preset option selection input to be used in an `inputs` section of a dialog.",
-    "See [**Input Control on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialog-Registration#input-control)" +
+    "See [**Input Control on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#input-control)" +
         "and [**Input Control on McWiki**](https://minecraft.wiki/w/Dialog#Input_control_format) for further info.",
     "**Entries**:",
     "- `key` = String identifier of value used when submitting data, must be a valid template argument (letters, digits and _).",
     "- `label` = A string/text component to be displayed to the left of the input.",
     "- `label_visible` = Controls if the label is visible. Defaults to true.",
     "- `width` = Integer value between 1 and 1024 — The width of the input. Defaults to 200.",
-    "- `options` = A section for adding options. See [**options**](https://github.com/ShaneBeee/SkNMS/wiki/Dialog-Registration#options) for more info."})
+    "- `options` = A section for adding options. See [**options**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#options) for more info."})
 @Examples({"add single option input:",
     "\tkey: \"le_key\"",
     "\tlabel: \"Choose favorite animal\"",

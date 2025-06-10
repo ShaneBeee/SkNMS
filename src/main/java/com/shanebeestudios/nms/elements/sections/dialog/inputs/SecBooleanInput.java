@@ -27,7 +27,7 @@ import java.util.List;
 
 @Name("Dialog - Boolean Input")
 @Description({"A simple checkbox input to be used in an `inputs` section of a dialog.",
-    "See [**Input Control on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialog-Registration#input-control)" +
+    "See [**Input Control on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#input-control)" +
         "and [**Input Control on McWiki**](https://minecraft.wiki/w/Dialog#Input_control_format) for further info.",
     "**Entries**:",
     "- `key` = String identifier of value used when submitting data, must be a valid template argument (letters, digits and _).",
