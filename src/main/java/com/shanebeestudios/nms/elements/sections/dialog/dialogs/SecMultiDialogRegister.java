@@ -230,8 +230,14 @@ public class SecMultiDialogRegister extends RegistrationSection {
             dialogEvent.getBodies(),
             dialogEvent.getInputs());
 
+        List<ActionButton> actions = dialogEvent.getActions();
+        if (actions.isEmpty()) {
+            error("At least one action is required but found 0.");
+            return next;
+        }
+
         Optional<ActionButton> exitActionButton = Optional.ofNullable(dialogEvent.getExitActionButton());
-        MultiActionDialog dialog = new MultiActionDialog(commonDialogData, dialogEvent.getActions(), exitActionButton, columns);
+        MultiActionDialog dialog = new MultiActionDialog(commonDialogData, actions, exitActionButton, columns);
         if (this.dynamic) {
             Holder<Dialog> holder = Holder.direct(dialog);
             for (Player player : this.players.getArray(event)) {
