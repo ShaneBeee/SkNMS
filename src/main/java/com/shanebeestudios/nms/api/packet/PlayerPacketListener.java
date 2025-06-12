@@ -65,12 +65,8 @@ public class PlayerPacketListener implements Listener {
                         Optional<Tag> payload = actionPacket.payload();
 
                         NBTCompound nbtCompound;
-                        if (payload.isPresent()) {
-                            Tag tag = payload.get();
-                            if (tag instanceof CompoundTag compoundTag) nbtCompound = new NBTContainer(compoundTag);
-                            else {
-                                nbtCompound = null;
-                            }
+                        if (payload.isPresent() && payload.get() instanceof CompoundTag compoundTag) {
+                            nbtCompound = new NBTContainer(compoundTag);
                         } else {
                             nbtCompound = null;
                         }
