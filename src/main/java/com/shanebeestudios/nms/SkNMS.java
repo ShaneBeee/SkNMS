@@ -2,6 +2,7 @@ package com.shanebeestudios.nms;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import com.shanebeestudios.nms.api.packet.PlayerPacketListener;
 import com.shanebeestudios.nms.api.util.Utils;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -40,6 +41,7 @@ public class SkNMS extends JavaPlugin {
             return;
         }
         loadMetrics();
+        PlayerPacketListener.registerListener(this);
     }
 
     @Override

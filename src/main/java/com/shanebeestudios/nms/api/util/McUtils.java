@@ -6,6 +6,9 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
+import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
+import io.papermc.paper.adventure.PaperAdventure;
+import net.kyori.adventure.text.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -391,6 +394,16 @@ public class McUtils {
      */
     public static DedicatedServer getMinecraftServer(Server server) {
         return ((CraftServer) server).getServer();
+    }
+
+    @Nullable
+    public static net.minecraft.network.chat.Component getNMSComponent(Object object) {
+        if (object instanceof String string) {
+            return PaperAdventure.asVanilla(Component.text(string));
+        } else if (object instanceof ComponentWrapper wrap) {
+            return PaperAdventure.asVanilla(wrap.getComponent());
+        }
+        return null;
     }
 
 }

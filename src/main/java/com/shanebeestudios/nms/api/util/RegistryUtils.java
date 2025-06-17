@@ -16,6 +16,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dialog.Dialog;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.flag.FeatureFlags;
@@ -47,6 +48,7 @@ public class RegistryUtils {
     private static final Registry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
     private static final Registry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
     private static final Registry<PlacedFeature> PLACED_FEATURE_REGISTRY = getRegistry(Registries.PLACED_FEATURE);
+    private static final Registry<Dialog> DIALOG_REGISTRY = getRegistry(Registries.DIALOG);
 
     public static Registry<Enchantment> getEnchantRegistry() {
         return ENCHANT_REGISTRY;
@@ -58,6 +60,10 @@ public class RegistryUtils {
 
     public static Registry<Biome> getBiomeRegistry() {
         return BIOME_REGISTRY;
+    }
+
+    public static Registry<Dialog> getDialogRegistry() {
+        return DIALOG_REGISTRY;
     }
 
     @NotNull
@@ -233,6 +239,20 @@ public class RegistryUtils {
         refreshSkriptRegistry(org.bukkit.block.Biome.class);
 
         return CraftBiome.minecraftToBukkit(biome);
+    }
+
+    public static void registerDialog(Dialog dialog, NamespacedKey dialogKey) {
+        ResourceLocation key = CraftNamespacedKey.toMinecraft(dialogKey);
+        ResourceKey<Dialog> resourceKey = ResourceKey.create(Registries.DIALOG, key);
+        if (DIALOG_REGISTRY.containsKey(resourceKey)) {
+            // Already registered
+            return;
+        }
+
+        unfreeze(DIALOG_REGISTRY);
+        Holder.Reference<Dialog> intrusiveHolder = DIALOG_REGISTRY.createIntrusiveHolder(dialog);
+        Registry.register(DIALOG_REGISTRY, resourceKey, dialog);
+        freeze(DIALOG_REGISTRY);
     }
 
     public static Holder<PlacedFeature> getFeature(NamespacedKey key) {
