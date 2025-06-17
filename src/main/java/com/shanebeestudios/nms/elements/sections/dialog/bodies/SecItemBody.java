@@ -48,7 +48,7 @@ import java.util.Optional;
     "\t\t\twidth: 300",
     "\tshow_decoration: true",
     "\tshow_tooltip: false"})
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecItemBody extends Section {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

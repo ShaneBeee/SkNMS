@@ -19,7 +19,7 @@ public class OtherEvents extends SimpleEvent {
                 "- `event-namespacedkey` = The NamespacedKey ID given to the action button.",
                 "- `event-string` = String version of NamespacedKey ID.",
                 "- `event-nbtcompound` = The NBT data sent along with the click.")
-            .since("INSERT VERSION");
+            .since("1.3.0");
 
         EventValues.registerEventValue(DynamicClickEvent.class, NBTCompound.class, DynamicClickEvent::getData);
         EventValues.registerEventValue(DynamicClickEvent.class, NamespacedKey.class, DynamicClickEvent::getKey);

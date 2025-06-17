@@ -61,7 +61,7 @@ import java.util.Optional;
     "\tlabel: \"Spawn\"",
     "\ttooltip: \"Teleport yoursel to spawn!\"",
     "\tid: \"custom:teleport_to_spawn\""})
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecActionButton extends Section {
 
     private static final EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

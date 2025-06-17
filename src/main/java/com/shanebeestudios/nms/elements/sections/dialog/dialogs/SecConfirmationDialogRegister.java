@@ -67,7 +67,7 @@ import java.util.Optional;
         "See [**Action Format on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#action-format)" +
         "and [**Action Format on McWiki**](https://minecraft.wiki/w/Dialog#Action_format) for further info."})
 @Examples("")
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecConfirmationDialogRegister extends RegistrationSection {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

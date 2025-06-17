@@ -52,7 +52,7 @@ import java.util.List;
     "\t\t\tdisplay: \"turtle\"",
     "\t\tadd options entity:",
     "\t\t\tdisplay: \"spider\""})
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecSingleOptionInput extends Section {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

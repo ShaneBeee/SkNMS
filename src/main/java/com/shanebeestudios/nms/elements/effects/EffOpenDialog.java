@@ -28,7 +28,7 @@ import java.util.Optional;
     "You can use keys from your own custom dialogs, as well as dialogs from DataPacks."})
 @Examples({"open dialog with id \"minecraft:my_dialog\" to player",
     "open dialog with id \"my_pack:some_dialog\" to all players"})
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class EffOpenDialog extends Effect {
 
     static {

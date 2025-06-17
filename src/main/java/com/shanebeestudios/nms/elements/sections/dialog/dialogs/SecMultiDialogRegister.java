@@ -68,7 +68,7 @@ import java.util.Optional;
     "- `columns` = Positive integer describing number of columns. Defaults to 2. [Optional]",
     "- `exit_action` = Action for leaving the dialog. Same as action sections but will only accept one action. [Optional]"})
 @Examples("")
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecMultiDialogRegister extends RegistrationSection {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

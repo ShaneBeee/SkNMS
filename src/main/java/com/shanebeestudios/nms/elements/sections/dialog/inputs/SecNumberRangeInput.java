@@ -49,7 +49,7 @@ import java.util.Optional;
     "\tend: 20",
     "\tstep: 1",
     "\tinitial: 20"})
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecNumberRangeInput extends Section {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

@@ -41,7 +41,7 @@ import java.util.List;
     "\tinitial: true",
     "\ton_true: \"true was selected\"",
     "\ton_false: \"false was selected\""})
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecBooleanInput extends Section {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

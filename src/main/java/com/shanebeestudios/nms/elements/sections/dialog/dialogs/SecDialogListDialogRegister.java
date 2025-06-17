@@ -74,7 +74,7 @@ import java.util.Optional;
     "- `columns` = Positive integer describing number of columns. Defaults to 2. [Optional]",
     "- `button_width` = Integer value between 1 and 1024 — Width of the button. Defaults to 150."})
 @Examples("")
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecDialogListDialogRegister extends RegistrationSection {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();

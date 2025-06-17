@@ -35,7 +35,7 @@ import java.util.List;
 @Examples({"add plain message body:",
     "\tcontents: mini message from \"Do you want to break this block?\"",
     "\twidth: 150"})
-@Since("INSERT VERSION")
+@Since("1.3.0")
 public class SecPlainMessageBody extends Section {
 
     private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();
