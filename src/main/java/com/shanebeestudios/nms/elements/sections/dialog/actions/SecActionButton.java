@@ -86,6 +86,7 @@ public class SecActionButton extends Section {
     }
 
     private boolean isStatic;
+    private boolean exitAction;
     private Expression<?> label;
     private Expression<?> tooltip;
     private Expression<Integer> width;
@@ -104,6 +105,10 @@ public class SecActionButton extends Section {
         EntryContainer container = VALIDATOR.build().validate(sectionNode);
         if (container == null) return false;
         this.isStatic = parseResult.hasTag("static");
+
+        // Action button type
+        String currentEventName = getParser().getCurrentEventName();
+        this.exitAction = currentEventName != null && currentEventName.equalsIgnoreCase("exit_action");
 
         this.label = (Expression<?>) container.getOptional("label", false);
         this.tooltip = (Expression<?>) container.getOptional("tooltip", false);
@@ -139,7 +144,11 @@ public class SecActionButton extends Section {
 
                 Optional<Action> actionButton = action != null ? Optional.of(new StaticAction(toVanilla(action))) : Optional.empty();
                 ActionButton button = new ActionButton(buttonData, actionButton);
-                actionEvent.addActionButton(button);
+                if (this.exitAction) {
+                    actionEvent.setExitActionButton(button);
+                } else {
+                    actionEvent.addActionButton(button);
+                }
             } else {
                 NamespacedKey id;
                 Object idSingle = this.id.getSingle(event);
@@ -159,7 +168,11 @@ public class SecActionButton extends Section {
 
                 Optional<Action> actionButton = Optional.of(new CustomAll(resourceLocation, additions));
                 ActionButton button = new ActionButton(buttonData, actionButton);
-                actionEvent.addActionButton(button);
+                if (this.exitAction) {
+                    actionEvent.setExitActionButton(button);
+                } else {
+                    actionEvent.addActionButton(button);
+                }
             }
         }
 
