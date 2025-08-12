@@ -1,0 +1,15 @@
+name: SkNMS
+main: com.shanebeestudios.nms.SkNMS
+version: '@version@-@minecraft@'
+api-version: '@minecraft@'
+author: 'ShaneBee'
+website: 'https://github.com/ShaneBeee/SkNMS'
+description: 'A simple Skript addon providing access to some Minecraft internals'
+dependencies:
+  server:
+    Skript:
+      load: BEFORE
+      required: true
+    SkBee:
+      load: BEFORE
+      required: false

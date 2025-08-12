@@ -1,9 +1,0 @@
-name: SkNMS
-main: com.shanebeestudios.nms.SkNMS
-version: '@version@-@minecraft@'
-api-version: '@minecraft@'
-author: 'ShaneBee'
-website: 'https://github.com/ShaneBeee/SkNMS'
-softdepend:
-  - Skript
-  - SkBee
