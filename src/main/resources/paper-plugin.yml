@@ -12,4 +12,4 @@ dependencies:
       required: true
     SkBee:
       load: BEFORE
-      required: false
+      required: true
