@@ -368,7 +368,7 @@ public class McUtils {
     // (modified a bit)
     public static void setSkin(GameProfile gameProfile) {
         try {
-            URL url = new URI("https://sessionserver.mojang.com/session/minecraft/profile/" + gameProfile.getId().toString() + "?unsigned=false").toURL();
+            URL url = new URI("https://sessionserver.mojang.com/session/minecraft/profile/" + gameProfile.id().toString() + "?unsigned=false").toURL();
             InputStreamReader reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
             JsonObject mainObject = new Gson().fromJson(reader, JsonObject.class);
             if (mainObject == null) {
@@ -378,8 +378,8 @@ public class McUtils {
             JsonObject properties = mainObject.get("properties").getAsJsonArray().get(0).getAsJsonObject();
             String value = properties.get("value").getAsString();
             String signature = properties.get("signature").getAsString();
-            PropertyMap propertyMap = gameProfile.getProperties();
-            propertyMap.put("name", new Property("name", gameProfile.getName()));
+            PropertyMap propertyMap = gameProfile.properties();
+            propertyMap.put("name", new Property("name", gameProfile.name()));
             propertyMap.put("textures", new Property("textures", value, signature));
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
