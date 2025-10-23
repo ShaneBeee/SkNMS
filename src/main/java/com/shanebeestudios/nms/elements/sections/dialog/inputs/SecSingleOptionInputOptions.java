@@ -36,13 +36,13 @@ import java.util.Optional;
     "\tkey: \"le_key\"",
     "\tlabel: \"Choose favorite animal\"",
     "\toptions:",
-    "\t\tadd options entity:",
+    "\t\tadd options entry:",
     "\t\t\tdisplay: \"cat\"",
-    "\t\tadd options entity:",
+    "\t\tadd options entry:",
     "\t\t\tdisplay: \"dog\"",
-    "\t\tadd options entity:",
+    "\t\tadd options entry:",
     "\t\t\tdisplay: \"turtle\"",
-    "\t\tadd options entity:",
+    "\t\tadd options entry:",
     "\t\t\tdisplay: \"spider\""})
 @Since("1.3.0")
 public class SecSingleOptionInputOptions extends Section {
