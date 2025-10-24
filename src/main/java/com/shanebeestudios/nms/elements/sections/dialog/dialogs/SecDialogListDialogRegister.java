@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Name("Dialog - Multi Action Dialog")
+@Name("Dialog - Dialog List Dialog")
 @Description({"A dialog screen with scrollable list of buttons leading directly to other dialogs, arranged in columns.",
     "Titles of those buttons will be taken from external_title fields of targeted dialogs.",
     "If `exit_action` is present, a button for it will appear in the footer, otherwise the footer is not present.",
@@ -115,7 +115,6 @@ public class SecDialogListDialogRegister extends RegistrationSection {
     private Expression<String> afterAction;
 
     // DIALOG LIST DIALOG
-
     private Expression<String> dialogs;
     private Trigger exit_action;
     private Expression<Integer> columns;
@@ -155,7 +154,7 @@ public class SecDialogListDialogRegister extends RegistrationSection {
         this.canCloseWithEscape = (Expression<Boolean>) container.getOptional("can_close_with_escape", false);
         this.afterAction = (Expression<String>) container.getOptional("after_action", false);
 
-        // MULTI ACTION DIALOG
+        // DIALOG LIST DIALOG
         this.dialogs = (Expression<String>) container.getOptional("dialogs", false);
         SectionNode exitActionNode = (SectionNode) container.getOptional("exit_action", false);
         if (exitActionNode != null) {
@@ -272,7 +271,6 @@ public class SecDialogListDialogRegister extends RegistrationSection {
 
     @Override
     public String toString(@Nullable Event e, boolean d) {
-        return "register multi action dialog";
+        return "open dialog list dialog";
     }
-
 }
