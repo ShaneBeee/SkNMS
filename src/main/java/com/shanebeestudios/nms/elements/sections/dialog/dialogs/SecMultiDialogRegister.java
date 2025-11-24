@@ -64,7 +64,7 @@ import java.util.Optional;
     "- `after_action` = An additional operation performed on the dialog after click or submit actions (accepts a string)." +
         "Options are \"close\", \"none\" and \"wait_for_response\"." +
         "See [**Common Entries on SkNMS wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#common-entries) for further info.",
-    "- `actions` = Similar to above, but you can include as many [action buttons[(https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#action-format) in this section as you want.",
+    "- `actions` = Similar to above, but you can include as many [action buttons](https://github.com/ShaneBeee/SkNMS/wiki/Dialogs#action-format) in this section as you want.",
     "- `columns` = Positive integer describing number of columns. Defaults to 2. [Optional]",
     "- `exit_action` = Action for leaving the dialog. Same as action sections but will only accept one action. [Optional]"})
 @Examples("")
