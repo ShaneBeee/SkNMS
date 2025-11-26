@@ -13,7 +13,7 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Chunk Local Difficulty")
+@Name("Local Difficulty")
 @Description({"Represents the local difficulty of a location.",
     "This is the number that shows on the client's debug screen `Local Difficulty: (local difficulty) //...`",
     "Minecraft uses this to decide how monsters will spawn near players.",
@@ -21,10 +21,10 @@ import org.jetbrains.annotations.Nullable;
     "See [**Regional Difficulty on McWiki**](https://minecraft.wiki/w/Difficulty#Regional_difficulty) for more info."})
 @Examples("if local difficulty of location of player > 1:")
 @Since("1.0.0")
-public class ExprChunkRegionalDifficulty extends SimplePropertyExpression<Location, Number> {
+public class ExprLocalDifficulty extends SimplePropertyExpression<Location, Number> {
 
     static {
-        register(ExprChunkRegionalDifficulty.class, Number.class, "(local|regional) difficulty", "locations");
+        register(ExprLocalDifficulty.class, Number.class, "(local|regional) difficulty", "locations");
     }
 
     @Override
