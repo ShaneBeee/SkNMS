@@ -14,8 +14,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
@@ -147,25 +147,25 @@ public class McUtils {
     }
 
     /**
-     * Convert a Bukkit NamespacedKey to Minecraft ResourceLocation
+     * Convert a Bukkit NamespacedKey to Minecraft Identifier
      *
-     * @param bukkitKey NamespacedKey to change to ResourceLocation
-     * @return ResourceLocation from NamespacedKey
+     * @param bukkitKey NamespacedKey to change to Identifier
+     * @return Identifier from NamespacedKey
      */
     @NotNull
-    public static ResourceLocation getResourceLocation(NamespacedKey bukkitKey) {
-        return ResourceLocation.fromNamespaceAndPath(bukkitKey.getNamespace(), bukkitKey.getKey());
+    public static Identifier getIdentifier(NamespacedKey bukkitKey) {
+        return Identifier.fromNamespaceAndPath(bukkitKey.getNamespace(), bukkitKey.getKey());
     }
 
     /**
-     * Convert Minecraft ResourceLocation to Bukkit NamespacedKey
+     * Convert Minecraft Identifier to Bukkit NamespacedKey
      *
-     * @param resourceLocation ResourceLocation to change to NamespacedKey
-     * @return ResourceLocation from NamespacedKey
+     * @param identifier Identifier to change to NamespacedKey
+     * @return NamespacedKey from Identifier
      */
     @NotNull
-    public static NamespacedKey getNamespacedKey(ResourceLocation resourceLocation) {
-        return new NamespacedKey(resourceLocation.getNamespace(), resourceLocation.getPath());
+    public static NamespacedKey getNamespacedKey(Identifier identifier) {
+        return new NamespacedKey(identifier.getNamespace(), identifier.getPath());
     }
 
     /**
@@ -243,10 +243,10 @@ public class McUtils {
      */
     public static EntityType<?> getEntityType(org.bukkit.entity.EntityType bukkitType) {
         NamespacedKey key = bukkitType.getKey();
-        ResourceLocation resourceLocation = McUtils.getResourceLocation(key);
-        Optional<Holder.Reference<EntityType<?>>> ref = BuiltInRegistries.ENTITY_TYPE.get(resourceLocation);
+        Identifier identifier = McUtils.getIdentifier(key);
+        Optional<Holder.Reference<EntityType<?>>> ref = BuiltInRegistries.ENTITY_TYPE.get(identifier);
         if (ref.isEmpty()) {
-            throw new IllegalArgumentException("Unknown entity type " + resourceLocation);
+            throw new IllegalArgumentException("Unknown entity type " + identifier);
         }
         return ref.get().value();
     }
@@ -295,8 +295,8 @@ public class McUtils {
      */
     @Nullable
     public static <T> Holder.Reference<T> getHolderReference(Registry<T> registry, NamespacedKey key) {
-        ResourceLocation resourceLocation = McUtils.getResourceLocation(key);
-        ResourceKey<T> resourceKey = ResourceKey.create(registry.key(), resourceLocation);
+        Identifier identifier = McUtils.getIdentifier(key);
+        ResourceKey<T> resourceKey = ResourceKey.create(registry.key(), identifier);
         try {
             return registry.getOrThrow(resourceKey);
         } catch (IllegalStateException ignore) {

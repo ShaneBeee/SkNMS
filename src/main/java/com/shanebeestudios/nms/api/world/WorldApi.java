@@ -7,7 +7,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,10 +56,10 @@ public class WorldApi {
         int z = location.getBlockZ();
 
         Biome biome = serverLevel.getNoiseBiome(x >> 2, y >> 2, z >> 2).value();
-        ResourceLocation key = BIOME_REGISTRY.getKey(biome);
+        Identifier key = BIOME_REGISTRY.getKey(biome);
         if (key == null) {
             // This shouldn't happen, but safety feature
-            key = ResourceLocation.fromNamespaceAndPath("minecraft", "plains");
+            key = Identifier.fromNamespaceAndPath("minecraft", "plains");
         }
         return McUtils.getNamespacedKey(key);
     }
@@ -118,7 +118,7 @@ public class WorldApi {
         ServerLevel level = McUtils.getServerLevel(world);
 
         Holder.Reference<Biome> biome = McUtils.getHolderReference(BIOME_REGISTRY, biomeKey);
-        ResourceLocation replaceBiome = replaceKey != null ? McUtils.getResourceLocation(replaceKey) : null;
+        Identifier replaceBiome = replaceKey != null ? McUtils.getIdentifier(replaceKey) : null;
         if (biome == null) return;
 
         List<ChunkAccess> chunkAccessList = new ArrayList<>();
@@ -164,9 +164,9 @@ public class WorldApi {
         Pair<ServerLevel, BlockPos> levelPos = McUtils.getLevelPos(center);
         BlockPos blockPos = levelPos.getSecond();
         ServerLevel level = levelPos.getFirst();
-        ResourceLocation resourceLocation = McUtils.getResourceLocation(biomeKey);
+        Identifier identifier = McUtils.getIdentifier(biomeKey);
         Pair<BlockPos, Holder<Biome>> closestBiome3d = level.findClosestBiome3d(holder ->
-            holder.is(resourceLocation), blockPos, radius, step, 64);
+            holder.is(identifier), blockPos, radius, step, 64);
 
         if (closestBiome3d == null) return null;
         BlockPos biomePos = closestBiome3d.getFirst();

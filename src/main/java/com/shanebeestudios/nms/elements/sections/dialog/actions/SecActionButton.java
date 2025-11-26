@@ -21,7 +21,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.ActionButton;
 import net.minecraft.server.dialog.CommonButtonData;
 import net.minecraft.server.dialog.action.Action;
@@ -156,7 +156,7 @@ public class SecActionButton extends Section {
                 else if (idSingle instanceof NamespacedKey nsk) id = nsk;
                 else return next;
 
-                ResourceLocation resourceLocation = McUtils.getResourceLocation(id);
+                Identifier identifier = McUtils.getIdentifier(id);
 
                 Optional<CompoundTag> additions = Optional.empty();
                 if (this.additions != null) {
@@ -166,7 +166,7 @@ public class SecActionButton extends Section {
                     }
                 }
 
-                Optional<Action> actionButton = Optional.of(new CustomAll(resourceLocation, additions));
+                Optional<Action> actionButton = Optional.of(new CustomAll(identifier, additions));
                 ActionButton button = new ActionButton(buttonData, actionButton);
                 if (this.exitAction) {
                     actionEvent.setExitActionButton(button);

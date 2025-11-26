@@ -1,11 +1,11 @@
 package com.shanebeestudios.nms.api.world;
 
 import com.shanebeestudios.nms.api.util.McUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -61,12 +61,12 @@ public class ChunkApi {
      */
     public static float getEffectiveDifficulty(Chunk chunk) {
         LevelChunk levelChunk = getLevelChunk(chunk);
-        Level level = levelChunk.getLevel();
+        ServerLevel level = (ServerLevel) levelChunk.getLevel();
 
         Difficulty difficulty = level.getDifficulty();
         long dayTime = level.getDayTime();
         long inhabitedTime = levelChunk.getInhabitedTime();
-        float moonBrightness = level.getMoonBrightness();
+        float moonBrightness = level.getMoonBrightness(BlockPos.ZERO); // TODO figure out pos here?!?!?
 
         DifficultyInstance difficultyInstance = new DifficultyInstance(difficulty, dayTime, inhabitedTime, moonBrightness);
         return difficultyInstance.getEffectiveDifficulty();

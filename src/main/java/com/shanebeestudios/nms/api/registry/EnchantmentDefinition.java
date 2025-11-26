@@ -205,8 +205,8 @@ public class EnchantmentDefinition {
             } else if (!this.exclusiveSet.isEmpty()) {
                 List<Holder<Enchantment>> enchants = new ArrayList<>();
                 for (org.bukkit.enchantments.Enchantment bukkitEnchant : this.exclusiveSet) {
-                    Enchantment enchantment = CraftEnchantment.bukkitToMinecraft(bukkitEnchant);
-                    enchants.add(enchantRegistry.wrapAsHolder(enchantment));
+                    Holder<Enchantment> enchantmentHolder = CraftEnchantment.bukkitToMinecraftHolder(bukkitEnchant);
+                    enchants.add(enchantmentHolder);
                 }
                 exclusiveSet = HolderSet.direct(enchants);
             }

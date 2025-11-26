@@ -2,7 +2,7 @@ package com.shanebeestudios.nms.api.registry;
 
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
@@ -27,18 +27,18 @@ import java.util.Objects;
  */
 public class BiomeDefinition {
 
-    private final ResourceLocation key;
+    private final Identifier identifier;
     private final Biome biome;
     private final List<TagKey<Biome>> tagKeys;
 
-    public BiomeDefinition(NamespacedKey key, Biome biome, List<TagKey<Biome>> tagKeys) {
-        this.key = RegistryUtils.getResourceLocation(key);
+    public BiomeDefinition(NamespacedKey identifier, Biome biome, List<TagKey<Biome>> tagKeys) {
+        this.identifier = RegistryUtils.getResourceLocation(identifier);
         this.biome = biome;
         this.tagKeys = tagKeys;
     }
 
-    public ResourceLocation getKey() {
-        return this.key;
+    public Identifier getIdentifier() {
+        return this.identifier;
     }
 
     public Biome getBiome() {

@@ -7,7 +7,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -170,7 +170,7 @@ public class StructureApi {
      */
     public static List<NamespacedKey> getStructureTemplates() {
         List<NamespacedKey> keys = new ArrayList<>();
-        STRUCTURE_MANAGER.listTemplates().sorted(Comparator.comparing(ResourceLocation::toString)).forEach(resourceLocation -> keys.add(McUtils.getNamespacedKey(resourceLocation)));
+        STRUCTURE_MANAGER.listTemplates().sorted(Comparator.comparing(Identifier::toString)).forEach(resourceLocation -> keys.add(McUtils.getNamespacedKey(resourceLocation)));
         return keys;
     }
 
