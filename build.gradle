@@ -65,7 +65,7 @@ build {
 processResources {
     filesNotMatching("**/*.png") {
         filter ReplaceTokens, tokens: ["version": project.version]
-        filter ReplaceTokens, tokens: ["minecraft": minecraft]
+        filter ReplaceTokens, tokens: ["minecraft": minecraft.split("-")[0]]
     }
 }
 
