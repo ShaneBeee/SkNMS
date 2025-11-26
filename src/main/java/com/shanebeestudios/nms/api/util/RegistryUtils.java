@@ -12,6 +12,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -19,6 +20,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dialog.Dialog;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -49,6 +52,7 @@ public class RegistryUtils {
     private static final Registry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
     private static final Registry<PlacedFeature> PLACED_FEATURE_REGISTRY = getRegistry(Registries.PLACED_FEATURE);
     private static final Registry<Dialog> DIALOG_REGISTRY = getRegistry(Registries.DIALOG);
+    private static final Registry<EnvironmentAttribute<?>> ENVIRONMENT_ATTRIBUTES_REGISTRY = getRegistry(Registries.ENVIRONMENT_ATTRIBUTE);
 
     public static Registry<Enchantment> getEnchantRegistry() {
         return ENCHANT_REGISTRY;
@@ -64,6 +68,10 @@ public class RegistryUtils {
 
     public static Registry<Dialog> getDialogRegistry() {
         return DIALOG_REGISTRY;
+    }
+
+    public static Registry<EnvironmentAttribute<?>> getEnvironmentAttributesRegistry() {
+        return ENVIRONMENT_ATTRIBUTES_REGISTRY;
     }
 
     @NotNull

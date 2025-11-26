@@ -5,6 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.AmbientParticle;
+import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.entity.CraftEntityType;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -67,6 +69,10 @@ public class BiomeDefinition {
             this.key = key;
         }
 
+        public <T> void setAttribute(EnvironmentAttribute<@NotNull T> attribute, T value) {
+            this.biomeBuilder.setAttribute(attribute, value);
+        }
+
         public void temperature(float temperature) {
             this.biomeBuilder.temperature(temperature);
         }
@@ -79,20 +85,8 @@ public class BiomeDefinition {
             this.biomeBuilder.hasPrecipitation(hasPrecipitation);
         }
 
-        public void fogColor(int fogColor) {
-            this.biomeBuilder.setAttribute(EnvironmentAttributes.FOG_COLOR, fogColor);
-        }
-
         public void waterColor(int waterColor) {
             this.specialEffectsBuilder().waterColor(waterColor);
-        }
-
-        public void waterFogColor(int waterFogColor) {
-            this.biomeBuilder.setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, waterFogColor);
-        }
-
-        public void skyColor(int skyColor) {
-            this.biomeBuilder.setAttribute(EnvironmentAttributes.SKY_COLOR, skyColor);
         }
 
         public void foliageColorOverride(int foliageColor) {
