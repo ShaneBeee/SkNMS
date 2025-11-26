@@ -5,7 +5,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.AmbientParticle;
-import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
@@ -59,7 +58,6 @@ public class BiomeDefinition {
 
         private final NamespacedKey key;
         private final Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();
-        private final EnvironmentAttributeMap attributeMap = EnvironmentAttributeMap.EMPTY;
         private BiomeSpecialEffects.Builder specialEffects = null;
         private final BiomeGenerationSettings.PlainBuilder genSettings = new BiomeGenerationSettings.PlainBuilder();
         private final MobSpawnSettings.Builder mobSpawnSettings = new MobSpawnSettings.Builder();
@@ -82,7 +80,7 @@ public class BiomeDefinition {
         }
 
         public void fogColor(int fogColor) {
-            this.attributeMap.applyModifier(EnvironmentAttributes.FOG_COLOR, fogColor);
+            this.biomeBuilder.setAttribute(EnvironmentAttributes.FOG_COLOR, fogColor);
         }
 
         public void waterColor(int waterColor) {
@@ -90,11 +88,11 @@ public class BiomeDefinition {
         }
 
         public void waterFogColor(int waterFogColor) {
-            this.attributeMap.applyModifier(EnvironmentAttributes.WATER_FOG_COLOR, waterFogColor);
+            this.biomeBuilder.setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, waterFogColor);
         }
 
         public void skyColor(int skyColor) {
-            this.attributeMap.applyModifier(EnvironmentAttributes.SKY_COLOR, skyColor);
+            this.biomeBuilder.setAttribute(EnvironmentAttributes.SKY_COLOR, skyColor);
         }
 
         public void foliageColorOverride(int foliageColor) {
@@ -121,7 +119,7 @@ public class BiomeDefinition {
         public void particle(@Nullable ParticleOption particleOption) {
             if (particleOption != null) {
                 AmbientParticle settings = particleOption.createParticleSettings();
-                this.attributeMap.applyModifier(EnvironmentAttributes.AMBIENT_PARTICLES, List.of(settings));
+                this.biomeBuilder.setAttribute(EnvironmentAttributes.AMBIENT_PARTICLES, List.of(settings));
             }
         }
 
@@ -161,7 +159,6 @@ public class BiomeDefinition {
 
         public BiomeDefinition build() {
             this.biomeBuilder
-                .putAttributes(this.attributeMap)
                 .specialEffects(Objects.requireNonNullElseGet(this.specialEffects, () ->
                             // Match from Plains if no special effects present
                             new BiomeSpecialEffects.Builder()
