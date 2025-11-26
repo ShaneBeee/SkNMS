@@ -4,8 +4,10 @@ import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.AmbientParticle;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
@@ -57,6 +59,7 @@ public class BiomeDefinition {
 
         private final NamespacedKey key;
         private final Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();
+        private final EnvironmentAttributeMap attributeMap = EnvironmentAttributeMap.EMPTY;
         private BiomeSpecialEffects.Builder specialEffects = null;
         private final BiomeGenerationSettings.PlainBuilder genSettings = new BiomeGenerationSettings.PlainBuilder();
         private final MobSpawnSettings.Builder mobSpawnSettings = new MobSpawnSettings.Builder();
@@ -79,7 +82,7 @@ public class BiomeDefinition {
         }
 
         public void fogColor(int fogColor) {
-            this.specialEffectsBuilder().fogColor(fogColor);
+            this.attributeMap.applyModifier(EnvironmentAttributes.FOG_COLOR, fogColor);
         }
 
         public void waterColor(int waterColor) {
@@ -87,11 +90,11 @@ public class BiomeDefinition {
         }
 
         public void waterFogColor(int waterFogColor) {
-            this.specialEffectsBuilder().waterFogColor(waterFogColor);
+            this.attributeMap.applyModifier(EnvironmentAttributes.WATER_FOG_COLOR, waterFogColor);
         }
 
         public void skyColor(int skyColor) {
-            this.specialEffectsBuilder().skyColor(skyColor);
+            this.attributeMap.applyModifier(EnvironmentAttributes.SKY_COLOR, skyColor);
         }
 
         public void foliageColorOverride(int foliageColor) {
@@ -117,8 +120,8 @@ public class BiomeDefinition {
 
         public void particle(@Nullable ParticleOption particleOption) {
             if (particleOption != null) {
-                AmbientParticleSettings settings = particleOption.createParticleSettings();
-                this.specialEffectsBuilder().ambientParticle(settings);
+                AmbientParticle settings = particleOption.createParticleSettings();
+                this.attributeMap.applyModifier(EnvironmentAttributes.AMBIENT_PARTICLES, List.of(settings));
             }
         }
 
@@ -158,13 +161,15 @@ public class BiomeDefinition {
 
         public BiomeDefinition build() {
             this.biomeBuilder
+                .putAttributes(this.attributeMap)
                 .specialEffects(Objects.requireNonNullElseGet(this.specialEffects, () ->
-                        // Match from Plains if no special effects present
-                        new BiomeSpecialEffects.Builder()
-                            .fogColor(12638463)
-                            .skyColor(7907327)
-                            .waterColor(4159204)
-                            .waterFogColor(329011))
+                            // Match from Plains if no special effects present
+                            new BiomeSpecialEffects.Builder()
+                                //.fogColor(12638463)
+                                //.skyColor(7907327)
+                                .waterColor(4159204)
+                        //.waterFogColor(329011)
+                    )
                     .build())
                 .generationSettings(this.genSettings.build())
                 .mobSpawnSettings(this.mobSpawnSettings.build());
