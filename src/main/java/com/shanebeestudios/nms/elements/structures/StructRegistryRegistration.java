@@ -7,8 +7,10 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.sections.SecConditional;
 import com.shanebeestudios.nms.api.skript.RegistrationSection;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -37,12 +39,15 @@ public class StructRegistryRegistration extends Structure {
                 if (key == null) continue;
 
                 Section something = Section.parse(key, "Invalid section", sectionNode, null);
-                if (something instanceof RegistrationSection registrationSection) {
+                if (something instanceof RegistrationSection || something instanceof LoopSection || something instanceof SecConditional) {
                     // Walk at parse time to ensure custom registry entries can be used in other code
-                    Section.walk(registrationSection, new RegistrationSection.RegistrationEvent());
+                    // Allow loops and conditions to be executed as well
+                    Section.walk(something, new RegistrationSection.RegistrationEvent());
+                } else {
+                    // All other sections will be ignored
+                    Skript.error("Invalid section entry '" + key + "' cannot be used in a registration structure.");
+                    return false;
                 }
-            } else {
-                return false;
             }
         }
         return true;
