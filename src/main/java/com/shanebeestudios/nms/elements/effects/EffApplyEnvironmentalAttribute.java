@@ -41,7 +41,7 @@ import java.util.Optional;
     "\t\t\tset environmental attribute \"visual/fog_color\" to rgb(0, 47, 100)",
     "\t\t\tset environmental attribute \"visual/star_brightness\" to 1.0",
     "\t\t\tset environmental attribute \"visual/sky_light_color\" to rgb(0, 47, 255)"})
-@Since("INSERT VERSION")
+@Since("1.4.0")
 public class EffApplyEnvironmentalAttribute extends Effect {
 
     static {
