@@ -61,7 +61,7 @@ tasks {
     }
     shadowJar {
         archiveFileName.set("SkNMS-$projectVersion-$minecraftVersion.jar")
-        relocate("org.bstats", "com.shanebeestudios.briggy.metrics")
+        relocate("org.bstats", "com.shanebeestudios.nms.metrics")
     }
     jar {
         dependsOn(shadowJar)
