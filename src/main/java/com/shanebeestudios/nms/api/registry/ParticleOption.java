@@ -2,7 +2,7 @@ package com.shanebeestudios.nms.api.registry;
 
 import com.shanebeestudios.nms.api.util.ParticleUtils;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.world.level.biome.AmbientParticleSettings;
+import net.minecraft.world.attribute.AmbientParticle;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.CraftParticle;
 
@@ -18,10 +18,10 @@ public class ParticleOption {
         this.probability = probability;
     }
 
-    public AmbientParticleSettings createParticleSettings() {
+    public AmbientParticle createParticleSettings() {
         Object data = ParticleUtils.getDataOrDefault(this.particle, this.data);
         ParticleOptions particleParam = CraftParticle.createParticleParam(this.particle, data);
-        return new AmbientParticleSettings(particleParam, this.probability);
+        return new AmbientParticle(particleParam, this.probability);
     }
 
     @Override

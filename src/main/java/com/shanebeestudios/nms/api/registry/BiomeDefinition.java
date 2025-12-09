@@ -2,10 +2,12 @@ package com.shanebeestudios.nms.api.registry;
 
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.AmbientParticle;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
@@ -15,6 +17,7 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.entity.CraftEntityType;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -27,18 +30,18 @@ import java.util.Objects;
  */
 public class BiomeDefinition {
 
-    private final ResourceLocation key;
+    private final Identifier identifier;
     private final Biome biome;
     private final List<TagKey<Biome>> tagKeys;
 
-    public BiomeDefinition(NamespacedKey key, Biome biome, List<TagKey<Biome>> tagKeys) {
-        this.key = RegistryUtils.getResourceLocation(key);
+    public BiomeDefinition(NamespacedKey identifier, Biome biome, List<TagKey<Biome>> tagKeys) {
+        this.identifier = RegistryUtils.getResourceLocation(identifier);
         this.biome = biome;
         this.tagKeys = tagKeys;
     }
 
-    public ResourceLocation getKey() {
-        return this.key;
+    public Identifier getIdentifier() {
+        return this.identifier;
     }
 
     public Biome getBiome() {
@@ -66,6 +69,10 @@ public class BiomeDefinition {
             this.key = key;
         }
 
+        public <T> void setAttribute(EnvironmentAttribute<@NotNull T> attribute, T value) {
+            this.biomeBuilder.setAttribute(attribute, value);
+        }
+
         public void temperature(float temperature) {
             this.biomeBuilder.temperature(temperature);
         }
@@ -78,20 +85,8 @@ public class BiomeDefinition {
             this.biomeBuilder.hasPrecipitation(hasPrecipitation);
         }
 
-        public void fogColor(int fogColor) {
-            this.specialEffectsBuilder().fogColor(fogColor);
-        }
-
         public void waterColor(int waterColor) {
             this.specialEffectsBuilder().waterColor(waterColor);
-        }
-
-        public void waterFogColor(int waterFogColor) {
-            this.specialEffectsBuilder().waterFogColor(waterFogColor);
-        }
-
-        public void skyColor(int skyColor) {
-            this.specialEffectsBuilder().skyColor(skyColor);
         }
 
         public void foliageColorOverride(int foliageColor) {
@@ -117,8 +112,8 @@ public class BiomeDefinition {
 
         public void particle(@Nullable ParticleOption particleOption) {
             if (particleOption != null) {
-                AmbientParticleSettings settings = particleOption.createParticleSettings();
-                this.specialEffectsBuilder().ambientParticle(settings);
+                AmbientParticle settings = particleOption.createParticleSettings();
+                this.biomeBuilder.setAttribute(EnvironmentAttributes.AMBIENT_PARTICLES, List.of(settings));
             }
         }
 
@@ -159,12 +154,13 @@ public class BiomeDefinition {
         public BiomeDefinition build() {
             this.biomeBuilder
                 .specialEffects(Objects.requireNonNullElseGet(this.specialEffects, () ->
-                        // Match from Plains if no special effects present
-                        new BiomeSpecialEffects.Builder()
-                            .fogColor(12638463)
-                            .skyColor(7907327)
-                            .waterColor(4159204)
-                            .waterFogColor(329011))
+                            // Match from Plains if no special effects present
+                            new BiomeSpecialEffects.Builder()
+                                //.fogColor(12638463)
+                                //.skyColor(7907327)
+                                .waterColor(4159204)
+                        //.waterFogColor(329011)
+                    )
                     .build())
                 .generationSettings(this.genSettings.build())
                 .mobSpawnSettings(this.mobSpawnSettings.build());

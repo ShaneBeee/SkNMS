@@ -16,7 +16,6 @@ import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.skript.RegistrationSection;
 import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
-import com.shanebeestudios.skbee.api.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -45,6 +44,7 @@ import java.util.List;
         "(which controls whether raining or snowing if `has precipitation` is true, and generation details of some features).",
     "- `downfall` = Controls grass and foliage color.",
     "- `effects` = A section to add special effects to a biome (see Biome Effects section).",
+    "- `attributes` = A section to set different [**Environmental Attributes**](https://minecraft.wiki/w/Environment_attribute).",
     "- `features` = A section to apply different [**Placed Features**](https://minecraft.wiki/w/Placed_feature) that will apply during chunk generation. " +
         "See the Biome Features section and Apply Biome Features effect for more information.",
     "- `spawners` = A section to determine which mobs spawn in this biome " +
@@ -56,11 +56,13 @@ import java.util.List;
     "\t\thas_precipitation: true",
     "\t\ttemperature: 2.0",
     "\t\tdownfall: 1.0",
+    "\t\tattributes:",
+    "\t\t\tset environmental attribute \"visual/sky_color\" to rgb(0, 47, 255)",
+    "\t\t\tset environmental attribute \"visual/fog_color\" to rgb(0, 47, 100)",
+    "\t\t\tset environmental attribute \"visual/star_brightness\" to 1.0",
+    "\t\t\tset environmental attribute \"visual/sky_light_color\" to rgb(0, 47, 255)",
     "\t\teffects:",
-    "\t\t\tfog_color: rgb(240,227,159)",
     "\t\t\twater_color: rgb(159,240,215)",
-    "\t\t\twater_fog_color: rgb(159,240,215)",
-    "\t\t\tsky_color: rgb(159,226,240)",
     "\t\t\tfoliage_color: yellow",
     "\t\t\tgrass_color: blue"})
 @Since("1.0.0")
@@ -102,6 +104,7 @@ public class SecBiomeRegister extends RegistrationSection {
         VALIDATOR.addEntryData(new ExpressionEntryData<>("has_precipitation", null, false, Boolean.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
         VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
+        VALIDATOR.addEntryData(new SectionEntryData("attributes", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("features", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("spawners", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("tags", null, true));
@@ -125,6 +128,7 @@ public class SecBiomeRegister extends RegistrationSection {
     private Expression<Number> temperature;
     private Expression<Number> downfall;
     private Section effects;
+    private Trigger attributes;
     private Trigger features;
     private Trigger spawners;
     private Trigger tags;
@@ -154,6 +158,10 @@ public class SecBiomeRegister extends RegistrationSection {
             }
         }
 
+        SectionNode attributesNode = (SectionNode) container.getOptional("attributes", false);
+        if (attributesNode != null) {
+            this.attributes = loadCode(attributesNode, "attributes", BiomeEffectsEvent.class);
+        }
         SectionNode featuresNode = (SectionNode) container.getOptional("features", false);
         if (featuresNode != null) {
             this.features = loadCode(featuresNode, "features", BiomeEffectsEvent.class);
@@ -199,6 +207,11 @@ public class SecBiomeRegister extends RegistrationSection {
         // EFFECTS
         if (this.effects != null) {
             Section.walk(this.effects, new BiomeEffectsEvent(builder));
+        }
+
+        // ATTRIBUTES
+        if (this.attributes != null) {
+            Section.walk(this.attributes, new BiomeEffectsEvent(builder));
         }
 
         // FEATURES

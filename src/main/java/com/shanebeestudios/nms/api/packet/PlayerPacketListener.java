@@ -11,7 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.jfr.event.PacketEvent;
 import org.bukkit.Bukkit;
@@ -60,8 +60,8 @@ public class PlayerPacketListener implements Listener {
             public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
                 if (msg instanceof Packet<?> packet) {
                     if (packet instanceof ServerboundCustomClickActionPacket actionPacket && nbtEnabled) {
-                        ResourceLocation id = actionPacket.id();
-                        NamespacedKey nsk = McUtils.getNamespacedKey(id);
+                        Identifier identifier = actionPacket.id();
+                        NamespacedKey nsk = McUtils.getNamespacedKey(identifier);
                         Optional<Tag> payload = actionPacket.payload();
 
                         NBTCompound nbtCompound;

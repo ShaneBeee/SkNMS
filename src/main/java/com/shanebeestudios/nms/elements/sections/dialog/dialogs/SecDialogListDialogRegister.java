@@ -21,7 +21,7 @@ import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.ActionButton;
 import net.minecraft.server.dialog.CommonDialogData;
 import net.minecraft.server.dialog.Dialog;
@@ -233,7 +233,7 @@ public class SecDialogListDialogRegister extends RegistrationSection {
 
         List<Holder<Dialog>> dialogsList = new ArrayList<>();
         for (String s : this.dialogs.getArray(event)) {
-            ResourceLocation resourceLocation = ResourceLocation.parse(s);
+            Identifier resourceLocation = Identifier.parse(s);
             Optional<Holder.Reference<Dialog>> dialogReference = RegistryUtils.getDialogRegistry().get(resourceLocation);
             dialogReference.ifPresent(dialogsList::add);
         }

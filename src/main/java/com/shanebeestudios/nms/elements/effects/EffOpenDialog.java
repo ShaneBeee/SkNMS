@@ -13,7 +13,7 @@ import com.shanebeestudios.nms.api.util.McUtils;
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import com.shanebeestudios.skbee.api.skript.base.Effect;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.Dialog;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.NamespacedKey;
@@ -60,8 +60,8 @@ public class EffOpenDialog extends Effect {
         }
         if (key == null) return;
 
-        ResourceLocation resourceLocation = McUtils.getResourceLocation(key);
-        Optional<Holder.Reference<Dialog>> dialogReference = RegistryUtils.getDialogRegistry().get(resourceLocation);
+        Identifier identifier = McUtils.getIdentifier(key);
+        Optional<Holder.Reference<Dialog>> dialogReference = RegistryUtils.getDialogRegistry().get(identifier);
         Holder<Dialog> dialogHolder = dialogReference.orElse(null);
         if (dialogHolder == null) {
             return;

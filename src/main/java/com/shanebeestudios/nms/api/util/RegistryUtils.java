@@ -12,13 +12,16 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dialog.Dialog;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -49,6 +52,7 @@ public class RegistryUtils {
     private static final Registry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
     private static final Registry<PlacedFeature> PLACED_FEATURE_REGISTRY = getRegistry(Registries.PLACED_FEATURE);
     private static final Registry<Dialog> DIALOG_REGISTRY = getRegistry(Registries.DIALOG);
+    private static final Registry<EnvironmentAttribute<?>> ENVIRONMENT_ATTRIBUTES_REGISTRY = getRegistry(Registries.ENVIRONMENT_ATTRIBUTE);
 
     public static Registry<Enchantment> getEnchantRegistry() {
         return ENCHANT_REGISTRY;
@@ -66,17 +70,21 @@ public class RegistryUtils {
         return DIALOG_REGISTRY;
     }
 
-    @NotNull
-    public static <T> ResourceKey<T> getResourceKey(@NotNull Registry<T> registry, @NotNull String name) {
-        return ResourceKey.create(registry.key(), ResourceLocation.parse(name));
+    public static Registry<EnvironmentAttribute<?>> getEnvironmentAttributesRegistry() {
+        return ENVIRONMENT_ATTRIBUTES_REGISTRY;
     }
 
-    public static <T> ResourceLocation getResourceLocation(@NotNull NamespacedKey namespacedKey) {
+    @NotNull
+    public static <T> ResourceKey<T> getResourceKey(@NotNull Registry<T> registry, @NotNull String name) {
+        return ResourceKey.create(registry.key(), Identifier.parse(name));
+    }
+
+    public static <T> Identifier getResourceLocation(@NotNull NamespacedKey namespacedKey) {
         return CraftNamespacedKey.toMinecraft(namespacedKey);
     }
 
     public static <T> @Nullable TagKey<T> getTagKey(@NotNull Registry<T> registry, @NotNull String name) {
-        TagKey<T> tagKey = TagKey.create(registry.key(), ResourceLocation.parse(name));
+        TagKey<T> tagKey = TagKey.create(registry.key(), Identifier.parse(name));
         if (registry.get(tagKey).isPresent()) {
             return tagKey;
         }
@@ -212,7 +220,7 @@ public class RegistryUtils {
     public static org.bukkit.enchantments.Enchantment registerEnchantment(EnchantmentDefinition definition) {
         unfreeze(ENCHANT_REGISTRY);
 
-        ResourceLocation key = CraftNamespacedKey.toMinecraft(definition.getId());
+        Identifier key = CraftNamespacedKey.toMinecraft(definition.getId());
         ResourceKey<Enchantment> resourceKey = ResourceKey.create(Registries.ENCHANTMENT, key);
         Enchantment enchantment = definition.getEnchantment();
         Holder.Reference<Enchantment> intrusiveHolder = ENCHANT_REGISTRY.createIntrusiveHolder(enchantment);
@@ -222,14 +230,14 @@ public class RegistryUtils {
         freeze(ENCHANT_REGISTRY);
         refreshSkriptRegistry(org.bukkit.enchantments.Enchantment.class);
 
-        return CraftEnchantment.minecraftToBukkit(enchantment);
+        return CraftEnchantment.minecraftHolderToBukkit(intrusiveHolder);
     }
 
     public static org.bukkit.block.Biome registerBiome(BiomeDefinition definition) {
         unfreeze(BIOME_REGISTRY);
 
-        ResourceLocation key = definition.getKey();
-        ResourceKey<Biome> resourceKey = ResourceKey.create(Registries.BIOME, key);
+        Identifier identifier = definition.getIdentifier();
+        ResourceKey<Biome> resourceKey = ResourceKey.create(Registries.BIOME, identifier);
         Biome biome = definition.getBiome();
         Holder.Reference<Biome> intrusiveHolder = BIOME_REGISTRY.createIntrusiveHolder(biome);
         Registry.register(BIOME_REGISTRY, resourceKey, biome);
@@ -238,12 +246,12 @@ public class RegistryUtils {
         freeze(BIOME_REGISTRY);
         refreshSkriptRegistry(org.bukkit.block.Biome.class);
 
-        return CraftBiome.minecraftToBukkit(biome);
+        return CraftBiome.minecraftHolderToBukkit(intrusiveHolder);
     }
 
     public static void registerDialog(Dialog dialog, NamespacedKey dialogKey) {
-        ResourceLocation key = CraftNamespacedKey.toMinecraft(dialogKey);
-        ResourceKey<Dialog> resourceKey = ResourceKey.create(Registries.DIALOG, key);
+        Identifier identifier = CraftNamespacedKey.toMinecraft(dialogKey);
+        ResourceKey<Dialog> resourceKey = ResourceKey.create(Registries.DIALOG, identifier);
         if (DIALOG_REGISTRY.containsKey(resourceKey)) {
             // Already registered
             return;
@@ -256,8 +264,8 @@ public class RegistryUtils {
     }
 
     public static Holder<PlacedFeature> getFeature(NamespacedKey key) {
-        ResourceLocation resourceLocation = getResourceLocation(key);
-        return PLACED_FEATURE_REGISTRY.get(resourceLocation).orElse(null);
+        Identifier identifier = getResourceLocation(key);
+        return PLACED_FEATURE_REGISTRY.get(identifier).orElse(null);
     }
 
     public static <T> void refreshSkriptRegistry(Class<T> registryClass) {

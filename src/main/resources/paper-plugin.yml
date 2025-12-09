@@ -5,6 +5,7 @@ api-version: '@minecraft@'
 author: 'ShaneBee'
 website: 'https://github.com/ShaneBeee/SkNMS'
 description: 'A simple Skript addon providing access to some Minecraft internals'
+folia-supported: true
 dependencies:
   server:
     Skript:

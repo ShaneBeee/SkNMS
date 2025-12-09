@@ -16,6 +16,7 @@ import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.registry.ParticleOption;
 import com.shanebeestudios.nms.elements.sections.SecBiomeRegister.BiomeEffectsEvent;
 import com.shanebeestudios.skbee.api.util.SimpleEntryValidator;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,10 +32,10 @@ import java.util.List;
     "See more examples on the [**SkNMS Wiki**](https://github.com/ShaneBeee/SkNMS/wiki/Custom-Biomes).",
     "**Entries**:",
     "All color entries accept Skript colors, RGB colors as well as integers (Refer to the above wiki to see information about the integers).",
-    "- `fog_color` = The color of fog in this biome (required).",
-    "- `sky_color` = The color of the sky in this biome (required).",
+    "- `fog_color` = The color of fog in this biome (required, deprecated in Minecraft 1.21.11+, use environmental attributes instead).",
+    "- `sky_color` = The color of the sky in this biome (required, deprecated in Minecraft 1.21.11+, use environmental attributes instead).",
+    "- `water_fog_color` = The color of the fog when underwater in this biome (required, deprecated in Minecraft 1.21.11+, use environmental attributes instead).",
     "- `water_color` = The color of the water in this biome (required).",
-    "- `water_fog_color` = The color of the fog when underwater in this biome (required).",
     "- `foliage_color` = The color to use for tree leaves and vines. If not present, the value depends on downfall and temperature (optional).",
     "- `dry_foliage_color` = The color used for tinting blocks using dry foliage tinting.",
     "- `grass_color` = The color to use for grass blocks, short grass, tall grass, ferns, tall ferns, and sugar cane. If not present, the value depends on downfall and temperature (optional).",
@@ -47,13 +48,18 @@ import java.util.List;
     "\t\ttemperature: 2.0",
     "\t\tdownfall: 1.0",
     "\t\teffects:",
-    "\t\t\tfog_color: rgb(240,227,159)",
-    "\t\t\twater_color: rgb(159,240,215)",
-    "\t\t\twater_fog_color: rgb(159,240,215)",
-    "\t\t\tsky_color: rgb(159,226,240)",
-    "\t\t\tfoliage_color: yellow",
-    "\t\t\tdrt_foliage_color: rgb(249,171,123)",
-    "\t\t\tgrass_color: blue"})
+    "\t\t\tfog_color: 12638463 # Deprecated in MC 1.21.11+",
+    "\t\t\tsky_color: 7907327 # Deprecated in MC 1.21.11+",
+    "\t\t\twater_fog_color: 2302743 # Deprecated in MC 1.21.11+",
+    "\t\t\tfoliage_color: rgb(37, 245, 201)",
+    "\t\t\twater_color: rgb(37, 211, 245)",
+    "\t\t\tgrass_color: rgb(43, 171, 196)",
+    "\t\tattributes:",
+    "\t\t\tset environmental attribute \"visual/sky_color\" to rgb(0, 47, 255)",
+    "\t\t\tset environmental attribute \"visual/fog_color\" to rgb(0, 47, 100)",
+    "\t\t\tset environmental attribute \"visual/star_brightness\" to 1.0",
+    "\t\t\tset environmental attribute \"visual/sky_light_color\" to rgb(0, 47, 255)",
+    "\t\t\tset environmental attribute \"visual/sun_angle\" to 45"})
 @Since("1.0.0")
 public class SecBiomeSpecialEffects extends Section {
 
@@ -62,28 +68,32 @@ public class SecBiomeSpecialEffects extends Section {
     static {
         Class<Object>[] colorClasses = new Class[]{Color.class, Integer.class};
         SimpleEntryValidator builder = SimpleEntryValidator.builder();
-        builder.addRequiredEntry("fog_color", colorClasses);
-        builder.addRequiredEntry("sky_color", colorClasses);
         builder.addRequiredEntry("water_color", colorClasses);
-        builder.addRequiredEntry("water_fog_color", colorClasses);
         builder.addOptionalEntry("foliage_color", colorClasses);
         builder.addOptionalEntry("dry_foliage_color", colorClasses);
         builder.addOptionalEntry("grass_color", colorClasses);
         builder.addOptionalEntry("grass_color_modifier", String.class);
         builder.addOptionalEntry("particle", ParticleOption.class);
+
+        // TODO deprecated in MC 1.21.11 on Dec 9/2025
+        builder.addOptionalEntry("fog_color", colorClasses);
+        builder.addOptionalEntry("sky_color", colorClasses);
+        builder.addOptionalEntry("water_fog_color", colorClasses);
+
         VALIDATOR = builder.build();
         Skript.registerSection(SecBiomeSpecialEffects.class, "effects");
     }
 
-    private Expression<?> fogColor;
-    private Expression<?> skyColor;
     private Expression<?> waterColor;
-    private Expression<?> waterFogColor;
     private Expression<?> foliageColor;
     private Expression<?> dryFoliageColor;
     private Expression<?> grassColor;
     private Expression<String> grassColorModifier;
     private Expression<ParticleOption> particle;
+    // TODO deprecated in MC 1.21.11 on Dec 9/2025
+    private Expression<?> fogColor;
+    private Expression<?> skyColor;
+    private Expression<?> waterFogColor;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -95,18 +105,29 @@ public class SecBiomeSpecialEffects extends Section {
         EntryContainer container = VALIDATOR.validate(sectionNode);
         if (container == null) return false;
 
-        this.fogColor = (Expression<?>) container.getOptional("fog_color", false);
-        this.skyColor = (Expression<?>) container.getOptional("sky_color", false);
         this.waterColor = (Expression<?>) container.getOptional("water_color", false);
-        this.waterFogColor = (Expression<?>) container.getOptional("water_fog_color", false);
         this.foliageColor = (Expression<?>) container.getOptional("foliage_color", false);
         this.dryFoliageColor = (Expression<?>) container.getOptional("dry_foliage_color", false);
         this.grassColor = (Expression<?>) container.getOptional("grass_color", false);
         this.grassColorModifier = (Expression<String>) container.getOptional("grass_color_modifier", false);
         this.particle = (Expression<ParticleOption>) container.getOptional("particle", false);
 
-        // These are required
-        return this.fogColor != null && this.skyColor != null && this.waterColor != null && this.waterFogColor != null;
+        // TODO deprecated in MC 1.21.11 on Dec 9/2025
+        this.fogColor = (Expression<?>) container.getOptional("fog_color", false);
+        this.skyColor = (Expression<?>) container.getOptional("sky_color", false);
+        this.waterFogColor = (Expression<?>) container.getOptional("water_fog_color", false);
+        if (this.fogColor != null) {
+            Skript.warning("'fog_color' is now deprecated, use environmental attributes instead.");
+        }
+        if (this.skyColor != null) {
+            Skript.warning("'sky_color' is now deprecated, use environmental attributes instead.");
+        }
+        if (this.waterFogColor != null) {
+            Skript.warning("'water_fog_color' is now deprecated, use environmental attributes instead.");
+        }
+
+        // This one is required
+        return this.waterColor != null;
     }
 
     @Override
@@ -114,10 +135,7 @@ public class SecBiomeSpecialEffects extends Section {
         if (!(event instanceof BiomeEffectsEvent effectsEvent)) return super.walk(event, false);
 
         BiomeDefinition.Builder builder = effectsEvent.getBiomeBuilder();
-        builder.fogColor(getColor(this.fogColor.getSingle(event)));
-        builder.skyColor(getColor(this.skyColor.getSingle(event)));
         builder.waterColor(getColor(this.waterColor.getSingle(event)));
-        builder.waterFogColor(getColor(this.waterFogColor.getSingle(event)));
 
         if (this.foliageColor != null) {
             builder.foliageColorOverride(getColor(this.foliageColor.getSingle(event)));
@@ -135,6 +153,38 @@ public class SecBiomeSpecialEffects extends Section {
 
         if (this.particle != null) {
             builder.particle(this.particle.getSingle(event));
+        }
+
+        // TODO deprecated in MC 1.21.11 on Dec 9/2025
+        if (this.fogColor != null) {
+            Object fogColor = this.fogColor.getSingle(event);
+            int intValue = 0;
+            if (fogColor instanceof Color color) {
+                intValue = color.asBukkitColor().asRGB();
+            } else if (fogColor instanceof Number number) {
+                intValue = number.intValue();
+            }
+            builder.setAttribute(EnvironmentAttributes.FOG_COLOR, intValue);
+        }
+        if (this.skyColor != null) {
+            Object skyColor = this.skyColor.getSingle(event);
+            int intValue = 0;
+            if (skyColor instanceof Color color) {
+                intValue = color.asBukkitColor().asRGB();
+            } else if (skyColor instanceof Number number) {
+                intValue = number.intValue();
+            }
+            builder.setAttribute(EnvironmentAttributes.SKY_COLOR, intValue);
+        }
+        if (this.waterFogColor != null) {
+            Object waterFogColor = this.waterFogColor.getSingle(event);
+            int intValue = 0;
+            if (waterFogColor instanceof Color color) {
+                intValue = color.asBukkitColor().asRGB();
+            } else if (waterFogColor instanceof Number number) {
+                intValue = number.intValue();
+            }
+            builder.setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, intValue);
         }
 
         return super.walk(event, false);

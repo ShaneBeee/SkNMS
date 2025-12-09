@@ -59,7 +59,7 @@ public class DumpRegistry<N, B extends Keyed> {
 
     public DumpRegistry(String name, ResourceKey<Registry<N>> registry, Codec<N> codec) {
         this.name = name;
-        this.registryPath = registry.location().getPath();
+        this.registryPath = registry.identifier().getPath();
         this.codec = codec;
     }
 
