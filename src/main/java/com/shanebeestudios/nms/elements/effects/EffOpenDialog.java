@@ -12,12 +12,12 @@ import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.util.McUtils;
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import com.shanebeestudios.skbee.api.skript.base.Effect;
+import io.papermc.paper.dialog.PaperDialog;
+import net.kyori.adventure.audience.Audience;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.dialog.Dialog;
-import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,17 +32,17 @@ import java.util.Optional;
 public class EffOpenDialog extends Effect {
 
     static {
-        Skript.registerEffect(EffOpenDialog.class, "open dialog with id %string/namespacedkey% to %players%");
+        Skript.registerEffect(EffOpenDialog.class, "open dialog with id %string/namespacedkey% to %audiences%");
     }
 
     private Expression<?> id;
-    private Expression<Player> players;
+    private Expression<Audience> audiences;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
         this.id = exprs[0];
-        this.players = (Expression<Player>) exprs[1];
+        this.audiences = (Expression<Audience>) exprs[1];
         return true;
     }
 
@@ -66,9 +66,11 @@ public class EffOpenDialog extends Effect {
         if (dialogHolder == null) {
             return;
         }
-        for (Player player : this.players.getArray(event)) {
-            ServerPlayer serverPlayer = McUtils.getServerPlayer(player);
-            serverPlayer.openDialog(dialogHolder);
+
+        io.papermc.paper.dialog.Dialog paperDialog = PaperDialog.minecraftHolderToBukkit(dialogHolder);
+
+        for (Audience audience : this.audiences.getArray(event)) {
+            audience.showDialog(paperDialog);
         }
     }
 
@@ -76,7 +78,7 @@ public class EffOpenDialog extends Effect {
     public String toString(@Nullable Event e, boolean d) {
         return new SyntaxStringBuilder(e, d)
             .append("open dialog with id", this.id)
-            .append("to", this.players)
+            .append("to", this.audiences)
             .toString();
     }
 

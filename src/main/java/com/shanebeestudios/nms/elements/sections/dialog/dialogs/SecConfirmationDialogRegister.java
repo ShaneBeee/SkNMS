@@ -18,6 +18,8 @@ import com.shanebeestudios.nms.api.util.RegistryUtils;
 import com.shanebeestudios.nms.elements.sections.dialog.event.DialogRegisterEvent;
 import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
 import com.shanebeestudios.skbee.api.wrapper.ComponentWrapper;
+import io.papermc.paper.dialog.PaperDialog;
+import net.kyori.adventure.audience.Audience;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.dialog.ActionButton;
@@ -25,9 +27,7 @@ import net.minecraft.server.dialog.CommonDialogData;
 import net.minecraft.server.dialog.ConfirmationDialog;
 import net.minecraft.server.dialog.Dialog;
 import net.minecraft.server.dialog.DialogAction;
-import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -88,12 +88,12 @@ public class SecConfirmationDialogRegister extends RegistrationSection {
 
         Skript.registerSection(SecConfirmationDialogRegister.class,
             "register [new] confirmation dialog with id %string/namespacedkey%",
-            "open [new] confirmation dialog to %players%");
+            "open [new] confirmation dialog to %audiences%");
     }
 
     // DYNAMIC
     private boolean dynamic = false;
-    private Expression<Player> players;
+    private Expression<Audience> audiences;
 
     // GENERAL DIALOG
     private Expression<?> id;
@@ -119,7 +119,7 @@ public class SecConfirmationDialogRegister extends RegistrationSection {
                 return false;
             }
             this.dynamic = true;
-            this.players = (Expression<Player>) exprs[0];
+            this.audiences = (Expression<Audience>) exprs[0];
         }
         EntryContainer container = VALIDATOR.build().validate(sectionNode);
         if (container == null) return false;
@@ -221,9 +221,10 @@ public class SecConfirmationDialogRegister extends RegistrationSection {
         ConfirmationDialog dialog = new ConfirmationDialog(commonDialogData, actions.get(0), actions.get(1));
         if (this.dynamic) {
             Holder<Dialog> holder = Holder.direct(dialog);
-            for (Player player : this.players.getArray(event)) {
-                ServerPlayer serverPlayer = McUtils.getServerPlayer(player);
-                serverPlayer.openDialog(holder);
+            io.papermc.paper.dialog.Dialog paperDialog = PaperDialog.minecraftHolderToBukkit(holder);
+
+            for (Audience audience : this.audiences.getArray(event)) {
+                audience.showDialog(paperDialog);
             }
         } else {
             Object idSingle = this.id.getSingle(event);
@@ -241,7 +242,7 @@ public class SecConfirmationDialogRegister extends RegistrationSection {
     @Override
     public String toString(@Nullable Event e, boolean d) {
         if (this.dynamic) {
-            return "open confirmation dialog to " + this.players.toString(e, d);
+            return "open confirmation dialog to " + this.audiences.toString(e, d);
         }
         return "register confirmation dialog with id " + this.id.toString(e, d);
     }
