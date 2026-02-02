@@ -7,7 +7,7 @@ plugins {
 // Version of project
 val projectVersion = "1.4.0"
 // Where this builds on the server
-val serverLocation = "Skript/1-21-11"
+val serverLocation = "Minecraft/Skript/1-21-11"
 // Minecraft version to build against
 val minecraftVersion = "1.21.11"
 
@@ -37,7 +37,7 @@ dependencies {
     compileOnly("com.github.SkriptLang:Skript:2.10.2")
 
     // SkBee
-    compileOnly("com.github.ShaneBeee:SkBee:3.8.0")
+    compileOnly("com.github.ShaneBeee:SkBee:master-SNAPSHOT")
 
     // bStats
     implementation("org.bstats:bstats-bukkit:3.1.0")
