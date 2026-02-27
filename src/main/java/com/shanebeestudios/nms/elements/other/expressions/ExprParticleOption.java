@@ -12,14 +12,16 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import com.shanebeestudios.nms.api.registry.ParticleOption;
+import com.shanebeestudios.skbee.api.particle.ParticleWrapper;
 import com.shanebeestudios.skbee.api.skript.base.SimpleExpression;
 import org.bukkit.Particle;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 
 @Name("Particle Option")
 @Description({"Create a particle option to use in custom biomes.",
-    "Uses SkBee's particles.",
+    "You can use either Skript's `particle` or SkBee's `minecraftParticle`.",
     "Probability is a value between 0 and 1 (Anything higher/lower will be clamped), " +
         "this is how often the particle will spawn in the biome."})
 @Examples({"particle option of white_ash with probability 1",
@@ -30,17 +32,17 @@ public class ExprParticleOption extends SimpleExpression<ParticleOption> {
 
     static {
         Skript.registerExpression(ExprParticleOption.class, ParticleOption.class, ExpressionType.COMBINED,
-            "particle option of %particle% [(with data|using) %-object%] [and] with probability %float%");
+            "particle option of %particle/minecraftparticle% [(with data|using) %-object%] [and] with probability %float%");
     }
 
-    private Expression<Particle> particle;
+    private Expression<?> particle;
     private Expression<?> data;
     private Expression<Float> probability;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        this.particle = (Expression<Particle>) exprs[0];
+        this.particle = exprs[0];
         this.data = LiteralUtils.defendExpression(exprs[1]);
         this.probability = (Expression<Float>) exprs[2];
         return true;
@@ -49,7 +51,18 @@ public class ExprParticleOption extends SimpleExpression<ParticleOption> {
     @SuppressWarnings("DataFlowIssue")
     @Override
     protected ParticleOption @Nullable [] get(Event event) {
-        Particle particle = this.particle.getSingle(event);
+        Object particleObject = this.particle.getSingle(event);
+
+        Particle particle;
+        if (particleObject instanceof ParticleEffect particleEffect) {
+            particle = particleEffect.particle();
+        } else if (particleObject instanceof ParticleWrapper wrapper) {
+            particle = wrapper.getParticle();
+        } else {
+            return null;
+        }
+
+
         Object data = this.data != null ? this.data.getSingle(event) : null;
         float probability = this.probability.getSingle(event);
         return new ParticleOption[]{new ParticleOption(particle, data, probability)};
