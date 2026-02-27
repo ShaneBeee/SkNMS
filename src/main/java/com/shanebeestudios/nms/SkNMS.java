@@ -26,7 +26,7 @@ public class SkNMS extends JavaPlugin {
 
         // Only load addon if Skript and SkBee are present
         if (pluginManager.getPlugin("Skript") != null && pluginManager.getPlugin("SkBee") != null) {
-            int skBeeVersionCompare = Version.compare(SkBee.getPlugin().getPluginMeta().getVersion(), "3.16.0");
+            int skBeeVersionCompare = Version.compare(SkBee.getPlugin().getPluginMeta().getVersion(), "3.17.0");
 
             Utils.log("Loading Skript Addon.");
             if (Skript.isAcceptRegistrations()) {
