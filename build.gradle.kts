@@ -7,7 +7,7 @@ plugins {
 // Version of project
 val projectVersion = "1.4.0"
 // Where this builds on the server
-val serverLocation = "Minecraft/Skript/1-21-11"
+val serverLocation = "Skript/1-21-11"
 // Minecraft version to build against
 val minecraftVersion = "1.21.11"
 
