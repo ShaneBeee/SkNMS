@@ -26,7 +26,13 @@ repositories {
     maven("https://repo.skriptlang.org/releases")
 
     // JitPack
-    maven("https://jitpack.io")
+    maven("https://jitpack.io") {
+        metadataSources {
+            mavenPom()
+            artifact()
+            // This ignores the .module file and forces Gradle to use the POM/JAR
+        }
+    }
 }
 
 dependencies {
@@ -37,7 +43,7 @@ dependencies {
     compileOnly("com.github.SkriptLang:Skript:2.10.2")
 
     // SkBee
-    compileOnly("com.github.ShaneBeee:SkBee:master-SNAPSHOT")
+    compileOnly("com.github.ShaneBeee:SkBee:3.17.1@jar") // Forcing jar as it wasn't downloading
 
     // bStats
     implementation("org.bstats:bstats-bukkit:3.1.0")
@@ -48,7 +54,7 @@ tasks {
         dependsOn("shadowJar")
         from("build/libs") {
             include("SkNMS-*.jar")
-            destinationDir = file("/Users/ShaneBee/Desktop/Server/${serverLocation}/plugins/")
+            destinationDir = file("/Users/ShaneBee/Desktop/Server/Minecraft/${serverLocation}/plugins/")
         }
     }
     processResources {
