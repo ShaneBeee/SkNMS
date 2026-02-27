@@ -40,7 +40,7 @@ dependencies {
     paperweight.paperDevBundle("${minecraftVersion}-R0.1-SNAPSHOT")
 
     // Skript
-    compileOnly("com.github.SkriptLang:Skript:2.10.2")
+    compileOnly("com.github.SkriptLang:Skript:2.14.1")
 
     // SkBee
     compileOnly("com.github.ShaneBeee:SkBee:3.17.1@jar") // Forcing jar as it wasn't downloading
