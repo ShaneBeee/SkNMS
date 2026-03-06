@@ -2,8 +2,10 @@ package com.shanebeestudios.nms;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.util.Version;
 import com.shanebeestudios.nms.api.packet.PlayerPacketListener;
 import com.shanebeestudios.nms.api.util.Utils;
+import com.shanebeestudios.skbee.SkBee;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -24,11 +26,19 @@ public class SkNMS extends JavaPlugin {
 
         // Only load addon if Skript and SkBee are present
         if (pluginManager.getPlugin("Skript") != null && pluginManager.getPlugin("SkBee") != null) {
+            int skBeeVersionCompare = Version.compare(SkBee.getPlugin().getPluginMeta().getVersion(), "3.17.0");
+
             Utils.log("Loading Skript Addon.");
             if (Skript.isAcceptRegistrations()) {
                 SkriptAddon skriptAddon = Skript.registerAddon(this);
                 try {
-                    skriptAddon.loadClasses("com.shanebeestudios.nms.elements");
+                    if (skBeeVersionCompare >= 0 && SkBee.getPlugin().getPluginConfig().ELEMENTS_DIALOG) {
+                        Utils.log("&e - Skipping dialogs as they're now in SkBee.");
+                        Utils.log("&e - If you wish to continue using Dialogs in SkNMS, disable SkBee's dialogs.");
+                    } else {
+                        skriptAddon.loadClasses("com.shanebeestudios.nms.elements.dialogs");
+                    }
+                    skriptAddon.loadClasses("com.shanebeestudios.nms.elements.other");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
