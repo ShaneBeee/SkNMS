@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "9.2.0"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
+    id("com.gradleup.shadow") version "9.4.0" // Updated from 9.2.0
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19" // Updated from 2.0.0-beta.17
 }
 
 // Version of project
@@ -43,7 +43,7 @@ dependencies {
     compileOnly("com.github.SkriptLang:Skript:2.14.1")
 
     // SkBee
-    compileOnly("com.github.ShaneBeee:SkBee:3.17.1@jar") // Forcing jar as it wasn't downloading
+    compileOnly("com.github.ShaneBeee:SkBee:3.18@jar") // Updated from 3.17.1, forcing jar as it wasn't downloading
 
     // bStats
     implementation("org.bstats:bstats-bukkit:3.1.0")
