@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
     "\t\tapply carver \"minecraft:cave\"",
     "\t\tapply carver \"minecraft:cave_extra_underground\"",
     "\t\tapply carver \"minecraft:canyon\""})
-@Since("INSERT VERSION")
+@Since("1.5.0")
 public class EffApplyBiomeCarver extends Effect {
 
     static {
