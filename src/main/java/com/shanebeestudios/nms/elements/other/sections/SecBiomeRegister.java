@@ -106,6 +106,7 @@ public class SecBiomeRegister extends RegistrationSection {
         VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
         VALIDATOR.addEntryData(new SectionEntryData("attributes", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("features", null, true));
+        VALIDATOR.addEntryData(new SectionEntryData("carvers", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("spawners", null, true));
         VALIDATOR.addEntryData(new SectionEntryData("tags", null, true));
         if (Bukkit.getPluginManager().getPlugin("SkriptHubDocsTool") != null) {
@@ -130,6 +131,7 @@ public class SecBiomeRegister extends RegistrationSection {
     private Section effects;
     private Trigger attributes;
     private Trigger features;
+    private Trigger carvers;
     private Trigger spawners;
     private Trigger tags;
 
@@ -165,6 +167,10 @@ public class SecBiomeRegister extends RegistrationSection {
         SectionNode featuresNode = (SectionNode) container.getOptional("features", false);
         if (featuresNode != null) {
             this.features = loadCode(featuresNode, "features", BiomeEffectsEvent.class);
+        }
+        SectionNode carversNode = (SectionNode) container.getOptional("carvers", false);
+        if (carversNode != null) {
+            this.carvers = loadCode(carversNode, "carvers", BiomeEffectsEvent.class);
         }
         SectionNode spawnersNode = (SectionNode) container.getOptional("spawners", false);
         if (spawnersNode != null) {
@@ -217,6 +223,11 @@ public class SecBiomeRegister extends RegistrationSection {
         // FEATURES
         if (this.features != null) {
             Trigger.walk(this.features, new BiomeEffectsEvent(builder));
+        }
+
+        // CARVERS
+        if (this.carvers != null) {
+            Trigger.walk(this.carvers, new BiomeEffectsEvent(builder));
         }
 
         // SPAWNERS

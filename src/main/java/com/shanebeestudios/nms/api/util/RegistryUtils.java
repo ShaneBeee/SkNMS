@@ -26,6 +26,8 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.block.CraftBiome;
@@ -51,6 +53,7 @@ public class RegistryUtils {
     private static final Registry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
     private static final Registry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
     private static final Registry<PlacedFeature> PLACED_FEATURE_REGISTRY = getRegistry(Registries.PLACED_FEATURE);
+    private static final Registry<ConfiguredWorldCarver<?>> CARVER_REGISTRY = getRegistry(Registries.CONFIGURED_CARVER);
     private static final Registry<Dialog> DIALOG_REGISTRY = getRegistry(Registries.DIALOG);
     private static final Registry<EnvironmentAttribute<?>> ENVIRONMENT_ATTRIBUTES_REGISTRY = getRegistry(Registries.ENVIRONMENT_ATTRIBUTE);
 
@@ -64,6 +67,10 @@ public class RegistryUtils {
 
     public static Registry<Biome> getBiomeRegistry() {
         return BIOME_REGISTRY;
+    }
+
+    public static Registry<ConfiguredWorldCarver<?>> getCarverRegistry() {
+        return CARVER_REGISTRY;
     }
 
     public static Registry<Dialog> getDialogRegistry() {
@@ -263,9 +270,14 @@ public class RegistryUtils {
         freeze(DIALOG_REGISTRY);
     }
 
-    public static Holder<PlacedFeature> getFeature(NamespacedKey key) {
+    public static @Nullable Holder<PlacedFeature> getFeature(NamespacedKey key) {
         Identifier identifier = getResourceLocation(key);
         return PLACED_FEATURE_REGISTRY.get(identifier).orElse(null);
+    }
+
+    public static @Nullable Holder<ConfiguredWorldCarver<?>> getCarver(NamespacedKey key) {
+        Identifier identifier = getResourceLocation(key);
+        return CARVER_REGISTRY.get(identifier).orElse(null);
     }
 
     public static <T> void refreshSkriptRegistry(Class<T> registryClass) {

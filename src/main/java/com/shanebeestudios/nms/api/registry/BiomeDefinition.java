@@ -2,6 +2,8 @@ package com.shanebeestudios.nms.api.registry;
 
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.AmbientParticle;
@@ -13,6 +15,7 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.entity.CraftEntityType;
@@ -124,6 +127,22 @@ public class BiomeDefinition {
                 return true;
             }
             return false;
+        }
+
+        public boolean addCarver(NamespacedKey key) {
+            Holder<ConfiguredWorldCarver<?>> carver = RegistryUtils.getCarver(key);
+            if (carver != null) {
+                this.genSettings.addCarver(carver);
+                return true;
+            }
+            return false;
+        }
+
+        public void addDefaultCarvers() {
+            Registry<ConfiguredWorldCarver<?>> carverRegistry = RegistryUtils.getCarverRegistry();
+            this.genSettings.addCarver(carverRegistry.getOrThrow(Carvers.CAVE));
+            this.genSettings.addCarver(carverRegistry.getOrThrow(Carvers.CAVE_EXTRA_UNDERGROUND));
+            this.genSettings.addCarver(carverRegistry.getOrThrow(Carvers.CANYON));
         }
 
         public boolean addTag(NamespacedKey key) {
