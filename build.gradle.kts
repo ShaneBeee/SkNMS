@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "9.2.0"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
+    id("com.gradleup.shadow") version "9.4.1"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21" // the latest version can be found on the Gradle Plugin Portal
 }
 
 // Version of project
@@ -9,10 +9,10 @@ val projectVersion = "1.4.1"
 // Where this builds on the server
 val serverLocation = "Skript/1-21-11"
 // Minecraft version to build against
-val minecraftVersion = "1.21.11"
+val minecraftVersion = "26.1.1"
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 repositories {
@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     // Paper
-    paperweight.paperDevBundle("${minecraftVersion}-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("${minecraftVersion}.build.+")
 
     // Skript
     compileOnly("com.github.SkriptLang:Skript:2.14.1")
@@ -61,7 +61,7 @@ tasks {
         expand("version" to projectVersion, "minecraft" to minecraftVersion.split("-")[0])
     }
     compileJava {
-        options.release = 21
+        options.release = 25
         options.compilerArgs.add("-Xlint:unchecked")
         options.compilerArgs.add("-Xlint:deprecation")
     }

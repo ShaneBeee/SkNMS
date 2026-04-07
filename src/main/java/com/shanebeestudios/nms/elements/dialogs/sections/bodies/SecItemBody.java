@@ -18,6 +18,7 @@ import com.shanebeestudios.nms.elements.dialogs.sections.event.PlainMessageEvent
 import com.shanebeestudios.skbee.api.skript.base.Section;
 import net.minecraft.server.dialog.body.ItemBody;
 import net.minecraft.server.dialog.body.PlainMessage;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -113,7 +114,8 @@ public class SecItemBody extends Section {
             description = Optional.of(plainMessageEvent.getPlainMessage());
         }
 
-        ItemBody itemBody = new ItemBody(CraftItemStack.asNMSCopy(item),
+        ItemStackTemplate itemStackTemplate = ItemStackTemplate.fromNonEmptyStack(CraftItemStack.asNMSCopy(item));
+        ItemBody itemBody = new ItemBody(itemStackTemplate,
             description, showDecoration, showTooltip, width, height);
 
         if (event instanceof DialogRegisterEvent dialogRegisterEvent) {

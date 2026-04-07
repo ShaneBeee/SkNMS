@@ -65,27 +65,6 @@ public class WorldApi {
     }
 
     /**
-     * Set a biome at a location, including custom biomes.
-     * <p>Will not send biome updates to players.</p>
-     *
-     * @param location Location of biome to change
-     * @param biomeKey Key of biome
-     */
-    public static void setBiome(@NotNull Location location, @NotNull NamespacedKey biomeKey) {
-        ServerLevel serverLevel = McUtils.getLevelPos(location).getFirst();
-        Holder.Reference<Biome> biome = McUtils.getHolderReference(BIOME_REGISTRY, biomeKey);
-        if (biome == null) return;
-
-        int x = location.getBlockX();
-        int y = location.getBlockY();
-        int z = location.getBlockZ();
-
-        LevelChunk chunk = serverLevel.getChunkAt(new BlockPos(x, y, z));
-        chunk.setBiome(x >> 2, y >> 2, z >> 2, biome);
-        chunk.markUnsaved();
-    }
-
-    /**
      * Fill a Biome between 2 locations.
      * <p>Will also send biome updates to players.</p>
      *

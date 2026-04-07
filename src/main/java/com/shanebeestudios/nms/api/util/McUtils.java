@@ -259,7 +259,7 @@ public class McUtils {
      */
     @NotNull
     public static BlockData getBlockDataFromState(BlockState blockState) {
-        BlockData blockDataFromBlockState = CraftBlockData.fromData(blockState);
+        BlockData blockDataFromBlockState = CraftBlockData.createData(blockState);
         return blockDataFromBlockState != null ? blockDataFromBlockState : AIR;
     }
 
@@ -271,7 +271,7 @@ public class McUtils {
      */
     @NotNull
     public static BlockState getBlockStateFromBlock(Block bukkitBlock) {
-        return ((CraftBlock) bukkitBlock).getNMS();
+        return ((CraftBlock) bukkitBlock).getBlockState();
     }
 
     /**

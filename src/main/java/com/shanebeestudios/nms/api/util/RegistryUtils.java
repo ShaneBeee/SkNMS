@@ -12,7 +12,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -21,13 +20,11 @@ import net.minecraft.server.dialog.Dialog;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.attribute.EnvironmentAttribute;
-import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
-import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.block.CraftBiome;
@@ -160,9 +157,11 @@ public class RegistryUtils {
 
         List<Holder<T>> contents = new ArrayList<>(holders.stream().toList());
         consumer.accept(contents, reference);
+        HashMap<TagKey<T>, List<Holder<T>>> map = new HashMap<>();
+        map.put(tagKey, contents);
 
         if (registry instanceof MappedRegistry<T> mappedRegistry) {
-            mappedRegistry.bindTag(tagKey, contents);
+            mappedRegistry.bindTags(map);
         }
     }
 
