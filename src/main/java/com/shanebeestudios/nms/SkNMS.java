@@ -3,10 +3,13 @@ package com.shanebeestudios.nms;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.util.Version;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.shanebeestudios.nms.api.packet.PlayerPacketListener;
 import com.shanebeestudios.nms.api.util.Utils;
 import com.shanebeestudios.skbee.SkBee;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -65,6 +68,48 @@ public class SkNMS extends JavaPlugin {
     private void loadMetrics() {
         Metrics metrics = new Metrics(this, 24666);
         metrics.addCustomChart(new SimplePie("skript_version", () -> Skript.getVersion().toString()));
+
+        metrics.addCustomChart(new DrilldownPie("plugin_version_drilldown_pie", () -> {
+            Version version = new Version(this.getPluginMeta().getVersion());
+            Table<String, String, Integer> table = HashBasedTable.create(1, 1);
+            table.put(
+                version.getMajor() + "." + version.getMinor() + ".x", // upper label
+                version.toString(), // lower label
+                1 // weight
+            );
+            return table.rowMap();
+        }));
+        metrics.addCustomChart(new DrilldownPie("skript_version_drilldown_pie", () -> {
+            Version version = Skript.getVersion();
+            Table<String, String, Integer> table = HashBasedTable.create(1, 1);
+            table.put(
+                version.getMajor() + "." + version.getMinor() + ".x", // upper label
+                version.toString(), // lower label
+                1 // weight
+            );
+            return table.rowMap();
+        }));
+        metrics.addCustomChart(new DrilldownPie("minecraft_version_drilldown_pie", () -> {
+            Version version = Skript.getMinecraftVersion();
+            Table<String, String, Integer> table = HashBasedTable.create(1, 1);
+
+            if (version.getMajor() == 1) {
+                // Minecraft 1.x.x versioning
+                table.put(
+                    version.getMajor() + "." + version.getMinor() + ".x", // upper label
+                    version.toString(), // lower label
+                    1 // weight
+                );
+            } else {
+                // Minecraft (year).x.x versioning
+                table.put(
+                    version.getMajor() + ".x", // upper label
+                    version.toString(), // lower label
+                    1 // weight
+                );
+            }
+            return table.rowMap();
+        }));
     }
 
 }
