@@ -107,7 +107,7 @@ public class RegistryUtils {
 
     @NotNull
     private static <T> Map<TagKey<T>, HolderSet.Named<T>> getTagsMap(@NotNull Object tagSet) {
-        return new HashMap<>((Map<TagKey<T>, HolderSet.Named<T>>) ReflectionUtils.getField("val$map", tagSet.getClass(), tagSet));
+        return new HashMap<>((Map<TagKey<T>, HolderSet.Named<T>>) ReflectionUtils.getField("val$tags", tagSet.getClass(), tagSet));
     }
 
     public static <T> void unfreeze(@NotNull Registry<T> registry) {
@@ -125,7 +125,7 @@ public class RegistryUtils {
         unbound(registry);
         registry.freeze();
         frozenTags.forEach(tagsMap::putIfAbsent);
-        ReflectionUtils.setField("val$map", tagSet.getClass(), tagSet, tagsMap);
+        ReflectionUtils.setField("val$tags", tagSet.getClass(), tagSet, tagsMap);
         ReflectionUtils.setField("allTags", registry.getClass(), registry, tagSet);
     }
 
