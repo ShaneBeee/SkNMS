@@ -1,6 +1,6 @@
 package com.shanebeestudios.nms.api.skript;
 
-import com.shanebeestudios.nms.elements.other.structures.StructRegistryRegistration;
+import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
 import com.shanebeestudios.skbee.api.skript.base.Section;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
