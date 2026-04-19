@@ -4,10 +4,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
-import com.github.shanebeee.skr.Registration;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
+import com.github.shanebeee.skr.Registration;
 import com.shanebeestudios.nms.api.registry.EnchantmentDefinition;
 import com.shanebeestudios.nms.api.skript.RegistrationSection;
 import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
@@ -27,11 +27,41 @@ import org.skriptlang.skript.lang.entry.EntryValidator;
 
 import java.util.List;
 
-@SuppressWarnings({"UnstableApiUsage", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class SecEnchantmentRegister extends RegistrationSection {
 
+    private static EntryValidator VALIDATOR;
+
     public static void register(Registration reg) {
-        reg.newSection(SecEnchantmentRegister.class, "register [new] [custom] enchantment")
+        Class<Object>[] somethingClasses = new Class[]{ComponentWrapper.class, String.class};
+        Class<Object>[] exclusiveSetClasses = new Class[]{Enchantment.class, String.class};
+        Class<Object>[] itemAndTagClasses = new Class[]{ItemType.class, String.class};
+        VALIDATOR = SimpleEntryValidator.builder()
+            // Required
+            .addRequiredEntry("id", String.class)
+            .addRequiredEntry("description", somethingClasses)
+            .addRequiredEntry("supported_items", itemAndTagClasses)
+            // Optional
+            .addOptionalEntry("exclusive_set", exclusiveSetClasses)
+            .addOptionalEntry("primary_items", itemAndTagClasses)
+            .addOptionalEntry("weight", Integer.class)
+            .addOptionalEntry("max_level", Integer.class)
+            .addOptionalEntry("min_cost_base", Integer.class)
+            .addOptionalEntry("min_cost_per_level_above_first", Integer.class)
+            .addOptionalEntry("max_cost_base", Integer.class)
+            .addOptionalEntry("max_cost_per_level_above_first", Integer.class)
+            .addOptionalEntry("anvil_cost", Integer.class)
+            .addOptionalEntry("slots", EquipmentSlotGroup.class)
+            .addOptionalEntry("is_cursed", Boolean.class)
+            .addOptionalEntry("is_treasure", Boolean.class)
+            .addOptionalEntry("is_tradeable", Boolean.class)
+            .addOptionalEntry("is_discoverable", Boolean.class)
+            .addOptionalEntry("is_on_random_loot", Boolean.class)
+            .addOptionalEntry("is_on_mob_spawn_equipment", Boolean.class)
+            .addOptionalEntry("is_on_traded_equipment", Boolean.class)
+            .build();
+
+        reg.newSection(SecEnchantmentRegister.class, VALIDATOR, "register [new] [custom] enchantment")
             .name("Enchantment Definition Registration")
             .description("Register a new custom enchantment.",
                 "There are a LOT of entries for this, so please refer to the " +
@@ -86,38 +116,6 @@ public class SecEnchantmentRegister extends RegistrationSection {
                 "\t\tapply wither to victim for {_time}")
             .since("1.0.0")
             .register();
-    }
-
-    private static final EntryValidator VALIDATOR;
-
-    static {
-        Class<Object>[] somethingClasses = new Class[]{ComponentWrapper.class, String.class};
-        Class<Object>[] exclusiveSetClasses = new Class[]{Enchantment.class, String.class};
-        Class<Object>[] itemAndTagClasses = new Class[]{ItemType.class, String.class};
-        VALIDATOR = SimpleEntryValidator.builder()
-            // Required
-            .addRequiredEntry("id", String.class)
-            .addRequiredEntry("description", somethingClasses)
-            .addRequiredEntry("supported_items", itemAndTagClasses)
-            // Optional
-            .addOptionalEntry("exclusive_set", exclusiveSetClasses)
-            .addOptionalEntry("primary_items", itemAndTagClasses)
-            .addOptionalEntry("weight", Integer.class)
-            .addOptionalEntry("max_level", Integer.class)
-            .addOptionalEntry("min_cost_base", Integer.class)
-            .addOptionalEntry("min_cost_per_level_above_first", Integer.class)
-            .addOptionalEntry("max_cost_base", Integer.class)
-            .addOptionalEntry("max_cost_per_level_above_first", Integer.class)
-            .addOptionalEntry("anvil_cost", Integer.class)
-            .addOptionalEntry("slots", EquipmentSlotGroup.class)
-            .addOptionalEntry("is_cursed", Boolean.class)
-            .addOptionalEntry("is_treasure", Boolean.class)
-            .addOptionalEntry("is_tradeable", Boolean.class)
-            .addOptionalEntry("is_discoverable", Boolean.class)
-            .addOptionalEntry("is_on_random_loot", Boolean.class)
-            .addOptionalEntry("is_on_mob_spawn_equipment", Boolean.class)
-            .addOptionalEntry("is_on_traded_equipment", Boolean.class)
-            .build();
     }
 
     private Expression<String> id;

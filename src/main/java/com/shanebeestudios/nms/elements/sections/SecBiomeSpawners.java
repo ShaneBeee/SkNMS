@@ -46,7 +46,7 @@ public class SecBiomeSpawners extends Section {
             return false;
         }
         this.pattern = matchedPattern;
-        this.trigger = loadCode(sectionNode, "features", SecBiomeRegister.BiomeEffectsEvent.class);
+        this.trigger = loadCode(sectionNode, "spawners", SecBiomeRegister.BiomeEffectsEvent.class);
         return true;
     }
 

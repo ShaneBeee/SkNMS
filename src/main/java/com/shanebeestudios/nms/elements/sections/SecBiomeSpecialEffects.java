@@ -25,8 +25,26 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class SecBiomeSpecialEffects extends Section {
 
+    private static EntryValidator VALIDATOR;
+
     public static void register(Registration reg) {
-        reg.newSection(SecBiomeSpecialEffects.class, "effects")
+        Class<Object>[] colorClasses = new Class[]{Color.class, Integer.class};
+        SimpleEntryValidator builder = SimpleEntryValidator.builder();
+        builder.addRequiredEntry("water_color", colorClasses);
+        builder.addOptionalEntry("foliage_color", colorClasses);
+        builder.addOptionalEntry("dry_foliage_color", colorClasses);
+        builder.addOptionalEntry("grass_color", colorClasses);
+        builder.addOptionalEntry("grass_color_modifier", String.class);
+        builder.addOptionalEntry("particle", ParticleOption.class);
+
+        // TODO deprecated in MC 1.21.11 on Dec 9/2025
+        builder.addOptionalEntry("fog_color", colorClasses);
+        builder.addOptionalEntry("sky_color", colorClasses);
+        builder.addOptionalEntry("water_fog_color", colorClasses);
+
+        VALIDATOR = builder.build();
+
+        reg.newSection(SecBiomeSpecialEffects.class, VALIDATOR, "effects")
             .name("Biome Definition Effects")
             .description("Create effects in a biome registration `effects` section.",
                 "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
@@ -63,26 +81,6 @@ public class SecBiomeSpecialEffects extends Section {
                 "\t\t\tset environmental attribute \"visual/sun_angle\" to 45")
             .since("1.0.0")
             .register();
-    }
-
-    private static final EntryValidator VALIDATOR;
-
-    static {
-        Class<Object>[] colorClasses = new Class[]{Color.class, Integer.class};
-        SimpleEntryValidator builder = SimpleEntryValidator.builder();
-        builder.addRequiredEntry("water_color", colorClasses);
-        builder.addOptionalEntry("foliage_color", colorClasses);
-        builder.addOptionalEntry("dry_foliage_color", colorClasses);
-        builder.addOptionalEntry("grass_color", colorClasses);
-        builder.addOptionalEntry("grass_color_modifier", String.class);
-        builder.addOptionalEntry("particle", ParticleOption.class);
-
-        // TODO deprecated in MC 1.21.11 on Dec 9/2025
-        builder.addOptionalEntry("fog_color", colorClasses);
-        builder.addOptionalEntry("sky_color", colorClasses);
-        builder.addOptionalEntry("water_fog_color", colorClasses);
-
-        VALIDATOR = builder.build();
     }
 
     private Expression<?> waterColor;

@@ -4,12 +4,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
-import com.github.shanebeee.skr.Registration;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
+import com.github.shanebeee.skr.Registration;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.skript.RegistrationSection;
 import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.entry.EntryValidator.EntryValidatorBuilder;
 import org.skriptlang.skript.lang.entry.SectionEntryData;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 
@@ -31,8 +32,37 @@ import java.util.List;
 @SuppressWarnings({"DataFlowIssue", "unchecked"})
 public class SecBiomeRegister extends RegistrationSection {
 
+    private static EntryValidator VALIDATOR;
+
     public static void register(Registration reg) {
-        reg.newSection(SecBiomeRegister.class, "register [new] [custom] biome")
+        EntryValidatorBuilder builder = EntryValidator.builder();
+
+        Class<Object>[] idClasses = new Class[]{String.class, NamespacedKey.class};
+        // TODO Switch to SkBee's simple validator after adding the unexpected node tester
+        builder.addEntryData(new ExpressionEntryData<>("id", null, false, idClasses));
+        builder.addEntryData(new ExpressionEntryData<>("has_precipitation", null, false, Boolean.class));
+        builder.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
+        builder.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
+        builder.addEntryData(new SectionEntryData("attributes", null, true));
+        builder.addEntryData(new SectionEntryData("features", null, true));
+        builder.addEntryData(new SectionEntryData("carvers", null, true));
+        builder.addEntryData(new SectionEntryData("spawners", null, true));
+        builder.addEntryData(new SectionEntryData("tags", null, true));
+        if (Bukkit.getPluginManager().getPlugin("SkriptHubDocsTool") != null) {
+            // Dummy section for generating docs
+            builder.addEntryData(new SectionEntryData("effects", null, true));
+        } else {
+            builder.unexpectedNodeTester(node -> {
+                if (node instanceof SectionNode sectionNode) {
+                    String key = sectionNode.getKey();
+                    return key == null || !key.contains("effects");
+                }
+                return true;
+            });
+        }
+
+        VALIDATOR = builder.build();
+        reg.newSection(SecBiomeRegister.class, VALIDATOR, "register [new] [custom] biome")
             .name("Biome Definition Registration")
             .description("Register a new biome.",
                 "NOTE: These custom biomes will NOT show up in natural world generation.",
@@ -97,34 +127,6 @@ public class SecBiomeRegister extends RegistrationSection {
         }
     }
 
-    private static final EntryValidator.EntryValidatorBuilder VALIDATOR = EntryValidator.builder();
-
-    static {
-        Class<Object>[] idClasses = new Class[]{String.class, NamespacedKey.class};
-        // TODO Switch to SkBee's simple validator after adding the unexpected node tester
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("id", null, false, idClasses));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("has_precipitation", null, false, Boolean.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("temperature", null, false, Number.class));
-        VALIDATOR.addEntryData(new ExpressionEntryData<>("downfall", null, false, Number.class));
-        VALIDATOR.addEntryData(new SectionEntryData("attributes", null, true));
-        VALIDATOR.addEntryData(new SectionEntryData("features", null, true));
-        VALIDATOR.addEntryData(new SectionEntryData("carvers", null, true));
-        VALIDATOR.addEntryData(new SectionEntryData("spawners", null, true));
-        VALIDATOR.addEntryData(new SectionEntryData("tags", null, true));
-        if (Bukkit.getPluginManager().getPlugin("SkriptHubDocsTool") != null) {
-            // Dummy section for generating docs
-            VALIDATOR.addEntryData(new SectionEntryData("effects", null, true));
-        } else {
-            VALIDATOR.unexpectedNodeTester(node -> {
-                if (node instanceof SectionNode sectionNode) {
-                    String key = sectionNode.getKey();
-                    return key == null || !key.contains("effects");
-                }
-                return true;
-            });
-        }
-    }
-
     private Expression<?> id;
     private Expression<Boolean> hasPrecipitation;
     private Expression<Number> temperature;
@@ -143,7 +145,7 @@ public class SecBiomeRegister extends RegistrationSection {
             Skript.error("Biomes can only be registered in a 'registry registration' structure");
             return false;
         }
-        EntryContainer container = VALIDATOR.build().validate(sectionNode);
+        EntryContainer container = VALIDATOR.validate(sectionNode);
         if (container == null) return false;
 
         this.id = (Expression<?>) container.getOptional("id", false);
