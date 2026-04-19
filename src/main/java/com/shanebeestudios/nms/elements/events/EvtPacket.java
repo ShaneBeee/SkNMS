@@ -28,7 +28,7 @@ public class EvtPacket extends SkriptEvent {
             .examples("on packet received:",
                 "\tif event-string = \"serverbound/minecraft:use_item_on\":",
                 "\t\tcancel event")
-            .since("INSERT VERSION")
+            .since("1.6.0")
             .register();
 
         reg.newEventValue(PacketEvent.class, Packet.class)

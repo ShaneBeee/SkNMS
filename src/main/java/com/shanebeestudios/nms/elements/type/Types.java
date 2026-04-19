@@ -98,7 +98,7 @@ public class Types {
                     return "EningvironmentAttribute{key=" + eaReg.getKey(o) + "}";
                 }
             })
-            .since("INSERT VERSION")
+            .since("1.6.0")
             .register();
     }
 
@@ -139,7 +139,7 @@ public class Types {
                     return "Packet{type=" + packet.type() + "}";
                 }
             })
-            .since("INSERT VERSION")
+            .since("1.6.0")
             .register();
 
         reg.newType(PacketType.class, "packettype")
@@ -164,7 +164,7 @@ public class Types {
                     return packetType.toString();
                 }
             })
-            .since("INSERT VERSION")
+            .since("1.6.0")
             .register();
     }
 
