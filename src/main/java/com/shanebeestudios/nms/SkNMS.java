@@ -1,12 +1,14 @@
 package com.shanebeestudios.nms;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.util.Version;
+import com.github.shanebeee.skr.JsonDocGenerator;
+import com.github.shanebeee.skr.Registration;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.shanebeestudios.nms.api.packet.PlayerPacketListener;
 import com.shanebeestudios.nms.api.util.Utils;
+import com.shanebeestudios.nms.elements.ElementRegistration;
 import com.shanebeestudios.skbee.SkBee;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.DrilldownPie;
@@ -15,12 +17,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
-
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "RedundantMethodOverride"})
 public class SkNMS extends JavaPlugin {
 
     private static SkNMS PLUGIN_INSTANCE;
+    Registration registration;
 
     @Override
     public void onEnable() {
@@ -33,18 +34,9 @@ public class SkNMS extends JavaPlugin {
 
             Utils.log("Loading Skript Addon.");
             if (Skript.isAcceptRegistrations()) {
-                SkriptAddon skriptAddon = Skript.registerAddon(this);
-                try {
-                    if (skBeeVersionCompare >= 0 && SkBee.getPlugin().getPluginConfig().ELEMENTS_DIALOG) {
-                        Utils.log("&e - Skipping dialogs as they're now in SkBee.");
-                        Utils.log("&e - If you wish to continue using Dialogs in SkNMS, disable SkBee's dialogs.");
-                    } else {
-                        skriptAddon.loadClasses("com.shanebeestudios.nms.elements.dialogs");
-                    }
-                    skriptAddon.loadClasses("com.shanebeestudios.nms.elements.other");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                this.registration = new Registration("SkNMS", true);
+
+                ElementRegistration.register(this.registration);
             } else {
                 Utils.error("Skript is no longer accepting registration, addon not loading!");
                 return;
@@ -54,7 +46,13 @@ public class SkNMS extends JavaPlugin {
             return;
         }
         loadMetrics();
-        PlayerPacketListener.registerListener(this);
+
+        registerCommand("sknms", (source, args) -> {
+            if (args.length == 1 && args[0].equalsIgnoreCase("docs")) {
+                JsonDocGenerator jsonDocGenerator = new JsonDocGenerator(SkNMS.this, SkNMS.this.registration);
+                jsonDocGenerator.generateDocs();
+            }
+        });
     }
 
     @Override
