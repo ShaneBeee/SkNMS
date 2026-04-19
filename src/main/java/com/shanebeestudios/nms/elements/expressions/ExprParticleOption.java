@@ -21,7 +21,7 @@ public class ExprParticleOption extends SimpleExpression<ParticleOption> {
                 "particle option of %particle/minecraftparticle% [(with data|using) %-object%] [and] with probability %float%")
             .name("Particle Option")
             .description("Create a particle option to use in custom biomes.",
-                "You can use either Skript's `particle` or SkBee's `minecraftParticle`.",
+                "You can use either Skript's `particle` (along with its built in data) or SkBee's `minecraftParticle`.",
                 "Probability is a value between 0 and 1 (Anything higher/lower will be clamped), " +
                     "this is how often the particle will spawn in the biome.")
             .examples("particle option of white_ash with probability 1",
@@ -50,16 +50,22 @@ public class ExprParticleOption extends SimpleExpression<ParticleOption> {
         Object particleObject = this.particle.getSingle(event);
 
         Particle particle;
+        Object data = null;
         if (particleObject instanceof ParticleEffect particleEffect) {
             particle = particleEffect.particle();
+            if (this.data == null) {
+                data = particleEffect.data();
+            }
         } else if (particleObject instanceof ParticleWrapper wrapper) {
             particle = wrapper.getParticle();
         } else {
             return null;
         }
 
+        if (data == null && this.data != null) {
+            data = this.data.getSingle(event);
+        }
 
-        Object data = this.data != null ? this.data.getSingle(event) : null;
         float probability = this.probability.getSingle(event);
         return new ParticleOption[]{new ParticleOption(particle, data, probability)};
     }
