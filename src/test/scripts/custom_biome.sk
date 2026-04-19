@@ -5,13 +5,14 @@ registry registration:
 		temperature: 2.0
 		downfall: 1.0
 		effects:
-			fog_color: rgb(240,227,159)
 			water_color: rgb(159,240,215)
-			water_fog_color: rgb(159,240,215)
-			sky_color: rgb(159,226,240)
 			foliage_color: yellow
 			grass_color: blue
 			grass_color_modifier: "swamp"
+		attributes:
+			set environmental attribute visual/sky_color to rgb(159,226,240)
+			set environmental attribute visual/fog_color to rgb(240,227,159)
+			set environmental attribute visual/water_fog_color to rgb(159,240,215)
 
 	register new biome:
 		id: "my_biomes:burnt_forest"
@@ -19,13 +20,14 @@ registry registration:
 		temperature: 0.7
 		downfall: 0.8
 		effects:
-			fog_color: 12638463
 			water_color: 9614049
-			water_fog_color: 329011
-			sky_color: 7972607
 			grass_color: 12295008
 			foliage_color: 7435380
 			particle: particle option of white_ash with probability 1
+		attributes:
+			set environmental attribute visual/sky_color to 7972607
+			set environmental attribute visual/fog_color to 12638463
+			set environmental attribute visual/water_fog_color to 329011
 
 	register new biome:
 		id: "my_biomes:cool_forest"
@@ -33,13 +35,14 @@ registry registration:
 		temperature: 0.7
 		downfall: 0.8
 		effects:
-			fog_color: 12638463
 			water_color: 9614049
-			water_fog_color: 329011
-			sky_color: 7972607
 			grass_color: 9617074
 			foliage_color: 45188
 			particle: particle option of block with data dirt[] with probability 0.003
+		attributes:
+			set environmental attribute visual/sky_color to 7972607
+			set environmental attribute visual/fog_color to 12638463
+			set environmental attribute visual/water_fog_color to 329011
 
 	register new biome:
 		id: "my_biomes:colorful_coast"

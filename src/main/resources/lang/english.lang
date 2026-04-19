@@ -1,0 +1,5 @@
+version: $version
+
+types:
+    environmentattribute: environment attribute¦s
+    particleoption: particle option¦s

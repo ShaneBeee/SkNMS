@@ -2,6 +2,7 @@ package com.shanebeestudios.nms;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.util.Version;
+import com.github.shanebeee.skr.JsonDocGenerator;
 import com.github.shanebeee.skr.Registration;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -16,10 +17,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "RedundantMethodOverride"})
 public class SkNMS extends JavaPlugin {
 
     private static SkNMS PLUGIN_INSTANCE;
+    Registration registration;
 
     @Override
     public void onEnable() {
@@ -32,9 +34,9 @@ public class SkNMS extends JavaPlugin {
 
             Utils.log("Loading Skript Addon.");
             if (Skript.isAcceptRegistrations()) {
-                Registration registration = new Registration("SkNMS", false);
+                this.registration = new Registration("SkNMS", true);
 
-                ElementRegistration.register(registration);
+                ElementRegistration.register(this.registration);
             } else {
                 Utils.error("Skript is no longer accepting registration, addon not loading!");
                 return;
@@ -45,6 +47,13 @@ public class SkNMS extends JavaPlugin {
         }
         loadMetrics();
         PlayerPacketListener.registerListener(this);
+
+        registerCommand("sknms", (source, args) -> {
+            if (args.length == 1 && args[0].equalsIgnoreCase("docs")) {
+                JsonDocGenerator jsonDocGenerator = new JsonDocGenerator(SkNMS.this, SkNMS.this.registration);
+                jsonDocGenerator.generateDocs();
+            }
+        });
     }
 
     @Override
