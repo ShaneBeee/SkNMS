@@ -11,6 +11,7 @@ import com.shanebeestudios.nms.elements.effects.EffBiomeFill;
 import com.shanebeestudios.nms.elements.effects.EffBlockFill;
 import com.shanebeestudios.nms.elements.effects.EffPlaceFeature;
 import com.shanebeestudios.nms.elements.effects.EffRegistrySerialization;
+import com.shanebeestudios.nms.elements.events.EvtPacket;
 import com.shanebeestudios.nms.elements.expressions.ExprAvailableKeys;
 import com.shanebeestudios.nms.elements.expressions.ExprBlockDataForPlacement;
 import com.shanebeestudios.nms.elements.expressions.ExprLocalDifficulty;
@@ -36,6 +37,9 @@ public class ElementRegistration {
         EffBlockFill.register(reg);
         EffPlaceFeature.register(reg);
         EffRegistrySerialization.register(reg);
+
+        // EVENTS
+        EvtPacket.register(reg);
 
         // EXPRESSIONS
         ExprAvailableKeys.register(reg);

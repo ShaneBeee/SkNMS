@@ -7,11 +7,17 @@ import com.shanebeestudios.nms.api.registry.ParticleOption;
 import com.shanebeestudios.nms.api.util.RegistryUtils;
 import com.shanebeestudios.nms.api.util.Utils;
 import net.minecraft.core.Registry;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketType;
+import net.minecraft.network.protocol.common.CommonPacketTypes;
+import net.minecraft.network.protocol.game.GamePacketTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.attribute.EnvironmentAttribute;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,6 +28,8 @@ public class Types {
     private static final Map<Identifier, EnvironmentAttribute> ATTRIBUTE_MAP = new TreeMap<>();
 
     public static void register(Registration reg) {
+        packet(reg);
+
         reg.newType(ParticleOption.class, "particleoption")
             .user("particle ?options?")
             .name("Particle Option")
@@ -45,7 +53,6 @@ public class Types {
                 }
             })
             .register();
-
 
         Registry<EnvironmentAttribute<?>> eaReg = RegistryUtils.getEnvironmentAttributesRegistry();
         for (EnvironmentAttribute<?> environmentAttribute : eaReg) {
@@ -102,6 +109,90 @@ public class Types {
         names.sort(String::compareTo);
 
         return String.join(", ", names);
+    }
+
+    private static void packet(Registration reg) {
+        List<PacketType> packetTypes = createPacketTypes();
+
+        reg.newType(Packet.class, "packet")
+            .name("Packet")
+            .user("packets?")
+            .description("Represents a packet that is sent to/receivd by a player.",
+                "See [Packets](https://minecraft.wiki/w/Java_Edition_protocol/Packets) on McWiki for more info.")
+            .parser(new Parser<>() {
+                @Override
+                public boolean canParse(ParseContext context) {
+                    return false;
+                }
+
+                @Override
+                public String toString(Packet packet, int flags) {
+                    PacketType type = packet.type();
+                    String flow = type.flow().id();
+                    String id = type.id().toString();
+                    String className = packet.getClass().getName();
+                    return String.format("Packet{flow='%s', id='%s', class='%s'}", flow, id, className);
+                }
+
+                @Override
+                public String toVariableNameString(Packet packet) {
+                    return "Packet{type=" + packet.type() + "}";
+                }
+            })
+            .since("INSERT VERSION")
+            .register();
+
+        reg.newType(PacketType.class, "packettype")
+            .name("Packet Type")
+            .user("packet ?types?")
+            .description("Represents a type of packet that can be sent to/received by a player.",
+                "See [Packets](https://minecraft.wiki/w/Java_Edition_protocol/Packets) on McWiki for more info.")
+            .supplier(packetTypes::iterator)
+            .parser(new Parser<>() {
+                @Override
+                public boolean canParse(ParseContext context) {
+                    return false;
+                }
+
+                @Override
+                public String toString(PacketType packetType, int flags) {
+                    return packetType.toString();
+                }
+
+                @Override
+                public String toVariableNameString(PacketType packetType) {
+                    return packetType.toString();
+                }
+            })
+            .since("INSERT VERSION")
+            .register();
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    private static List<PacketType> createPacketTypes() {
+        List<PacketType> types = new ArrayList<>();
+
+        for (Field declaredField : GamePacketTypes.class.getDeclaredFields()) {
+            if (declaredField.getType() == PacketType.class) {
+                try {
+                    types.add((PacketType<?>) declaredField.get(null));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        for (Field declaredField : CommonPacketTypes.class.getDeclaredFields()) {
+            if (declaredField.getType() == PacketType.class) {
+                try {
+                    types.add((PacketType<?>) declaredField.get(null));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        types.sort(Comparator.comparing(PacketType::toString));
+        return types;
     }
 
 }

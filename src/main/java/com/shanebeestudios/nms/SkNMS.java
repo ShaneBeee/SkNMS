@@ -46,7 +46,6 @@ public class SkNMS extends JavaPlugin {
             return;
         }
         loadMetrics();
-        PlayerPacketListener.registerListener(this);
 
         registerCommand("sknms", (source, args) -> {
             if (args.length == 1 && args[0].equalsIgnoreCase("docs")) {
