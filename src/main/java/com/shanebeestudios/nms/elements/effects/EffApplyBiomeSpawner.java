@@ -21,7 +21,7 @@ public class EffApplyBiomeSpawner extends Effect {
             .description("Create a spawner entry for the `spawners` section of a biome registration.",
                 "See [**Biome Definition**](https://minecraft.wiki/w/Biome_definition) on McWiki for more details.",
                 "`minecraftentitytypes` = The type of entity to spawn (This is from SkBee).",
-                "`weight`` = How often this mob should spawn, higher values produce more spawns.",
+                "`weight` = How often this mob should spawn, higher values produce more spawns.",
                 "`min count` = The minimum count of mobs to spawn in a pack. Must be greater than 0 (optional, defaults to 1).",
                 "`max count` = The maximum count of mobs to spawn in a pack. Must be greater than 0 (optional, defaults to min count).")
             .examples("spawners:",
