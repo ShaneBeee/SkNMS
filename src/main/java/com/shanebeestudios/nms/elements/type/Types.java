@@ -148,6 +148,7 @@ public class Types {
             .description("Represents a type of packet that can be sent to/received by a player.",
                 "See [Packets](https://minecraft.wiki/w/Java_Edition_protocol/Packets) on McWiki for more info.")
             .supplier(packetTypes::iterator)
+            .usage(String.join(", ", packetTypes.stream().map(PacketType::toString).toList()))
             .parser(new Parser<>() {
                 @Override
                 public boolean canParse(ParseContext context) {
