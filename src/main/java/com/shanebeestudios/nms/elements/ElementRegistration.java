@@ -1,7 +1,7 @@
 package com.shanebeestudios.nms.elements;
 
 import com.github.shanebeee.skr.Registration;
-import com.shanebeestudios.nms.api.util.Utils;
+import com.github.shanebeee.skr.Utils;
 import com.shanebeestudios.nms.elements.effects.EffApplyBiomeCarver;
 import com.shanebeestudios.nms.elements.effects.EffApplyBiomeFeature;
 import com.shanebeestudios.nms.elements.effects.EffApplyBiomeSpawner;
