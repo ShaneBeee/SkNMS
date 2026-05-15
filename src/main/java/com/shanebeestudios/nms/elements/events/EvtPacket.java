@@ -32,16 +32,18 @@ public class EvtPacket extends SkriptEvent {
             .register();
 
         reg.newEventValue(PacketEvent.class, Packet.class)
-            .converter(PacketEvent::getPacket)
             .description("Represents the packet that was sent or received.")
+            .patterns("packet")
+            .converter(PacketEvent::getPacket)
             .register();
         reg.newEventValue(PacketEvent.class, PacketType.class)
-            .converter(event -> event.getPacket().type())
             .description("Represents the type of packet that was sent or received.")
+            .patterns("packet-type")
+            .converter(event -> event.getPacket().type())
             .register();
         reg.newEventValue(PacketEvent.class, String.class)
-            .converter(event -> event.getPacket().type().toString())
             .description("Represents the type of packet that was sent or received as a string.")
+            .converter(event -> event.getPacket().type().toString())
             .register();
     }
 

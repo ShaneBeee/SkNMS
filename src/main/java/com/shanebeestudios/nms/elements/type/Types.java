@@ -113,9 +113,9 @@ public class Types {
     private static void packet(Registration reg) {
         Map<String, PacketType> packetTypes = createPacketTypes();
 
-        reg.newType(Packet.class, "packet")
+        reg.newType(Packet.class, "nmspacket")
             .name("Packet")
-            .user("packets?")
+            .user("nms ?packets?")
             .description("Represents a packet that is sent to/receivd by a player.",
                 "See [Packets](https://minecraft.wiki/w/Java_Edition_protocol/Packets) on McWiki for more info.")
             .parser(new Parser<>() {
@@ -141,9 +141,9 @@ public class Types {
             .since("1.6.0")
             .register();
 
-        reg.newType(PacketType.class, "packettype")
+        reg.newType(PacketType.class, "nmspackettype")
             .name("Packet Type")
-            .user("packet ?types?")
+            .user("nms ?packet ?types?")
             .description("Represents a type of packet that can be sent to/received by a player.",
                 "See [Packets](https://minecraft.wiki/w/Java_Edition_protocol/Packets) on McWiki for more info.")
             .supplier(() -> packetTypes.values().iterator())
