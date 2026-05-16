@@ -43,7 +43,7 @@ dependencies {
     compileOnly("com.github.SkriptLang:Skript:2.14.1")
 
     // SkriptRegistration
-    implementation("com.github.ShaneBeee:SkriptRegistration:1.1.0")
+    implementation("com.github.ShaneBeee:SkriptRegistration:1.4.2")
 
     // SkBee
     compileOnly("com.github.ShaneBeee:SkBee:3.23.0@jar") // Forcing jar as it wasn't downloading
