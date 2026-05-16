@@ -82,7 +82,7 @@ public class SecTagRegister extends RegistrationSection {
                 "\t\tapply desert (biome) to tag",
                 "\t\tapply savanna (biome) to tag",
                 "\t\tapply badlands to tag")
-            .since("INSERT VERSION")
+            .since("1.7.0")
             .register();
     }
 
