@@ -4,10 +4,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.util.Version;
 import com.github.shanebeee.skr.JsonDocGenerator;
 import com.github.shanebeee.skr.Registration;
+import com.github.shanebeee.skr.Utils;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import com.shanebeestudios.nms.api.packet.PlayerPacketListener;
-import com.shanebeestudios.nms.api.util.Utils;
 import com.shanebeestudios.nms.elements.ElementRegistration;
 import com.shanebeestudios.skbee.SkBee;
 import org.bstats.bukkit.Metrics;
@@ -32,10 +31,10 @@ public class SkNMS extends JavaPlugin {
         if (pluginManager.getPlugin("Skript") != null && pluginManager.getPlugin("SkBee") != null) {
             int skBeeVersionCompare = Version.compare(SkBee.getPlugin().getPluginMeta().getVersion(), "3.17.0");
 
-            Utils.log("Loading Skript Addon.");
             if (Skript.isAcceptRegistrations()) {
                 this.registration = new Registration("SkNMS", true);
 
+                Utils.log("Loading Skript Addon.");
                 ElementRegistration.register(this.registration);
             } else {
                 Utils.error("Skript is no longer accepting registration, addon not loading!");

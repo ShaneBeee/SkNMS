@@ -43,10 +43,10 @@ dependencies {
     compileOnly("com.github.SkriptLang:Skript:2.14.1")
 
     // SkriptRegistration
-    implementation("com.github.ShaneBeee:SkriptRegistration:1.0.2")
+    implementation("com.github.ShaneBeee:SkriptRegistration:1.4.2")
 
     // SkBee
-    compileOnly("com.github.ShaneBeee:SkBee:3.17.1@jar") // Forcing jar as it wasn't downloading
+    compileOnly("com.github.ShaneBeee:SkBee:3.23.0@jar") // Forcing jar as it wasn't downloading
 
     // bStats
     implementation("org.bstats:bstats-bukkit:3.1.0")

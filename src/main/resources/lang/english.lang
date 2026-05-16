@@ -2,6 +2,6 @@ version: $version
 
 types:
     environmentattribute: environment attribute¦s
-    packet: packet¦s
-    packettype: packet type¦s
+    nmspacket: nms packet¦s
+    nmspackettype: nms packet type¦s
     particleoption: particle option¦s

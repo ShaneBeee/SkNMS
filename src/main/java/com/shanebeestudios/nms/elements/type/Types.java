@@ -17,7 +17,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -112,11 +111,11 @@ public class Types {
     }
 
     private static void packet(Registration reg) {
-        List<PacketType> packetTypes = createPacketTypes();
+        Map<String, PacketType> packetTypes = createPacketTypes();
 
-        reg.newType(Packet.class, "packet")
+        reg.newType(Packet.class, "nmspacket")
             .name("Packet")
-            .user("packets?")
+            .user("nms ?packets?")
             .description("Represents a packet that is sent to/receivd by a player.",
                 "See [Packets](https://minecraft.wiki/w/Java_Edition_protocol/Packets) on McWiki for more info.")
             .parser(new Parser<>() {
@@ -142,16 +141,17 @@ public class Types {
             .since("1.6.0")
             .register();
 
-        reg.newType(PacketType.class, "packettype")
+        reg.newType(PacketType.class, "nmspackettype")
             .name("Packet Type")
-            .user("packet ?types?")
+            .user("nms ?packet ?types?")
             .description("Represents a type of packet that can be sent to/received by a player.",
                 "See [Packets](https://minecraft.wiki/w/Java_Edition_protocol/Packets) on McWiki for more info.")
-            .supplier(packetTypes::iterator)
+            .supplier(() -> packetTypes.values().iterator())
+            .usage(String.join(", ", packetTypes.keySet().stream().toList()))
             .parser(new Parser<>() {
                 @Override
-                public boolean canParse(ParseContext context) {
-                    return false;
+                public @Nullable PacketType parse(String s, ParseContext context) {
+                    return packetTypes.get(s);
                 }
 
                 @Override
@@ -169,13 +169,14 @@ public class Types {
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
-    private static List<PacketType> createPacketTypes() {
-        List<PacketType> types = new ArrayList<>();
+    private static Map<String, PacketType> createPacketTypes() {
+        Map<String, PacketType> types = new TreeMap<>();
 
         for (Field declaredField : GamePacketTypes.class.getDeclaredFields()) {
             if (declaredField.getType() == PacketType.class) {
                 try {
-                    types.add((PacketType<?>) declaredField.get(null));
+                    PacketType<?> packetType = (PacketType<?>) declaredField.get(null);
+                    types.put(packetType.toString(), packetType);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -185,13 +186,13 @@ public class Types {
         for (Field declaredField : CommonPacketTypes.class.getDeclaredFields()) {
             if (declaredField.getType() == PacketType.class) {
                 try {
-                    types.add((PacketType<?>) declaredField.get(null));
+                    PacketType<?> packetType = (PacketType<?>) declaredField.get(null);
+                    types.put(packetType.toString(), packetType);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
         }
-        types.sort(Comparator.comparing(PacketType::toString));
         return types;
     }
 

@@ -1,12 +1,13 @@
 package com.shanebeestudios.nms.elements;
 
 import com.github.shanebeee.skr.Registration;
-import com.shanebeestudios.nms.api.util.Utils;
+import com.github.shanebeee.skr.Utils;
 import com.shanebeestudios.nms.elements.effects.EffApplyBiomeCarver;
 import com.shanebeestudios.nms.elements.effects.EffApplyBiomeFeature;
 import com.shanebeestudios.nms.elements.effects.EffApplyBiomeSpawner;
 import com.shanebeestudios.nms.elements.effects.EffApplyBiomeTag;
 import com.shanebeestudios.nms.elements.effects.EffApplyEnvironmentalAttribute;
+import com.shanebeestudios.nms.elements.effects.EffApplyTag;
 import com.shanebeestudios.nms.elements.effects.EffBiomeFill;
 import com.shanebeestudios.nms.elements.effects.EffBlockFill;
 import com.shanebeestudios.nms.elements.effects.EffPlaceFeature;
@@ -21,6 +22,7 @@ import com.shanebeestudios.nms.elements.sections.SecBiomeRegister;
 import com.shanebeestudios.nms.elements.sections.SecBiomeSpawners;
 import com.shanebeestudios.nms.elements.sections.SecBiomeSpecialEffects;
 import com.shanebeestudios.nms.elements.sections.SecEnchantmentRegister;
+import com.shanebeestudios.nms.elements.sections.SecTagRegister;
 import com.shanebeestudios.nms.elements.structures.StructRegistryRegistration;
 import com.shanebeestudios.nms.elements.type.Types;
 
@@ -33,6 +35,7 @@ public class ElementRegistration {
         EffApplyBiomeSpawner.register(reg);
         EffApplyBiomeTag.register(reg);
         EffApplyEnvironmentalAttribute.register(reg);
+        EffApplyTag.register(reg);
         EffBiomeFill.register(reg);
         EffBlockFill.register(reg);
         EffPlaceFeature.register(reg);
@@ -53,6 +56,7 @@ public class ElementRegistration {
         SecBiomeSpecialEffects.register(reg);
         SecBiomeSpawners.register(reg);
         SecEnchantmentRegister.register(reg);
+        SecTagRegister.register(reg);
 
         // STRUCTURES
         StructRegistryRegistration.register(reg);

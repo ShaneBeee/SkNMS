@@ -2,6 +2,7 @@ package com.shanebeestudios.nms.api.packet;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,18 +35,28 @@ public class PlayerPacketListener implements Listener {
     }
 
     private PlayerPacketListener() {
+        // If a packet event is first initiated when players are already online
+        // this will register a handler for each player
+        Bukkit.getOnlinePlayers().forEach(this::registerHandler);
     }
 
     @EventHandler
     private void onPlayerJoin(PlayerJoinEvent event) {
-        Player bukkitPlayer = event.getPlayer();
-        ServerPlayer serverPlayer = ((CraftPlayer) bukkitPlayer).getHandle();
+        registerHandler(event.getPlayer());
+    }
+
+    private void registerHandler(Player player) {
+        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+        ChannelPipeline pipeline = serverPlayer.connection.connection.channel.pipeline();
+        if (pipeline.get(player.getName()) != null) {
+            return;
+        }
 
         ChannelDuplexHandler handler = new ChannelDuplexHandler() {
             @Override
             public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
                 if (msg instanceof Packet<?> packet) {
-                    PacketReceiveEvent packetReceiveEvent = new PacketReceiveEvent(bukkitPlayer, packet);
+                    PacketReceiveEvent packetReceiveEvent = new PacketReceiveEvent(player, packet);
                     if (packetReceiveEvent.callEvent()) {
                         super.channelRead(ctx, packetReceiveEvent.getPacket());
                     }
@@ -57,7 +68,7 @@ public class PlayerPacketListener implements Listener {
             @Override
             public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
                 if (msg instanceof Packet<?> packet) {
-                    PacketSendEvent packetSendEvent = new PacketSendEvent(bukkitPlayer, packet);
+                    PacketSendEvent packetSendEvent = new PacketSendEvent(player, packet);
                     if (packetSendEvent.callEvent()) {
                         super.write(ctx, packetSendEvent.getPacket(), promise);
                     }
@@ -66,7 +77,7 @@ public class PlayerPacketListener implements Listener {
                 }
             }
         };
-        serverPlayer.connection.connection.channel.pipeline().addBefore("packet_handler", bukkitPlayer.getName(), handler);
+        pipeline.addBefore("packet_handler", player.getName(), handler);
     }
 
 }

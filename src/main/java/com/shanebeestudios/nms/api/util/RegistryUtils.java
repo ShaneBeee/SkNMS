@@ -8,6 +8,7 @@ import ch.njol.skript.registrations.Classes;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.registry.EnchantmentDefinition;
 import com.shanebeestudios.skbee.api.reflection.ReflectionUtils;
+import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.MappedRegistry;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.block.CraftBiome;
 import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
@@ -39,6 +41,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 // This was mostly taken from https://www.spigotmc.org/threads/1-21-3-register-custom-enchantments-with-nms.651347/
@@ -95,9 +98,13 @@ public class RegistryUtils {
         return null;
     }
 
+    public static <T> @Nullable TagKey<T> getOrCreateTagKey(@NotNull Registry<T> registry, @NotNull String name) {
+        return TagKey.create(registry.key(), Identifier.parse(name));
+    }
+
     @NotNull
     private static <T> Map<TagKey<T>, HolderSet.Named<T>> getFrozenTags(@NotNull Registry<T> registry) {
-        return (Map<TagKey<T>, HolderSet.Named<T>>) ReflectionUtils.getField("frozenTags", registry.getClass(), registry);
+        return (Map<TagKey<T>, HolderSet.Named<T>>) ReflectionUtils.getField("frozenTags", MappedRegistry.class, registry);
     }
 
     @NotNull
@@ -111,8 +118,8 @@ public class RegistryUtils {
     }
 
     public static <T> void unfreeze(@NotNull Registry<T> registry) {
-        ReflectionUtils.setField("frozen", registry, false);
-        ReflectionUtils.setField("unregisteredIntrusiveHolders", registry, new IdentityHashMap<>());
+        ReflectionUtils.setField("frozen", MappedRegistry.class, registry, false);
+        ReflectionUtils.setField("unregisteredIntrusiveHolders", MappedRegistry.class, registry, new IdentityHashMap<>());
     }
 
     public static <T> void freeze(@NotNull Registry<T> registry) {
@@ -126,7 +133,7 @@ public class RegistryUtils {
         registry.freeze();
         frozenTags.forEach(tagsMap::putIfAbsent);
         ReflectionUtils.setField("val$tags", tagSet.getClass(), tagSet, tagsMap);
-        ReflectionUtils.setField("allTags", registry.getClass(), registry, tagSet);
+        ReflectionUtils.setField("allTags", MappedRegistry.class, registry, tagSet);
     }
 
     private static <T> void unbound(@NotNull Registry<T> registry) {
@@ -135,30 +142,50 @@ public class RegistryUtils {
             Method unbound = tagSetClass.getMethod("unbound");
             unbound.setAccessible(true);
             Object unboundTagSet = unbound.invoke(registry);
-            ReflectionUtils.setField("allTags", registry, unboundTagSet);
-        } catch (Exception ignore) {
-
+            ReflectionUtils.setField("allTags", MappedRegistry.class, registry, unboundTagSet);
+        } catch (Exception ex) {
+            Utils.error("Error unbinding tag set: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
-    private static <T> void addInTag(@NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference) {
+    private static <T> void addInTag(@NotNull TagKey<T> tagKey, @NotNull Holder<T> reference) {
         Registry<T> registry = getRegistry((ResourceKey<Registry<T>>) tagKey.registry());
-        modifyTag(registry, tagKey, reference, List::add);
+        modifyTag(registry, tagKey, List.of(reference), List::addAll);
     }
 
-    private static <T> void removeFromTag(@NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference) {
+    private static <T> void addInTag(@NotNull TagKey<T> tagKey, @NotNull List<Holder<T>> reference) {
         Registry<T> registry = getRegistry((ResourceKey<Registry<T>>) tagKey.registry());
-        modifyTag(registry, tagKey, reference, List::remove);
+        modifyTag(registry, tagKey, reference, List::addAll);
     }
 
-    private static <T> void modifyTag(@NotNull Registry<T> registry, @NotNull TagKey<T> tagKey, @NotNull Holder.Reference<T> reference, @NotNull BiConsumer<List<Holder<T>>, Holder.Reference<T>> consumer) {
+    private static <T> void removeFromTag(@NotNull TagKey<T> tagKey, @NotNull Holder<T> reference) {
+        Registry<T> registry = getRegistry((ResourceKey<Registry<T>>) tagKey.registry());
+        modifyTag(registry, tagKey, List.of(reference), List::removeAll);
+    }
+
+    private static <T> void removeFromTag(@NotNull TagKey<T> tagKey, @NotNull List<Holder<T>> reference) {
+        Registry<T> registry = getRegistry((ResourceKey<Registry<T>>) tagKey.registry());
+        modifyTag(registry, tagKey, reference, List::removeAll);
+    }
+
+    private static <T> void modifyTag(@NotNull Registry<T> registry, @NotNull TagKey<T> tagKey, @NotNull List<Holder<T>> reference, @NotNull BiConsumer<List<Holder<T>>, List<Holder<T>>> consumer) {
         HolderSet.Named<T> holders = registry.get(tagKey).orElse(null);
-        if (holders == null) return;
 
-        List<Holder<T>> contents = new ArrayList<>(holders.stream().toList());
+        List<Holder<T>> contents = new ArrayList<>();
+        if (holders != null) {
+            contents.addAll(holders.stream().toList());
+        }
         consumer.accept(contents, reference);
         HashMap<TagKey<T>, List<Holder<T>>> map = new HashMap<>();
-        map.put(tagKey, contents);
+
+        List<Holder<T>> apply = new ArrayList<>();
+        contents.forEach(holder -> {
+            if (!apply.contains(holder)) {
+                apply.add(holder);
+            }
+        });
+        map.put(tagKey, apply);
 
         if (registry instanceof MappedRegistry<T> mappedRegistry) {
             mappedRegistry.bindTags(map);
@@ -255,18 +282,29 @@ public class RegistryUtils {
         return CraftBiome.minecraftHolderToBukkit(intrusiveHolder);
     }
 
-    public static void registerDialog(Dialog dialog, NamespacedKey dialogKey) {
-        Identifier identifier = CraftNamespacedKey.toMinecraft(dialogKey);
-        ResourceKey<Dialog> resourceKey = ResourceKey.create(Registries.DIALOG, identifier);
-        if (DIALOG_REGISTRY.containsKey(resourceKey)) {
-            // Already registered
-            return;
+    public static <T> void registerTag(Registry<T> registry, TagKey<T> tagKey, List<T> objectsToAdd, List<T> objectsToRemove,
+                                       List<TagKey<T>> tagKeysToAdd, List<TagKey<T>> tagKeysToRemove) {
+        unfreeze(registry);
+        List<Holder<T>> toAdd = new ArrayList<>();
+        for (T object : objectsToAdd) {
+            if (object instanceof Keyed keyed) {
+                Identifier identifier = PaperAdventure.asVanilla(keyed.getKey());
+                Optional<Holder.Reference<T>> tReference = registry.get(identifier);
+                tReference.ifPresent(toAdd::add);
+            }
+        }
+        for (TagKey<T> key : tagKeysToAdd) {
+            Optional<HolderSet.Named<T>> holders = registry.get(key);
+            holders.ifPresent(holders1 -> {
+                for (Holder<T> tHolder : holders1) {
+                    toAdd.add(tHolder);
+                }
+            });
         }
 
-        unfreeze(DIALOG_REGISTRY);
-        Holder.Reference<Dialog> intrusiveHolder = DIALOG_REGISTRY.createIntrusiveHolder(dialog);
-        Registry.register(DIALOG_REGISTRY, resourceKey, dialog);
-        freeze(DIALOG_REGISTRY);
+        addInTag(tagKey, toAdd);
+
+        freeze(registry);
     }
 
     public static @Nullable Holder<PlacedFeature> getFeature(NamespacedKey key) {
