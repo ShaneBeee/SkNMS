@@ -5,7 +5,7 @@ plugins {
 }
 
 // Version of project
-val projectVersion = "1.6.0"
+val projectVersion = "1.7.0"
 // Where this builds on the server
 val serverLocation = "Skript/26-1"
 // Minecraft version to build against
