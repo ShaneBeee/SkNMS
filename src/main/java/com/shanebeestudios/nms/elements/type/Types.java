@@ -74,6 +74,9 @@ public class Types {
                         s = "minecraft:" + s;
                     }
                     String[] split = s.split(":");
+                    if (split.length != 2) {
+                        return null;
+                    }
                     String namespace = split[0];
                     String path = split[1];
 
