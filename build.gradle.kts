@@ -7,9 +7,9 @@ plugins {
 // Version of project
 val projectVersion = "1.7.0"
 // Where this builds on the server
-val serverLocation = "Skript/26-1"
+val serverLocation = "Skript/26-2"
 // Minecraft version to build against
-val minecraftVersion = "26.1.1"
+val minecraftVersion = "26.2"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
@@ -54,6 +54,8 @@ dependencies {
 
 tasks {
     register("server", Copy::class) {
+        group = "bee-building"
+        description = "Build the SkNMS jar in the pre-defined server location."
         dependsOn("shadowJar")
         from("build/libs") {
             include("SkNMS-*.jar")
