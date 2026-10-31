@@ -9,7 +9,7 @@ val projectVersion = "1.7.0"
 // Where this builds on the server
 val serverLocation = "Skript/26-2"
 // Minecraft version to build against
-val minecraftVersion = "26.2"
+val minecraftVersion = "26.3"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
