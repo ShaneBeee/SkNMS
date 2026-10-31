@@ -110,7 +110,7 @@ public class WorldApi {
 
         for (ChunkAccess chunkAccess : chunkAccessList) {
             chunkAccess.fillBiomesFromNoise(McUtils.getBiomeResolver(new MutableInt(0), chunkAccess, box, biome,
-                biomeHolder -> replaceBiome == null || biomeHolder.is(replaceBiome)), level.getChunkSource().randomState().sampler());
+                biomeHolder -> replaceBiome == null || biomeHolder.is(replaceBiome)));
             chunkAccess.markUnsaved();
         }
         level.getChunkSource().chunkMap.resendBiomesForChunks(chunkAccessList);

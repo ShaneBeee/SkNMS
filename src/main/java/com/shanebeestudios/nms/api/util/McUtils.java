@@ -347,7 +347,7 @@ public class McUtils {
      */
     @NotNull
     public static BiomeResolver getBiomeResolver(MutableInt count, ChunkAccess chunkAccess, BoundingBox box, Holder<Biome> biome, Predicate<Holder<Biome>> filter) {
-        return (x, y, z, noise) -> {
+        return (x, y, z) -> {
             Holder<Biome> biomeHolder = chunkAccess.getNoiseBiome(x, y, z);
             if (box.isInside(x << 2, y << 2, z << 2) && filter.test(biomeHolder)) {
                 count.increment();

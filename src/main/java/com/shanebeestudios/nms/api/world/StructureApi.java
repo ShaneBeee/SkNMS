@@ -10,7 +10,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -35,8 +35,8 @@ public class StructureApi {
     private StructureApi() {
     }
 
-    private static final StructureTemplateManager STRUCTURE_MANAGER = MinecraftServer.getServer().getStructureManager();
-    private static final Registry<ConfiguredFeature<?, ?>> CONFIGURED_FEATURE_REGISTRY = McUtils.getRegistry(Registries.CONFIGURED_FEATURE);
+    private static final StructureTemplateManager STRUCTURE_MANAGER = MinecraftServer.getServer().getStructureTemplateManager();
+    private static final Registry<Feature> CONFIGURED_FEATURE_REGISTRY = McUtils.getRegistry(Registries.FEATURE);
     private static final Registry<PlacedFeature> PLACED_FEATURE_REGISTRY = McUtils.getRegistry(Registries.PLACED_FEATURE);
     private static final Registry<Structure> STRUCTURE_REGISTRY = McUtils.getRegistry(Registries.STRUCTURE);
 
@@ -53,7 +53,7 @@ public class StructureApi {
         ServerLevel serverLevel = levelPos.getFirst();
         BlockPos blockPos = levelPos.getSecond();
 
-        ConfiguredFeature<?, ?> configuredFeature = McUtils.getRegistryValue(CONFIGURED_FEATURE_REGISTRY, featureKey);
+        Feature configuredFeature = McUtils.getRegistryValue(CONFIGURED_FEATURE_REGISTRY, featureKey);
         if (configuredFeature != null) {
             return configuredFeature.place(serverLevel, serverLevel.getChunkSource().getGenerator(), serverLevel.getRandom(), blockPos);
         }
@@ -79,7 +79,7 @@ public class StructureApi {
                 return placedFeature.place(serverLevel, serverLevel.getChunkSource().getGenerator(), serverLevel.getRandom(), blockPos);
             } catch (IllegalStateException e) {
                 if (e.getMessage().contains("biome")) {
-                    return placedFeature.placeWithBiomeCheck(serverLevel, serverLevel.getChunkSource().getGenerator(), serverLevel.getRandom(), blockPos);
+                    return placedFeature.place(serverLevel, serverLevel.getChunkSource().getGenerator(), serverLevel.getRandom(), blockPos);
                 }
             }
         }

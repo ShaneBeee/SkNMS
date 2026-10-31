@@ -25,7 +25,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -53,7 +53,7 @@ public class RegistryUtils {
     private static final Registry<Item> ITEM_REGISTRY = getRegistry(Registries.ITEM);
     private static final Registry<Biome> BIOME_REGISTRY = getRegistry(Registries.BIOME);
     private static final Registry<PlacedFeature> PLACED_FEATURE_REGISTRY = getRegistry(Registries.PLACED_FEATURE);
-    private static final Registry<ConfiguredWorldCarver<?>> CARVER_REGISTRY = getRegistry(Registries.CONFIGURED_CARVER);
+    private static final Registry<WorldCarver> CARVER_REGISTRY = getRegistry(Registries.CARVER);
     private static final Registry<Dialog> DIALOG_REGISTRY = getRegistry(Registries.DIALOG);
     private static final Registry<EnvironmentAttribute<?>> ENVIRONMENT_ATTRIBUTES_REGISTRY = getRegistry(Registries.ENVIRONMENT_ATTRIBUTE);
 
@@ -69,7 +69,7 @@ public class RegistryUtils {
         return BIOME_REGISTRY;
     }
 
-    public static Registry<ConfiguredWorldCarver<?>> getCarverRegistry() {
+    public static Registry<WorldCarver> getCarverRegistry() {
         return CARVER_REGISTRY;
     }
 
@@ -312,7 +312,7 @@ public class RegistryUtils {
         return PLACED_FEATURE_REGISTRY.get(identifier).orElse(null);
     }
 
-    public static @Nullable Holder<ConfiguredWorldCarver<?>> getCarver(NamespacedKey key) {
+    public static @Nullable Holder<WorldCarver> getCarver(NamespacedKey key) {
         Identifier identifier = getResourceLocation(key);
         return CARVER_REGISTRY.get(identifier).orElse(null);
     }

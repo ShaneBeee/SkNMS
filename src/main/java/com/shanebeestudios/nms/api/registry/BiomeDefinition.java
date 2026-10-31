@@ -6,16 +6,16 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.attribute.AmbientParticle;
 import net.minecraft.world.attribute.EnvironmentAttribute;
 import net.minecraft.world.attribute.EnvironmentAttributes;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier;
 import net.minecraft.world.level.biome.MobSpawnSettings;
-import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.entity.CraftEntityType;
@@ -130,7 +130,7 @@ public class BiomeDefinition {
         }
 
         public boolean addCarver(NamespacedKey key) {
-            Holder<ConfiguredWorldCarver<?>> carver = RegistryUtils.getCarver(key);
+            Holder<WorldCarver> carver = RegistryUtils.getCarver(key);
             if (carver != null) {
                 this.genSettings.addCarver(carver);
                 return true;
@@ -139,7 +139,7 @@ public class BiomeDefinition {
         }
 
         public void addDefaultCarvers() {
-            Registry<ConfiguredWorldCarver<?>> carverRegistry = RegistryUtils.getCarverRegistry();
+            Registry<WorldCarver> carverRegistry = RegistryUtils.getCarverRegistry();
             this.genSettings.addCarver(carverRegistry.getOrThrow(Carvers.CAVE));
             this.genSettings.addCarver(carverRegistry.getOrThrow(Carvers.CAVE_EXTRA_UNDERGROUND));
             this.genSettings.addCarver(carverRegistry.getOrThrow(Carvers.CANYON));
@@ -157,10 +157,8 @@ public class BiomeDefinition {
         public void addMobSpawn(int step, EntityType entityType, int weight, int minCount, int maxCount) {
             minCount = Math.max(minCount, 1);
             maxCount = Math.max(maxCount, minCount);
-            MobCategory mobCategory = MobCategory.values()[step];
             net.minecraft.world.entity.EntityType<?> nmsEntityType = CraftEntityType.bukkitToMinecraft(entityType);
-            MobSpawnSettings.SpawnerData spawnerData = new MobSpawnSettings.SpawnerData(nmsEntityType, minCount, maxCount);
-            this.mobSpawnSettings.addSpawn(mobCategory, weight, spawnerData);
+            this.mobSpawnSettings.addSpawn(nmsEntityType, weight, new UniformInt(minCount, maxCount));
         }
 
         private BiomeSpecialEffects.Builder specialEffectsBuilder() {

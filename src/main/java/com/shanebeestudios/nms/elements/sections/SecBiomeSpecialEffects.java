@@ -13,6 +13,7 @@ import com.github.shanebeee.skr.skript.SimpleEntryValidator;
 import com.shanebeestudios.nms.api.registry.BiomeDefinition;
 import com.shanebeestudios.nms.api.registry.ParticleOption;
 import com.shanebeestudios.nms.elements.sections.SecBiomeRegister.BiomeEffectsEvent;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -163,7 +164,7 @@ public class SecBiomeSpecialEffects extends Section {
             } else if (fogColor instanceof Number number) {
                 intValue = number.intValue();
             }
-            builder.setAttribute(EnvironmentAttributes.FOG_COLOR, intValue);
+            builder.setAttribute(EnvironmentAttributes.FOG_COLOR, ARGB.vector3fFromRGB24(intValue));
         }
         if (this.skyColor != null) {
             Object skyColor = this.skyColor.getSingle(event);
@@ -173,7 +174,7 @@ public class SecBiomeSpecialEffects extends Section {
             } else if (skyColor instanceof Number number) {
                 intValue = number.intValue();
             }
-            builder.setAttribute(EnvironmentAttributes.SKY_COLOR, intValue);
+            builder.setAttribute(EnvironmentAttributes.SKY_COLOR, ARGB.vector3fFromRGB24(intValue));
         }
         if (this.waterFogColor != null) {
             Object waterFogColor = this.waterFogColor.getSingle(event);
@@ -183,7 +184,7 @@ public class SecBiomeSpecialEffects extends Section {
             } else if (waterFogColor instanceof Number number) {
                 intValue = number.intValue();
             }
-            builder.setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, intValue);
+            builder.setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, ARGB.vector3fFromRGB24(intValue));
         }
 
         return super.walk(event, false);
